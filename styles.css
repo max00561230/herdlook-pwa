@@ -1,3 +1,21 @@
+/* ===== BETA BANNER ===== */
+.beta-banner {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  animation: bannerPulse 3s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+.beta-banner strong {
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+@keyframes bannerPulse {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 1; }
+}
 :root {
       --bg: #f4f1e8;
       --panel: #ffffff;
@@ -755,37 +773,127 @@
   justify-content: center;
 }
 
+/* ===== MOBILE: ALWAYS-VISIBLE NAV BAR (no hamburger drawer) ===== */
 @media (max-width: 768px) {
   .app {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
 
+  /* Sidebar becomes a compact top nav bar — always visible */
   aside {
-    position: fixed;
-    left: -300px;
-    top: 0;
-    height: 100vh;
-    width: 290px;
-    z-index: 100;
-    transition: left .3s ease;
+    position: static !important;
+    left: auto !important;
+    height: auto;
+    width: 100%;
+    z-index: 50;
+    padding: 12px 14px 8px;
+    background: linear-gradient(180deg, #193126, #24483a);
   }
 
-  .app.sidebar-open aside {
-    left: 0;
+  .brand {
+    margin-bottom: 8px;
+    gap: 10px;
   }
 
-  .app.sidebar-open .sidebar-overlay {
-    display: block;
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
   }
 
-  .menu-toggle {
+  .brand h1 {
+    font-size: 20px;
+  }
+
+  .brand p {
+    font-size: 11px;
+  }
+
+  .brand .jrt-tagline {
+    font-size: 10px;
+  }
+
+  /* Navigation: horizontal scrollable strip */
+  .nav {
     display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    margin-top: 8px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav button {
+    white-space: nowrap;
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 10px;
+    gap: 4px;
+    min-height: 36px;
+  }
+
+  /* Hide side cards on mobile */
+  .side-card {
+    display: none;
+  }
+
+  /* Hide the hamburger menu toggle — nav is always visible */
+  .menu-toggle {
+    display: none !important;
+  }
+
+  /* Hide sidebar overlay — no drawer needed */
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  /* No drawer open state needed */
+  .app.sidebar-open aside {
+    left: auto;
+  }
+
+  /* Main content flows below the nav */
   main {
-    padding: 16px;
+    padding: 12px 14px;
   }
 
+  /* Topbar: hide the logo (already in the nav bar) and simplify */
+  .topbar-logo {
+    display: none !important;
+  }
+
+  .topbar {
+    position: static;
+    padding: 8px 0 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+
+  .topbar-left {
+    gap: 8px;
+  }
+
+  .topbar-info h2 {
+    font-size: 20px;
+  }
+
+  .topbar-info p {
+    font-size: 11px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* Single-column everything */
   .grid.two,
   .grid.three,
   .grid.cards {
@@ -821,11 +929,6 @@
     align-items: flex-start;
   }
 
-  .actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
   button, .btn {
     min-height: 44px;
     min-width: 44px;
@@ -842,6 +945,10 @@
   .animal-photo {
     width: 100%;
     height: 200px;
+  }
+
+  .owner-summary {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -958,7 +1065,7 @@
   letter-spacing: .02em;
 }
 
-/* ===== TOPBAR LOGO (always visible) ===== */
+/* ===== TOPBAR ===== */
 .topbar-logo {
   display: block;
   width: 44px;
@@ -969,11 +1076,10 @@
 }
 
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg);
-  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .topbar-left {
@@ -1005,41 +1111,4 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-@media (max-width: 768px) {
-  .topbar-logo {
-    display: block;
-    width: 48px;
-    height: 48px;
-  }
-
-  .topbar-left {
-    gap: 10px;
-  }
-
-  .topbar-info h2 {
-    font-size: 20px;
-  }
-
-  .topbar-info p {
-    font-size: 11px;
-  }
-
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--bg);
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px 0;
-    margin-bottom: 16px;
-  }
-
-  .actions {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
 }
