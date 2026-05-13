@@ -125,7 +125,6 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 24px;
     }
 
     .actions {
@@ -701,7 +700,7 @@
       }
 
       .topbar {
-        display: grid;
+        flex-wrap: wrap;
       }
 
       .actions {
@@ -969,6 +968,14 @@
   flex-shrink: 0;
 }
 
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  padding: 14px 0;
+}
+
 .topbar-left {
   display: flex;
   align-items: center;
@@ -1003,14 +1010,36 @@
 @media (max-width: 768px) {
   .topbar-logo {
     display: block;
+    width: 48px;
+    height: 48px;
   }
 
-  .topbar {
-    flex-wrap: wrap;
+  .topbar-left {
     gap: 10px;
+  }
+
+  .topbar-info h2 {
+    font-size: 20px;
   }
 
   .topbar-info p {
     font-size: 11px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 16px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
