@@ -1089,7 +1089,11 @@
   };
 
   (async () => {
-    await load();
+    try {
+      await load();
+    } catch (e) {
+      console.error('Failed to load data:', e);
+    }
     if (state.security?.pin) state.locked = true;
     render();
     renderProfileForm();
