@@ -850,6 +850,10 @@
     display: grid;
   }
 
+  .topbar-logo {
+    display: none;
+  }
+
   .topbar h2 {
     font-size: 24px;
   }
