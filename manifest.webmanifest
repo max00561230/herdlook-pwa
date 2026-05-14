@@ -1,7 +1,7 @@
 {
   "name": "HerdLook Beta",
-  "short_name": "HerdLook",
-  "description": "Local-only camera-assisted herd records beta. No cloud storage by default.",
+  "short_name": "HerdLook Beta",
+  "description": "Beta version of HerdLook - local-only camera-assisted herd records. Limited to 2 animals and 1 location for testing.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f4f1e8",

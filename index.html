@@ -12,10 +12,19 @@
   <link rel="apple-touch-icon" href="logo.png" />
 </head>
 <body>
-</head>
-<body>
 
   <div class="sidebar-overlay"></div>
+
+  <header class="mobile-app-bar">
+    <div class="app-bar-brand">
+      <div class="app-bar-logo"><img src="logo.png" alt="JRT" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
+      <div>
+        <h1>HerdLook</h1>
+        <p>Beta Testing</p>
+      </div>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">&#9776;</button>
+  </header>
 
   <div class="modal getting-started-modal" id="gettingStartedModal">
     <div class="modal-card">
@@ -158,6 +167,9 @@
       </header>
 
       <section id="dashboardView" class="view">
+        <div class="beta-banner" id="betaBanner" style="background:linear-gradient(135deg, #c9852f 0%, #e6a94d 100%); color:white; border:none;">
+          <strong>Beta Testing</strong> — Loading...
+        </div>
         <div class="grid cards">
           <div class="card stat">
             <small>Total Animals</small>

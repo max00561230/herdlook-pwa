@@ -744,33 +744,95 @@
 
     @media print {
       body { background: white; }
-      aside, .topbar .actions, .toolbar, .btn, .tabs { display: none !important; }
+      aside, .mobile-app-bar, .topbar .actions, .toolbar, .btn, .tabs { display: none !important; }
       .app { display: block; }
       main { padding: 0; }
       .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
     }
 
-/* ===== MOBILE RESPONSIVE ===== */
-.sidebar-overlay {
+
+/* ===== BETA BANNER ===== */
+.beta-banner {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  animation: bannerPulse 3s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+.beta-banner strong {
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+@keyframes bannerPulse {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 1; }
+}
+
+/* ===== MOBILE APP BAR ===== */
+.mobile-app-bar {
   display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  z-index: 90;
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: linear-gradient(180deg, #193126, #24483a);
+  color: white;
+  padding: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+.app-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-bar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.app-bar-brand h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.app-bar-brand p {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255,255,255,.65);
+  line-height: 1.2;
 }
 
 .menu-toggle {
   display: none;
-  background: var(--brand);
+  background: rgba(255,255,255,.15);
   color: white;
   border-radius: 12px;
   padding: 8px 12px;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   min-height: 44px;
   min-width: 44px;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.2);
 }
 
 /* ===== MOBILE: ALWAYS-VISIBLE NAV BAR (no hamburger drawer) ===== */
@@ -896,12 +958,35 @@
   /* Single-column everything */
   .grid.two,
   .grid.three,
-  .grid.cards {
+  .animal-list {
     grid-template-columns: 1fr;
   }
 
-  .form-grid {
+  .actions {
+    justify-content: stretch;
+  }
+
+  .actions .btn { flex: 1; }
+
+  .form-grid,
+  .photo-grid {
     grid-template-columns: 1fr;
+  }
+
+  .match-card {
+    grid-template-columns: 1fr;
+  }
+
+  .match-card img {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+/* ===== SMALL MOBILE (≤768px) — additional refinements ===== */
+@media (max-width: 768px) {
+  .topbar h2 {
+    font-size: 22px;
   }
 
   .modal-card {
@@ -1042,12 +1127,6 @@
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
-}
-
-@media (max-width: 768px) {
-  .gs-photo-list {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ===== JRT BRANDING ===== */

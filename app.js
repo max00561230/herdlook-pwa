@@ -56,6 +56,23 @@
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+
+  // ===== BETA LIMITS =====
+  const BETA_LIMITS = {
+    maxAnimals: 2,
+    maxLocations: 1,
+    isBeta: true
+  };
+
+  const betaOverLimit = (type, current) => {
+    const limits = { animals: BETA_LIMITS.maxAnimals, locations: BETA_LIMITS.maxLocations };
+    const max = limits[type];
+    if (current >= max) {
+      alert(`Beta limit: ${max} ${type === 'animals' ? (max === 1 ? 'animal' : 'animals') : (max === 1 ? 'location' : 'locations')} max. Upgrade to the full version for unlimited ${type}.`);
+      return true;
+    }
+    return false;
+  };
   const state = {
     animals: [],
     records: [],
@@ -227,6 +244,14 @@
       const diff = (new Date(r.followUp) - new Date(today())) / (1000 * 60 * 60 * 24);
       return diff >= 0 && diff <= 14;
     }).length;
+
+    // Beta limits banner
+    const betaBanner = $("betaBanner");
+    if (betaBanner) {
+      const animalCount = state.animals.length;
+      const locationCount = state.locations.length;
+      betaBanner.innerHTML = `<strong>Beta Testing</strong> — Limited to ${BETA_LIMITS.maxAnimals} animals and ${BETA_LIMITS.maxLocations} location${BETA_LIMITS.maxLocations === 1 ? "" : "s"}. You have used ${animalCount}/${BETA_LIMITS.maxAnimals} animals and ${locationCount}/${BETA_LIMITS.maxLocations} location${BETA_LIMITS.maxLocations === 1 ? "" : "s"}.`;
+    }
 
     $("statAnimals").textContent = state.animals.length;
     $("statPhotos").textContent = photoCount;
@@ -689,6 +714,10 @@
   }
 
   async function importFullBackup(file) {
+    if (BETA_LIMITS.isBeta) {
+      alert("Backup import is disabled in the beta version. Upgrade to the full version to import backups.");
+      return;
+    }
     if (!file) {
       alert("Choose a HerdLook backup JSON file first.");
       return;
@@ -723,7 +752,7 @@
     state.security = data.security && typeof data.security === "object" ? data.security : { pin: "" };
     state.locked = false;
 
-    save();
+    await save();
     render();
     alert("Backup imported successfully.");
   }
@@ -799,7 +828,7 @@
       { id: uid(), animalId: bullId, type: "Other", date: todayStr, followUp: "", details: "Trailer inspection completed before transport. All checks passed.", createdAt: new Date().toISOString() }
     );
 
-    save();
+    await save();
     render();
   }
 
@@ -842,7 +871,7 @@
   $("exportFullBackupBtn2").addEventListener("click", exportFullBackup);
   $("importBackupBtn").addEventListener("click", () => importFullBackup($("importBackupFile").files[0]));
 
-  $("profileForm").addEventListener("submit", (e) => {
+  $("profileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     state.profile = {
       ownerName: $("ownerName").value.trim(),
@@ -855,7 +884,7 @@
       farmNotes: $("farmNotes").value.trim(),
       updatedAt: new Date().toISOString()
     };
-    save();
+    await save();
     render();
     alert("Owner/Farm info saved.");
   });
@@ -877,12 +906,14 @@
       createdAt: new Date().toISOString()
     });
     $("documentForm").reset();
-    save();
+    await save();
     render();
   });
 
-  $("locationForm").addEventListener("submit", (e) => {
+  $("locationForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    // Beta limit: block adding new locations past the limit
+    if (betaOverLimit("locations", state.locations.length)) return;
     state.locations.push({
       id: uid(),
       name: $("locationName").value.trim(),
@@ -893,7 +924,7 @@
       createdAt: new Date().toISOString()
     });
     $("locationForm").reset();
-    save();
+    await save();
     render();
   });
 
@@ -916,7 +947,7 @@
     alert("PIN lock saved.");
   });
 
-  $("lockNowBtn").addEventListener("click", () => {
+  $("lockNowBtn").addEventListener("click", async () => {
     if (!state.security?.pin) {
       alert("Set a PIN/password first.");
       return;
@@ -925,11 +956,11 @@
     renderLockState();
   });
 
-  $("removePinBtn").addEventListener("click", () => {
+  $("removePinBtn").addEventListener("click", async () => {
     if (!confirm("Remove the local PIN lock?")) return;
     state.security = { pin: "" };
     state.locked = false;
-    save();
+    await save();
     renderLockState();
   });
 
@@ -958,10 +989,14 @@
     await handleLookup(e.target.files[0]);
   });
 
-  $("animalForm").addEventListener("submit", (e) => {
+  $("animalForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const id = $("animalId").value || uid();
+    // Beta limit: block adding new animals past the limit
+    const editId = $("animalId").value;
+    if (!editId && betaOverLimit("animals", state.animals.length)) return;
+
+    const id = editId || uid();
     const existing = state.animals.find(a => a.id === id);
 
     const animal = {
@@ -986,18 +1021,18 @@
       state.animals.push(animal);
     }
 
-    save();
+    await save();
     closeModal("animalModal");
     render();
   });
 
-  $("deleteAnimalBtn").addEventListener("click", () => {
+  $("deleteAnimalBtn").addEventListener("click", async () => {
     const id = $("animalId").value;
     if (!id) return;
     if (!confirm("Delete this animal and its records?")) return;
     state.animals = state.animals.filter(a => a.id !== id);
     state.records = state.records.filter(r => r.animalId !== id);
-    save();
+    await save();
     closeModal("animalModal");
     render();
   });
@@ -1046,22 +1081,22 @@
     editAnimal,
     openProfile,
     addRecordFor,
-    deleteRecord(id) {
+    async deleteRecord(id) {
       if (!confirm("Delete this record?")) return;
       state.records = state.records.filter(r => r.id !== id);
-      save();
+      await save();
       render();
     },
     deleteDocument(id) {
       if (!confirm("Delete this stored document?")) return;
       state.documents = state.documents.filter(d => d.id !== id);
-      save();
+      await save();
       render();
     },
-    deleteLocation(id) {
+    async deleteLocation(id) {
       if (!confirm("Delete this location?")) return;
       state.locations = state.locations.filter(l => l.id !== id);
-      save();
+      await save();
       render();
     },
     confirmMatch
@@ -1098,7 +1133,7 @@
   // Mobile: close sidebar when nav button is clicked
   document.querySelectorAll('#nav button').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeSidebar();
+      if (window.innerWidth <= 1050) closeSidebar();
     });
   });
 
