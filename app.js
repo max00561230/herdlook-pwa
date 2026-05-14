@@ -757,7 +757,7 @@
     alert("Backup imported successfully.");
   }
 
-  function seedDemo() {
+  async function seedDemo() {
     if (!confirm("Load demo herd data? This adds sample profiles and records.")) return;
 
     const bullId = uid();
@@ -1087,7 +1087,7 @@
       await save();
       render();
     },
-    deleteDocument(id) {
+    async deleteDocument(id) {
       if (!confirm("Delete this stored document?")) return;
       state.documents = state.documents.filter(d => d.id !== id);
       await save();
