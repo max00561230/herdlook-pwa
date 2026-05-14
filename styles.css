@@ -1073,18 +1073,28 @@
 }
 
 /* ===== JRT BRANDING ===== */
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
 .brand-mark img {
-  width: 100%;
-  height: 100%;
+  width: 46px;
+  height: 46px;
   object-fit: cover;
   border-radius: inherit;
 }
 
-.brand .jrt-tagline {
-  font-size: 11px;
-  color: rgba(255,255,255,.55);
-  margin: 2px 0 0;
-  letter-spacing: .02em;
+.app-bar-logo img {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
 /* ===== TOPBAR ===== */

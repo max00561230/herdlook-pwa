@@ -61,14 +61,15 @@
   const BETA_LIMITS = {
     maxAnimals: 2,
     maxLocations: 1,
+    maxDocuments: 1,
     isBeta: true
   };
 
   const betaOverLimit = (type, current) => {
-    const limits = { animals: BETA_LIMITS.maxAnimals, locations: BETA_LIMITS.maxLocations };
+    const limits = { animals: BETA_LIMITS.maxAnimals, locations: BETA_LIMITS.maxLocations, documents: BETA_LIMITS.maxDocuments };
     const max = limits[type];
     if (current >= max) {
-      alert(`Beta limit: ${max} ${type === 'animals' ? (max === 1 ? 'animal' : 'animals') : (max === 1 ? 'location' : 'locations')} max. Upgrade to the full version for unlimited ${type}.`);
+      alert(`Beta limit: ${max} ${type === 'animals' ? (max === 1 ? 'animal' : 'animals') : type === 'documents' ? (max === 1 ? 'document' : 'documents') : (max === 1 ? 'location' : 'locations')} max. Upgrade to the full version for unlimited ${type}.`);
       return true;
     }
     return false;
@@ -250,7 +251,7 @@
     if (betaBanner) {
       const animalCount = state.animals.length;
       const locationCount = state.locations.length;
-      betaBanner.innerHTML = `<strong>Beta Testing</strong> — Limited to ${BETA_LIMITS.maxAnimals} animals and ${BETA_LIMITS.maxLocations} location${BETA_LIMITS.maxLocations === 1 ? "" : "s"}. You have used ${animalCount}/${BETA_LIMITS.maxAnimals} animals and ${locationCount}/${BETA_LIMITS.maxLocations} location${BETA_LIMITS.maxLocations === 1 ? "" : "s"}.`;
+      betaBanner.innerHTML = `<strong>Beta Testing</strong> — Limited to ${BETA_LIMITS.maxAnimals} animals, ${BETA_LIMITS.maxLocations} location, and ${BETA_LIMITS.maxDocuments} document. You have used ${animalCount}/${BETA_LIMITS.maxAnimals} animals, ${locationCount}/${BETA_LIMITS.maxLocations} location, and ${state.documents.length}/${BETA_LIMITS.maxDocuments} document.`;
     }
 
     $("statAnimals").textContent = state.animals.length;
@@ -891,6 +892,7 @@
 
   $("documentForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (betaOverLimit("documents", state.documents.length)) return;
     const file = $("documentFile").files[0];
     if (!file) return;
     const src = await fileToDataUrl(file);
