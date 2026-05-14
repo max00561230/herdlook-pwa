@@ -80,6 +80,7 @@
       border-radius: 15px;
       display: grid;
       place-items: center;
+      flex-shrink: 0;
       background: rgba(255,255,255,.14);
       border: 1px solid rgba(255,255,255,.18);
       font-size: 25px;
