@@ -1,5 +1,5 @@
 (() => {
-  const DB_NAME = 'herdlook_beta';
+  const DB_NAME = 'herdlook';
   const DB_VERSION = 1;
   const STORE_NAME = 'appdata';
   const STORE_KEY = 'main';
@@ -127,7 +127,7 @@
       herd: ["Herd", "Search, edit, and review all animal profiles."],
       photoGuide: ["Photo Guide", "Capture the right animal reference photos for better lookup results."],
       lookup: ["Camera Lookup", "Take or upload a photo and confirm the suggested animal."],
-      records: ["Records", "Health, weight, breeding, movement, notes, and sale history."],
+      records: ["Records", "Health, weight, breeding, movement, vaccination, deworming, dehorning, AI, notes, and sale history."],
       documents: ["Documents", "Store vet papers, receipts, registration, test results, and other files."],
       locations: ["Map/Locations", "Track pastures, barns, pens, gates, and water points."],
       profile: ["Owner/Farm", "Owner, farm, ranch, vet, and emergency operation information."],
@@ -660,11 +660,11 @@
   function fullBackupObject() {
     return {
       app: "HerdLook",
-      version: "beta-local-only-v2",
+      version: "LV-1.2-local",
       exportedAt: new Date().toISOString(),
       storageMode: "local-only",
       cloudStorage: false,
-      note: "This backup contains local HerdLook beta data. Store it safely.",
+      note: "This backup contains local HerdLook data. Store it safely.",
       data: {
         animals: state.animals,
         records: state.records,
@@ -731,36 +731,36 @@
   function seedDemo() {
     if (!confirm("Load demo herd data? This adds sample profiles and records.")) return;
 
+    const bullId = uid();
     const cowId = uid();
-    const horseId = uid();
 
     state.animals.push(
       {
-        id: cowId,
-        code: "Cow #17",
-        name: "Maple",
+        id: bullId,
+        code: "Thunder",
+        name: "Thunder",
         species: "Cattle",
-        breed: "Angus Cross",
-        sex: "Female",
-        dob: "2023-04-15",
-        tag: "RFID-0017",
+        breed: "Black Angus",
+        sex: "Male",
+        dob: "2022-03-15",
+        tag: "RFID-TAG-001",
         location: "North Pasture",
-        markings: "Black cow with small white forehead mark. Yellow left ear tag.",
+        markings: "Solid black Angus bull with a small white star on forehead.",
         photos: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       },
       {
-        id: horseId,
-        code: "H-024",
-        name: "Daisy",
-        species: "Horse",
-        breed: "Quarter Horse",
-        sex: "Mare",
-        dob: "2018",
-        tag: "Microchip-7781",
-        location: "Barn 2",
-        markings: "Chestnut mare with white blaze and two rear socks.",
+        id: cowId,
+        code: "Midnight",
+        name: "Midnight",
+        species: "Cattle",
+        breed: "Black Angus",
+        sex: "Female",
+        dob: "2023-06-20",
+        tag: "RFID-TAG-002",
+        location: "North Pasture",
+        markings: "Solid black Angus cow with white socks on hind legs.",
         photos: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -768,40 +768,35 @@
     );
 
     state.profile = {
-      ownerName: "Demo Owner",
-      farmName: "HerdLook Demo Farm",
-      ownerPhone: "(555) 010-1234",
-      ownerEmail: "owner@example.com",
-      farmAddress: "100 Pasture Road, Demo, NC",
-      farmType: "Cattle and horses",
-      vetInfo: "Demo Veterinary Clinic",
-      farmNotes: "Use this sample data for testing only."
+      ownerName: "John Doe",
+      farmName: "Happyland Ranch",
+      ownerPhone: "(555) 000-0000",
+      ownerEmail: "john@happylandranch.com",
+      farmAddress: "000 Happyland Road, Nowhere USA",
+      farmType: "Cattle ranch",
+      vetInfo: "Happyland Veterinary Clinic — Dr. Smith (555) 000-1234",
+      farmNotes: "Sample farm data for demonstration purposes."
     };
 
+    const todayStr = today();
+
     state.locations.push(
-      { id: uid(), name: "North Pasture", type: "Pasture", lat: "", lng: "", notes: "Primary cattle pasture with water trough.", createdAt: new Date().toISOString() },
-      { id: uid(), name: "Barn 2", type: "Barn", lat: "", lng: "", notes: "Horse stalls and feed storage.", createdAt: new Date().toISOString() }
+      { id: uid(), name: "North Pasture", type: "Pasture", lat: "", lng: "", notes: "Primary cattle pasture with water trough and shade.", createdAt: new Date().toISOString() },
+      { id: uid(), name: "Barn 1", type: "Barn", lat: "", lng: "", notes: "Main barn with stalls and feed storage.", createdAt: new Date().toISOString() }
     );
 
     state.records.push(
-      {
-        id: uid(),
-        animalId: cowId,
-        type: "Health",
-        date: today(),
-        followUp: "",
-        details: "Routine health check. No issues noted.",
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: uid(),
-        animalId: horseId,
-        type: "Weight",
-        date: today(),
-        followUp: "",
-        details: "Estimated 1,050 lb by tape. Good body condition.",
-        createdAt: new Date().toISOString()
-      }
+      { id: uid(), animalId: bullId, type: "Health", date: todayStr, followUp: "", details: "Routine health check. No issues noted.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: cowId, type: "Weight", date: todayStr, followUp: "", details: "Estimated 1,100 lb by tape. Good body condition score 6.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: cowId, type: "Breeding", date: todayStr, followUp: "", details: "Bred to Thunder via AI. Confirmed pregnant via ultrasound.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: bullId, type: "Movement", date: todayStr, followUp: "", details: "Moved from Barn 1 to North Pasture for spring grazing.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: cowId, type: "Note", date: todayStr, followUp: "", details: "Mild limping observed on front left. Monitoring.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: bullId, type: "Sale/Transfer", date: todayStr, followUp: "", details: "Potential buyer inquiry from Wilson Farm. No deal yet.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: bullId, type: "Vaccination", date: todayStr, followUp: "", details: "Clostridial vaccine (8-way) administered. Next dose in 12 months.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: cowId, type: "Dewormed", date: todayStr, followUp: "", details: "Ivermectin pour-on administered. Repeat in 6 months.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: bullId, type: "Dehorned", date: todayStr, followUp: "", details: "Disbudded at 3 weeks of age. No horn regrowth.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: cowId, type: "AI", date: todayStr, followUp: todayStr.replace(/-\d{2}$/, (m) => { const d = new Date(todayStr); d.setDate(d.getDate() + 283); return '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }), details: "Artificial insemination performed. Expected calving date in approximately 283 days.", createdAt: new Date().toISOString() },
+      { id: uid(), animalId: bullId, type: "Other", date: todayStr, followUp: "", details: "Trailer inspection completed before transport. All checks passed.", createdAt: new Date().toISOString() }
     );
 
     save();
@@ -809,7 +804,7 @@
   }
 
   async function clearData() {
-    if (!confirm("Clear all HerdLook beta data from this browser?")) return;
+    if (!confirm("Clear all HerdLook data from this browser? This will remove all animals, records, documents, locations, and owner info.")) return;
     await dbClear();
     state.animals = [];
     state.records = [];
@@ -1007,24 +1002,8 @@
     render();
   });
 
-  $("recordForm").addEventListener("submit", (e) => {
+  $("recordForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    state.profile = {
-      ownerName: "Demo Owner",
-      farmName: "HerdLook Demo Farm",
-      ownerPhone: "(555) 010-1234",
-      ownerEmail: "owner@example.com",
-      farmAddress: "100 Pasture Road, Demo, NC",
-      farmType: "Cattle and horses",
-      vetInfo: "Demo Veterinary Clinic",
-      farmNotes: "Use this sample data for testing only."
-    };
-
-    state.locations.push(
-      { id: uid(), name: "North Pasture", type: "Pasture", lat: "", lng: "", notes: "Primary cattle pasture with water trough.", createdAt: new Date().toISOString() },
-      { id: uid(), name: "Barn 2", type: "Barn", lat: "", lng: "", notes: "Horse stalls and feed storage.", createdAt: new Date().toISOString() }
-    );
 
     state.records.push({
       id: uid(),
@@ -1036,7 +1015,7 @@
       createdAt: new Date().toISOString()
     });
 
-    save();
+    await save();
     closeModal("recordModal");
     render();
     if (state.selectedAnimalId) renderProfile("records");

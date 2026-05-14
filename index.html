@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HerdLook Beta - Camera-Assisted Herd Records</title>
+  <title>HerdLook - Camera-Assisted Herd Records</title>
   <meta name="theme-color" content="#234436" />
   <meta name="description" content="HerdLook beta: local-only camera-assisted herd management. No cloud storage by default." />
   <link rel="stylesheet" href="styles.css" />
@@ -105,7 +105,7 @@
         <div class="brand-mark" style="padding:0;"><img src="logo.png" alt="JRT" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
         <div>
           <h1>HerdLook</h1>
-          <p>Camera-assisted herd records &mdash; LV 1.1</p>
+          <p>Camera-assisted herd records &mdash; LV 1.2</p>
           <p class="jrt-tagline">by Jade Rose Technology</p>
         </div>
       </div>
@@ -147,7 +147,7 @@
           <img src="logo.png" alt="JRT" class="topbar-logo" id="topbarLogo">
           <div class="topbar-info">
             <h2 id="pageTitle">Dashboard</h2>
-            <p id="pageSubtitle">Manage animal profiles, photos, camera lookup, and herd records. &mdash; LV 1.1</p>
+            <p id="pageSubtitle">Manage animal profiles, photos, camera lookup, and herd records. &mdash; LV 1.2</p>
           </div>
         </div>
         <div class="actions">
@@ -172,7 +172,7 @@
           <div class="card stat">
             <small>Records</small>
             <strong id="statRecords">0</strong>
-            <span>Health, weight, breeding, movement</span>
+            <span>Health, weight, breeding, movement, vaccination, deworming, dehorning, AI, notes, and sale history.</span>
           </div>
           <div class="card stat">
             <small>Due Soon</small>
@@ -329,6 +329,11 @@
             <option>Movement</option>
             <option>Note</option>
             <option>Sale/Transfer</option>
+            <option>Vaccination</option>
+            <option>Dewormed</option>
+            <option>Dehorned</option>
+            <option>AI</option>
+            <option>Other</option>
           </select>
           <button class="btn primary" id="addRecordBtn">+ Add Record</button>
         </div>
@@ -667,7 +672,7 @@
         </div>
       </section>
 
-      <p class="footer-note">HerdLook Beta — camera-assisted animal recognition and herd management.</p>
+      <p class="footer-note">HerdLook — camera-assisted animal recognition and herd management.</p>
     </main>
   </div>
 
@@ -780,6 +785,11 @@
               <option>Movement</option>
               <option>Note</option>
               <option>Sale/Transfer</option>
+              <option>Vaccination</option>
+              <option>Dewormed</option>
+              <option>Dehorned</option>
+              <option>AI</option>
+              <option>Other</option>
             </select>
           </div>
           <div class="field">
