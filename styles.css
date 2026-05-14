@@ -850,10 +850,6 @@
     display: grid;
   }
 
-  .topbar-logo {
-    display: none;
-  }
-
   .topbar h2 {
     font-size: 24px;
   }
@@ -1092,12 +1088,7 @@
 
 /* ===== TOPBAR ===== */
 .topbar-logo {
-  display: block;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  object-fit: cover;
-  flex-shrink: 0;
+  display: none;
 }
 
 .topbar {
