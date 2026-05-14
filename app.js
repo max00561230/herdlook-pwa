@@ -811,8 +811,7 @@
     const todayStr = today();
 
     state.locations.push(
-      { id: uid(), name: "North Pasture", type: "Pasture", lat: "", lng: "", notes: "Primary cattle pasture with water trough and shade.", createdAt: new Date().toISOString() },
-      { id: uid(), name: "Barn 1", type: "Barn", lat: "", lng: "", notes: "Main barn with stalls and feed storage.", createdAt: new Date().toISOString() }
+      { id: uid(), name: "North Pasture", type: "Pasture", lat: "", lng: "", notes: "Primary cattle pasture with water trough and shade.", createdAt: new Date().toISOString() }
     );
 
     state.records.push(
