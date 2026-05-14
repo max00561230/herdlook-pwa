@@ -758,8 +758,8 @@
     alert("Backup imported successfully.");
   }
 
-  async function seedDemo() {
-    if (!confirm("Load demo herd data? This adds sample profiles and records.")) return;
+  async function seedDemo(skipConfirm = false) {
+    if (!skipConfirm && !confirm("Load demo herd data? This adds sample profiles and records.")) return;
 
     const bullId = uid();
     const cowId = uid();
@@ -1108,6 +1108,11 @@
       await load();
     } catch (e) {
       console.error('Failed to load data:', e);
+    }
+    // Auto-seed demo data on first launch (empty DB, never seeded before)
+    if (state.animals.length === 0 && !localStorage.getItem('herdlook_beta_seeded')) {
+      await seedDemo(true);
+      localStorage.setItem('herdlook_beta_seeded', '1');
     }
     if (state.security?.pin) state.locked = true;
     render();
