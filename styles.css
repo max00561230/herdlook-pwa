@@ -677,71 +677,6 @@
       margin-bottom: 14px;
     }
 
-    @media (max-width: 1050px) {
-      .quality-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 1050px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      aside {
-        position: static;
-        height: auto;
-        padding: 14px;
-      }
-
-      .brand { margin-bottom: 10px; }
-
-      .nav {
-        display: flex;
-        overflow-x: auto;
-        padding-bottom: 5px;
-      }
-
-      .nav button {
-        white-space: nowrap;
-      }
-
-      .side-card { display: none; }
-
-      main { padding: 16px; }
-
-      .grid.cards,
-      .grid.two,
-      .grid.three,
-      .animal-list {
-        grid-template-columns: 1fr;
-      }
-
-      .topbar {
-        flex-wrap: wrap;
-      }
-
-      .actions {
-        justify-content: stretch;
-      }
-
-      .actions .btn { flex: 1; }
-
-      .form-grid,
-      .photo-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .match-card {
-        grid-template-columns: 1fr;
-      }
-
-      .match-card img {
-        width: 100%;
-        height: 180px;
-      }
-    }
-
     @media print {
       body { background: white; }
       aside, .mobile-app-bar, .topbar .actions, .toolbar, .btn, .tabs { display: none !important; }
@@ -835,125 +770,123 @@
   border: 1px solid rgba(255,255,255,.2);
 }
 
-/* ===== MOBILE: ALWAYS-VISIBLE NAV BAR (no hamburger drawer) ===== */
-@media (max-width: 768px) {
+.menu-toggle:hover {
+  background: rgba(255,255,255,.25);
+}
+
+/* ===== SIDEBAR OVERLAY (backdrop) ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 90;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== MOBILE / TABLET (≤1050px) ===== */
+@media (max-width: 1050px) {
+  .mobile-app-bar {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
   .app {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
   }
 
-  /* Sidebar becomes a compact top nav bar — always visible */
+  /* Sidebar becomes left drawer */
   aside {
-    position: static !important;
-    left: auto !important;
-    height: auto;
-    width: 100%;
-    z-index: 50;
-    padding: 12px 14px 8px;
-    background: linear-gradient(180deg, #193126, #24483a);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: min(82vw, 320px);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    overflow-y: auto;
+    padding: 20px 18px;
+    box-shadow: 4px 0 20px rgba(0,0,0,.3);
   }
 
-  .brand {
-    margin-bottom: 8px;
-    gap: 10px;
+  .app.sidebar-open aside {
+    transform: translateX(0);
   }
 
-  .brand-mark {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+  .app.sidebar-open .sidebar-overlay {
+    display: block;
   }
 
-  .brand h1 {
-    font-size: 20px;
-  }
-
-  .brand p {
-    font-size: 11px;
-  }
-
-  .brand .jrt-tagline {
-    font-size: 10px;
-  }
-
-  /* Navigation: horizontal scrollable strip */
+  /* Nav buttons stacked vertically in drawer */
   .nav {
-    display: flex;
-    overflow-x: auto;
+    display: grid;
     gap: 4px;
-    margin-top: 8px;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .nav::-webkit-scrollbar {
-    display: none;
+    margin-top: 16px;
   }
 
   .nav button {
-    white-space: nowrap;
-    padding: 8px 10px;
-    font-size: 12px;
-    border-radius: 10px;
-    gap: 4px;
-    min-height: 36px;
-  }
-
-  /* Hide side cards on mobile */
-  .side-card {
-    display: none;
-  }
-
-  /* Hide the hamburger menu toggle — nav is always visible */
-  .menu-toggle {
-    display: none !important;
-  }
-
-  /* Hide sidebar overlay — no drawer needed */
-  .sidebar-overlay {
-    display: none !important;
-  }
-
-  /* No drawer open state needed */
-  .app.sidebar-open aside {
-    left: auto;
-  }
-
-  /* Main content flows below the nav */
-  main {
+    white-space: normal;
+    font-size: 15px;
     padding: 12px 14px;
+    border-radius: 12px;
   }
 
-  /* Topbar: hide the logo (already in the nav bar) and simplify */
-  .topbar-logo {
-    display: none !important;
+  /* Show side cards in drawer */
+  .side-card {
+    display: block;
+    margin-top: 16px;
+  }
+
+  /* Main content area */
+  main {
+    padding: 16px;
   }
 
   .topbar {
-    position: static;
-    padding: 8px 0 12px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 12px;
+    display: grid;
   }
 
-  .topbar-left {
-    gap: 8px;
+  .topbar h2 {
+    font-size: 24px;
   }
 
-  .topbar-info h2 {
-    font-size: 20px;
+  .topbar p {
+    font-size: 13px;
   }
 
-  .topbar-info p {
-    font-size: 11px;
+  /* Grid layouts collapse to single column */
+  .quality-grid,
+  .grid.cards,
+  .grid.two,
+  .grid.three,
+  .animal-list {
+    grid-template-columns: 1fr;
   }
 
   .actions {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    justify-content: stretch;
   }
+
+  .actions .btn { flex: 1; }
+
+  .form-grid,
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .match-card {
+    grid-template-columns: 1fr;
+  }
+
+  .match-card img {
+    width: 100%;
+    height: 180px;
+  }
+}
 
   /* Single-column everything */
   .grid.two,
@@ -1014,6 +947,11 @@
     align-items: flex-start;
   }
 
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   button, .btn {
     min-height: 44px;
     min-width: 44px;
@@ -1033,6 +971,10 @@
   }
 
   .owner-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .gs-photo-list {
     grid-template-columns: 1fr;
   }
 }
