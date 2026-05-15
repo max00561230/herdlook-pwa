@@ -94,11 +94,11 @@
         <div class="brand-mark" style="background:#eef5ef;border-color:#d6e4d9;"><img src="logo.png" alt="JRT"></div>
         <div>
           <h1 style="margin:0;">HerdLook</h1>
-          <p style="color:var(--muted);margin:2px 0 0;">Locked herd records</p>
+          <p style="color:var(--muted);margin:2px 0 0;">Enter PIN to unlock</p>
         </div>
       </div>
       <h2>Enter PIN</h2>
-      <p class="muted">This beta lock protects access on this browser.</p>
+      <p class="muted">Your PIN protects access to HerdLook on this browser.</p>
       <div class="field">
         <label>PIN / password</label>
         <input id="unlockPin" type="password" autocomplete="current-password" />
@@ -114,7 +114,7 @@
         <div class="brand-mark"><img src="logo.png" alt="JRT"></div>
         <div>
           <h1>HerdLook</h1>
-          <p>Camera-assisted herd records &mdash; HLv1.1 Beta</p>
+          <p>Camera-assisted herd records &mdash; HLv1.1</p>
         </div>
       </div>
 
@@ -134,12 +134,12 @@
       </nav>
 
       <div class="side-card">
-        <strong>Beta PWA plan</strong>
-        <p>Use this beta inside the started PWA for user reviews. Keep data local-only. Move to the full version after beta feedback.</p>
+        <strong>Free Edition</strong>
+        <p>HerdLook is free to try with basic limits. Enter a product key in Settings to unlock the full version.</p>
       </div>
 
       <div class="side-card">
-        <strong>Local-only beta</strong>
+        <strong>Local-only storage</strong>
         <p>HerdLook stores data on this device/browser by default. No cloud database, no server account, and no automatic upload.</p>
       </div>
 
@@ -622,8 +622,23 @@
 
       <section id="settingsView" class="view hidden">
         <div class="card">
+          <h3 style="margin-top:0;">🔓 Unlock Full Version</h3>
+          <p class="muted">HerdLook Free Edition limits you to 2 animals and 1 location. Enter your product key to unlock unlimited animals, locations, and backup import.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label>Product Key</label>
+              <input id="unlockKeyInput" type="text" placeholder="Enter your product key (e.g. HL-FULL-XXXXX)" />
+            </div>
+            <div class="full actions">
+              <button class="btn primary" id="unlockKeyBtn">Unlock Full Version</button>
+            </div>
+          </div>
+          <p id="unlockKeyStatus" class="muted" style="margin-top:8px;display:none;"></p>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
           <h3 style="margin-top:0;">Settings & Data</h3>
-          <p class="muted">Beta data is stored locally in this browser/device. HerdLook should not require cloud storage. For real farm use, upgrade to IndexedDB and add reliable local backup/restore.</p>
+          <p class="muted">All data is stored locally on this device/browser. No cloud storage required.</p>
           <div class="grid two">
             <button class="btn" id="seedDemoBtn">Load Demo Herd</button>
             <button class="btn danger" id="clearDataBtn">Clear All Local Data</button>
@@ -641,7 +656,7 @@
 
         <div class="card" style="margin-top:16px;">
           <h3 style="margin-top:0;">PIN / Password Lock</h3>
-          <p class="muted">Set a simple local PIN for beta security on this device. For production, use real accounts, encryption, and secure server-side authentication.</p>
+          <p class="muted">Set a local PIN for device security. This protects access on this browser only.</p>
           <form id="pinForm" class="form-grid">
             <div class="field">
               <label>New PIN / password</label>
@@ -657,28 +672,6 @@
               <button class="btn danger" type="button" id="removePinBtn">Remove PIN</button>
             </div>
           </form>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Claw Build Direction</h3>
-          <p class="muted">Use this beta version inside the PWA that Claw has already started. Keep the beta local-only, no cloud storage, and collect user reviews before building the full production version.</p>
-          <div class="notice">
-            <strong>Beta goal:</strong> prove the workflow: animal profile → guided reference photos → camera-assisted suggestion → manual confirmation → records. Do not build a full AI livestock identity platform until beta feedback confirms the workflow.
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Recommended next build steps</h3>
-          <ol>
-            <li>Add IndexedDB storage for larger local photo and document libraries.</li>
-            <li>Keep the main product local-first with no required cloud account.</li>
-            <li>Add RFID/tag scanning support.</li>
-            <li>Replace beta photo-similarity with a stronger livestock recognition model.</li>
-            <li>Add audit history so record changes can be tracked.</li>
-            <li>Add encrypted local document storage and optional encrypted backup files.</li>
-            <li>Add GPS map integration, pasture boundaries, and offline map tiles without requiring cloud sync.</li>
-            <li>Only add cloud sync later as an optional user-controlled feature, not the default.</li>
-          </ol>
         </div>
       </section>
 

@@ -901,28 +901,32 @@
   $("unlockKeyBtn").addEventListener("click", async () => {
     const key = $("unlockKeyInput").value;
     if (!key.trim()) {
-      $("unlockStatus").textContent = "Please enter a product key.";
-      $("unlockStatus").style.color = "#b91c1c";
+      $("unlockKeyStatus").textContent = "Please enter a product key.";
+      $("unlockKeyStatus").style.color = "#b91c1c";
+      $("unlockKeyStatus").style.display = "block";
       return;
     }
     const success = await attemptUnlock(key);
     if (success) {
-      $("unlockStatus").textContent = "✔ Full version unlocked! All limits removed.";
-      $("unlockStatus").style.color = "#2a7d4f";
+      $("unlockKeyStatus").textContent = "✔ Full version unlocked! All limits removed.";
+      $("unlockKeyStatus").style.color = "#2a7d4f";
+      $("unlockKeyStatus").style.display = "block";
       $("unlockKeyInput").disabled = true;
       $("unlockKeyBtn").disabled = true;
       $("unlockKeyBtn").textContent = "Unlocked";
       setTimeout(() => render(), 500);
     } else {
-      $("unlockStatus").textContent = "Invalid key. Please check and try again.";
-      $("unlockStatus").style.color = "#b91c1c";
+      $("unlockKeyStatus").textContent = "Invalid key. Please check and try again.";
+      $("unlockKeyStatus").style.color = "#b91c1c";
+      $("unlockKeyStatus").style.display = "block";
     }
   });
 
   // Check if already unlocked on load
   if (isUnlocked()) {
-    $("unlockStatus").textContent = "✔ Full version is unlocked.";
-    $("unlockStatus").style.color = "#2a7d4f";
+    $("unlockKeyStatus").textContent = "✔ Full version is unlocked.";
+    $("unlockKeyStatus").style.color = "#2a7d4f";
+    $("unlockKeyStatus").style.display = "block";
     $("unlockKeyInput").disabled = true;
     $("unlockKeyBtn").disabled = true;
     $("unlockKeyBtn").textContent = "Unlocked";
