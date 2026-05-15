@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HerdLook HLv1.1 — Camera-Assisted Herd Records</title>
+  <meta name="theme-color" content="#234436" />
+  <meta name="description" content="HerdLook HLv1.1 — Local-only camera-assisted herd management. No cloud storage by default." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+</head>
+<body>
+
+  <div class="sidebar-overlay"></div>
+
+  <header class="mobile-app-bar">
+    <div class="app-bar-brand">
+      <div class="app-bar-logo"><img src="logo.png" alt="JRT" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
+      <div>
+        <h1>HerdLook</h1>
+        <p>HLv1.1</p>
+      </div>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <div class="modal getting-started-modal" id="gettingStartedModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3>Getting Started with HerdLook</h3>
+          <p class="muted">Everything you need to know to start managing your herd.</p>
+        </div>
+        <button class="btn" id="gettingStartedClose">Close</button>
+      </div>
+
+      <div class="gs-step">
+        <div class="gs-step-num">1</div>
+        <div class="gs-step-content">
+          <h4>Add Animal</h4>
+          <p>Create animal profiles with ID, name, species, breed, tag/RFID, location, and markings. Attach reference photos for camera lookup.</p>
+        </div>
+      </div>
+
+      <div class="gs-step">
+        <div class="gs-step-num">2</div>
+        <div class="gs-step-content">
+          <h4>Camera Lookup</h4>
+          <p>Take or upload a photo and HerdLook compares it against saved reference photos to suggest possible matches. Always confirm manually before viewing or updating records.</p>
+        </div>
+      </div>
+
+      <div class="gs-section">
+        <strong>Local-only data mode:</strong>
+        <p>HerdLook stores owner info, animal records, photos, documents, and locations in this browser/device by default. Nothing is uploaded to a cloud database unless a future version adds that by user choice.</p>
+      </div>
+
+      <div class="gs-section">
+        <strong>Camera-assisted lookup:</strong>
+        <p>This beta uses photo similarity and manual confirmation. It should not replace RFID, ear tags, brands, microchips, or official animal ID.</p>
+      </div>
+
+      <div class="gs-section">
+        <strong>Beta review approach:</strong>
+        <p>Claw should place this beta workflow inside the started PWA, collect user feedback, then build the full production version after beta reviews are complete.</p>
+      </div>
+
+      <div class="gs-section">
+        <strong>Single-file copy/paste version:</strong>
+        <p>This file contains the app layout, styling, JavaScript logic, local-only storage, backup/import, photo guide, records, documents, PIN lock, and PWA-style metadata in one file for Claw to paste into the started PWA.</p>
+      </div>
+
+      <div class="gs-section" style="margin-bottom:0;">
+        <strong style="margin-bottom:8px;">Reference Photo Best Practice</strong>
+        <p style="margin:0 0 8px;color:var(--muted);font-size:13px;">For better camera lookup results, capture the right photo angles.</p>
+        <div class="gs-photo-list">
+          <div class="gs-photo-item"><span class="gs-num">1</span> Front face</div>
+          <div class="gs-photo-item"><span class="gs-num">2</span> Left side full body</div>
+          <div class="gs-photo-item"><span class="gs-num">3</span> Right side full body</div>
+          <div class="gs-photo-item"><span class="gs-num">4</span> Rear view</div>
+          <div class="gs-photo-item"><span class="gs-num">5</span> Tag / brand / ID close-up</div>
+          <div class="gs-photo-item"><span class="gs-num">6</span> Unique marking, muzzle/nose, blaze, scar, or leg marking close-up</div>
+        </div>
+        <button class="btn" data-go="photoGuide" onclick="closeGettingStarted()">Open Photo Guide</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <div class="brand" style="color:var(--ink);margin-bottom:14px;">
+        <div class="brand-mark" style="background:#eef5ef;border-color:#d6e4d9;padding:0;"><img src="logo.png" alt="JRT"></div>
+        <div>
+          <h1 style="margin:0;">HerdLook</h1>
+          <p style="color:var(--muted);margin:2px 0 0;">Locked herd records</p>
+        </div>
+      </div>
+      <h2>Enter PIN</h2>
+      <p class="muted">This beta lock protects access on this browser.</p>
+      <div class="field">
+        <label>PIN / password</label>
+        <input id="unlockPin" type="password" autocomplete="current-password" />
+      </div>
+      <button class="btn primary" id="unlockBtn" style="width:100%;">Unlock HerdLook</button>
+      <p id="unlockError" class="muted" style="color:var(--danger);display:none;">Incorrect PIN/password.</p>
+    </div>
+  </div>
+
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark" style="padding:0;"><img src="logo.png" alt="JRT" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
+        <div>
+          <h1>HerdLook</h1>
+          <p>Camera-assisted herd records &mdash; HLv1.1</p>
+          <p class="jrt-tagline">by Jade Rose Technology</p>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="active" data-view="dashboard">🏠 Dashboard</button>
+        <button data-view="herd">🐂 Herd</button>
+        <button data-view="lookup">📷 Camera Lookup</button>
+        <button data-view="photoGuide">✅ Photo Guide</button>
+        <button data-view="records">🩺 Records</button>
+        <button data-view="documents">🗂️ Documents</button>
+        <button data-view="locations">🗺️ Map/Locations</button>
+        <button data-view="profile">👤 Owner/Farm</button>
+        <button data-view="instructions">❔ How To</button>
+        <button data-view="privacy">🔒 Data/Privacy</button>
+        <button data-view="reports">📄 Reports</button>
+        <button data-view="settings">⚙️ Settings</button>
+      </nav>
+
+      <div class="side-card">
+        <strong>Beta PWA plan</strong>
+        <p>Use this beta inside the started PWA for user reviews. Keep data local-only. Move to the full version after beta feedback.</p>
+      </div>
+
+      <div class="side-card">
+        <strong>Local-only beta</strong>
+        <p>HerdLook stores data on this device/browser by default. No cloud database, no server account, and no automatic upload.</p>
+      </div>
+
+      <div class="side-card">
+        <strong>Recognition rule</strong>
+        <p>HerdLook suggests possible matches only. The user must confirm before opening or updating animal records.</p>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-info">
+            <h2 id="pageTitle">Dashboard</h2>
+            <p id="pageSubtitle">Manage animal profiles, photos, camera lookup, and herd records. &mdash; Beta Testing</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="gettingStartedBtn">Getting Started</button>
+          <button class="btn primary" id="addAnimalBtn">+ Add Animal</button>
+          <button class="btn accent" id="quickLookupBtn">Camera Lookup</button>
+        </div>
+      </header>
+
+      <section id="dashboardView" class="view">
+        <div class="grid cards">
+          <div class="card stat">
+            <small>Total Animals</small>
+            <strong id="statAnimals">0</strong>
+            <span>Active herd profiles</span>
+          </div>
+          <div class="card stat">
+            <small>Reference Photos</small>
+            <strong id="statPhotos">0</strong>
+            <span>Saved for camera lookup</span>
+          </div>
+          <div class="card stat">
+            <small>Records</small>
+            <strong id="statRecords">0</strong>
+            <span>Health, weight, breeding, movement, vaccination, deworming, dehorning, AI, notes, and sale history.</span>
+          </div>
+          <div class="card stat">
+            <small>Due Soon</small>
+            <strong id="statDue">0</strong>
+            <span>Follow-ups within 14 days</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="row">
+            <div>
+              <h3 style="margin:0;">Owner / Farm Summary</h3>
+              <p class="muted" style="margin-top:4px;">Basic owner and farm/ranch information for reports and records.</p>
+            </div>
+            <button class="btn" data-go="profile">Edit Info</button>
+          </div>
+          <div id="ownerFarmSummary" class="owner-summary" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="grid two" style="margin-top:16px;">
+          <div class="card">
+            <div class="row">
+              <div>
+                <h3 style="margin:0;">Recent Animals</h3>
+                <p class="muted" style="margin-top:4px;">Recently added or updated profiles.</p>
+              </div>
+              <button class="btn" data-go="herd">View Herd</button>
+            </div>
+            <div id="recentAnimals" class="records"></div>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <div>
+                <h3 style="margin:0;">Recent Records</h3>
+                <p class="muted" style="margin-top:4px;">Latest activity across the herd.</p>
+              </div>
+              <button class="btn" data-go="records">View Records</button>
+            </div>
+            <div id="recentRecords" class="records"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="herdView" class="view hidden">
+        <div class="toolbar">
+          <input id="herdSearch" placeholder="Search by name, ID, tag, breed, pasture, markings..." />
+          <select id="speciesFilter">
+            <option value="">All species</option>
+            <option>Cattle</option>
+            <option>Horse</option>
+            <option>Goat</option>
+            <option>Sheep</option>
+            <option>Other</option>
+          </select>
+          <button class="btn primary" id="addAnimalBtn2">+ Add Animal</button>
+        </div>
+        <div id="animalList" class="animal-list"></div>
+      </section>
+
+      <section id="photoGuideView" class="view hidden">
+        <div class="card">
+          <h3 style="margin-top:0;">Animal Reference Photo Guide</h3>
+          <p class="muted">Use this guide when creating a new animal profile. More good reference photos improve camera-assisted lookup results.</p>
+
+          <div class="notice">
+            <strong>Minimum beta requirement:</strong> Add at least 3 clear photos before relying on camera lookup: front face, left side, and right side. Recommended: 6 to 8 photos per animal.
+          </div>
+
+          <div class="grid two">
+            <div class="card" style="box-shadow:none;">
+              <h4 style="margin-top:0;">Cattle: Recommended 6 Photos</h4>
+              <div class="checklist">
+                <div class="check-row"><span>1</span> Front face</div>
+                <div class="check-row"><span>2</span> Left side full body</div>
+                <div class="check-row"><span>3</span> Right side full body</div>
+                <div class="check-row"><span>4</span> Rear view</div>
+                <div class="check-row"><span>5</span> Ear tag / brand close-up</div>
+                <div class="check-row"><span>6</span> Unique marking or muzzle/nose pattern close-up</div>
+              </div>
+            </div>
+
+            <div class="card" style="box-shadow:none;">
+              <h4 style="margin-top:0;">Horses: Recommended 7 Photos</h4>
+              <div class="checklist">
+                <div class="check-row"><span>1</span> Front face</div>
+                <div class="check-row"><span>2</span> Left side full body</div>
+                <div class="check-row"><span>3</span> Right side full body</div>
+                <div class="check-row"><span>4</span> Rear view</div>
+                <div class="check-row"><span>5</span> Face / blaze close-up</div>
+                <div class="check-row"><span>6</span> Legs / socks / markings close-up</div>
+                <div class="check-row"><span>7</span> Brand, scar, microchip proof, or unique marking close-up</div>
+              </div>
+            </div>
+          </div>
+
+          <h4>Photo Quality Rules</h4>
+          <div class="quality-grid">
+            <div class="quality-item">Use good daylight or even barn lighting.</div>
+            <div class="quality-item">Keep the animal filling most of the frame.</div>
+            <div class="quality-item">Avoid blurry photos and fast motion.</div>
+            <div class="quality-item">Avoid heavy shadows and glare.</div>
+            <div class="quality-item">Avoid fences, gates, people, or other animals blocking the subject.</div>
+            <div class="quality-item">Take side photos with the full body visible.</div>
+            <div class="quality-item">Capture unique markings, tags, brands, scars, blaze, socks, muzzle/nose patterns, or coat patterns.</div>
+            <div class="quality-item">Update photos when the animal changes: seasonal coat, weight change, injury, new tag, or major grooming change.</div>
+          </div>
+
+          <div class="notice" style="margin-top:16px;">
+            <strong>App wording:</strong> HerdLook does not identify animals with certainty. It suggests possible matches based on saved reference photos. Always confirm before opening or updating records.
+          </div>
+        </div>
+      </section>
+
+      <section id="lookupView" class="view hidden">
+        <div class="card">
+          <h3 style="margin-top:0;">Camera Lookup</h3>
+          <p class="muted">Take or upload a photo. HerdLook will compare it against saved reference photos and suggest possible matches.</p>
+          <div class="notice">
+            <strong>Better results need better reference photos:</strong> Each animal should have at least 3 photos, and preferably 6 to 8 photos from different angles.
+          </div>
+
+          <div class="notice">
+            <strong>Manual confirmation required:</strong> Always confirm the suggested match before viewing or updating records.
+          </div>
+
+          <div class="grid two">
+            <div>
+              <div class="field">
+                <label for="lookupPhoto">Take or upload animal photo</label>
+                <input id="lookupPhoto" type="file" accept="image/*" capture="environment" />
+              </div>
+              <div id="lookupPreview" class="animal-photo" style="border-radius:18px;height:280px;">No lookup photo selected</div>
+            </div>
+
+            <div>
+              <h4 style="margin-top:0;">Suggested matches</h4>
+              <div id="matchResults" class="records">
+                <div class="empty">Upload a photo to see possible matches.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="recordsView" class="view hidden">
+        <div class="toolbar">
+          <input id="recordSearch" placeholder="Search records..." />
+          <select id="recordTypeFilter">
+            <option value="">All record types</option>
+            <option>Health</option>
+            <option>Weight</option>
+            <option>Breeding</option>
+            <option>Movement</option>
+            <option>Note</option>
+            <option>Sale/Transfer</option>
+            <option>Vaccination</option>
+            <option>Dewormed</option>
+            <option>Dehorned</option>
+            <option>AI</option>
+            <option>Other</option>
+          </select>
+          <button class="btn primary" id="addRecordBtn">+ Add Record</button>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">Herd Records</h3>
+          <div id="allRecords" class="records"></div>
+        </div>
+      </section>
+
+      <section id="documentsView" class="view hidden">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0;">Add Document</h3>
+            <p class="muted">Store beta copies of vet papers, bills of sale, registration papers, test results, receipts, or pasture documents.</p>
+            <form id="documentForm">
+              <div class="field">
+                <label>Document title *</label>
+                <input id="documentTitle" required placeholder="Example: Vaccine receipt, Coggins test, bill of sale" />
+              </div>
+              <div class="field">
+                <label>Document type</label>
+                <select id="documentType">
+                  <option>Vet / Health</option>
+                  <option>Registration</option>
+                  <option>Bill of Sale</option>
+                  <option>Receipt</option>
+                  <option>Lab / Test Result</option>
+                  <option>Pasture / Land</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Attach to animal</label>
+                <select id="documentAnimal"></select>
+              </div>
+              <div class="field">
+                <label>Upload document or image *</label>
+                <input id="documentFile" type="file" required accept="image/*,.pdf,.txt,.csv,.doc,.docx" />
+              </div>
+              <div class="field">
+                <label>Notes</label>
+                <textarea id="documentNotes" placeholder="Expiration date, vet name, sale details, lab notes..."></textarea>
+              </div>
+              <button class="btn primary" type="submit">Save Document</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0;">Stored Documents</h3>
+            <div id="documentList" class="doc-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="locationsView" class="view hidden">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0;">Map / Locations</h3>
+            <p class="muted">Add pastures, barns, lots, water points, gates, handling areas, or quarantine areas.</p>
+            <form id="locationForm">
+              <div class="field">
+                <label>Location name *</label>
+                <input id="locationName" required placeholder="North Pasture, Barn 2, Quarantine Pen" />
+              </div>
+              <div class="field">
+                <label>Location type</label>
+                <select id="locationType">
+                  <option>Pasture</option>
+                  <option>Barn</option>
+                  <option>Lot / Pen</option>
+                  <option>Water</option>
+                  <option>Gate</option>
+                  <option>Handling Area</option>
+                  <option>Quarantine</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Latitude</label>
+                  <input id="locationLat" placeholder="Optional GPS latitude" />
+                </div>
+                <div class="field">
+                  <label>Longitude</label>
+                  <input id="locationLng" placeholder="Optional GPS longitude" />
+                </div>
+              </div>
+              <div class="field">
+                <label>Notes</label>
+                <textarea id="locationNotes" placeholder="Acres, fencing, water source, shelter, gate code, herd notes..."></textarea>
+              </div>
+              <button class="btn primary" type="submit">Save Location</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="map-box" id="mapBox">
+              <div>
+                <strong>Beta field map</strong>
+                <p style="margin:6px 0 0;">Pins are placed visually for planning. Add GPS later for real map integration.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">Location List</h3>
+          <div id="locationList" class="location-list"></div>
+        </div>
+      </section>
+
+      <section id="profileView" class="view hidden">
+        <div class="card">
+          <h3 style="margin-top:0;">Owner & Farm/Ranch Information</h3>
+          <p class="muted">This information can appear on reports, exports, and printed records.</p>
+          <form id="profileForm">
+            <div class="form-grid">
+              <div class="field">
+                <label>Owner name</label>
+                <input id="ownerName" placeholder="Owner or business name" />
+              </div>
+              <div class="field">
+                <label>Farm / ranch name</label>
+                <input id="farmName" placeholder="Farm, ranch, stable, or operation name" />
+              </div>
+              <div class="field">
+                <label>Phone</label>
+                <input id="ownerPhone" placeholder="Phone number" />
+              </div>
+              <div class="field">
+                <label>Email</label>
+                <input id="ownerEmail" type="email" placeholder="Email address" />
+              </div>
+              <div class="field full">
+                <label>Farm / ranch address</label>
+                <input id="farmAddress" placeholder="Street, city, state, ZIP" />
+              </div>
+              <div class="field">
+                <label>Primary animal type</label>
+                <input id="farmType" placeholder="Cattle, horses, mixed livestock..." />
+              </div>
+              <div class="field">
+                <label>Veterinarian / clinic</label>
+                <input id="vetInfo" placeholder="Vet name, clinic, phone" />
+              </div>
+              <div class="field full">
+                <label>Emergency / operation notes</label>
+                <textarea id="farmNotes" placeholder="Emergency contacts, gate notes, handling notes, biosecurity notes..."></textarea>
+              </div>
+            </div>
+            <button class="btn primary" type="submit">Save Owner/Farm Info</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="instructionsView" class="view hidden">
+        <div class="card">
+          <h3 style="margin-top:0;">How to Use HerdLook Beta</h3>
+          <div class="instruction-list">
+            <div class="instruction-item">
+              <strong>1. Set up owner and farm/ranch info</strong>
+              <p class="muted">Open Owner/Farm and add the owner name, farm/ranch name, contact info, vet info, and notes. This helps make reports more complete.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>2. Add animal profiles</strong>
+              <p class="muted">Create one profile per animal. Add animal ID, name, species, breed, tag/RFID/microchip, location, and markings.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>3. Add good reference photos</strong>
+              <p class="muted">Use the Photo Guide. Minimum beta set: front face, left side, and right side. Best set: 6 to 8 clear photos covering face, both sides, rear, tag/brand/ID, and unique markings.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>4. Use Camera Lookup</strong>
+              <p class="muted">Take or upload a photo. HerdLook will suggest possible matches. Always confirm manually before opening or changing records.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>5. Add records</strong>
+              <p class="muted">Log health, weight, breeding, movement, notes, and sale/transfer events. Add follow-up dates when needed.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>6. Store documents</strong>
+              <p class="muted">Use the Documents page for vet papers, registration papers, receipts, test results, or bills of sale.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>7. Add map/locations</strong>
+              <p class="muted">Add pastures, barns, pens, gates, and water points. Use location names consistently on animal profiles.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>8. Export backups regularly</strong>
+              <p class="muted">Because HerdLook is local-only by default, use Data/Privacy or Settings to export a full backup file. Save that file somewhere safe.</p>
+            </div>
+            <div class="instruction-item">
+              <strong>9. Turn on a PIN lock</strong>
+              <p class="muted">Go to Settings and set a PIN. This protects casual access on the device, but it is not a replacement for full encryption.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="privacyView" class="view hidden">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0;">Local-Only Data Storage</h3>
+            <p class="muted">HerdLook is designed for users who prefer not to use cloud storage for farm, ranch, herd, and document records.</p>
+
+            <div class="notice">
+              <strong>No cloud by default:</strong> This beta does not use Firebase, Supabase, server accounts, cloud sync, or external databases. Data stays in this browser/device unless the user exports it.
+            </div>
+
+            <div class="instruction-list">
+              <div class="instruction-item">
+                <strong>What is stored locally?</strong>
+                <p class="muted">Owner/farm info, animal profiles, records, reference photos, stored documents, map/locations, and PIN lock settings.</p>
+              </div>
+              <div class="instruction-item">
+                <strong>What can delete local data?</strong>
+                <p class="muted">Clearing browser/site data, using private browsing, device loss, damaged device storage, or uninstalling the app/browser can remove records.</p>
+              </div>
+              <div class="instruction-item">
+                <strong>How should users protect records?</strong>
+                <p class="muted">Use Export Full Backup regularly and save the backup file somewhere safe, such as an external drive, secure local folder, or encrypted storage device.</p>
+              </div>
+              <div class="instruction-item">
+                <strong>Production recommendation</strong>
+                <p class="muted">For a sold version, upgrade storage to IndexedDB and offer optional encrypted backup files. Keep cloud sync optional, not required.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0;">Backup & Restore</h3>
+            <p class="muted">Use these tools to keep local copies of HerdLook data and move records to another device/browser.</p>
+
+            <div class="grid">
+              <button class="btn primary" id="exportFullBackupBtn">Export Full Backup</button>
+
+              <div class="field">
+                <label>Import backup file</label>
+                <input id="importBackupFile" type="file" accept="application/json,.json" />
+              </div>
+
+              <button class="btn" id="importBackupBtn">Import Backup</button>
+            </div>
+
+            <div class="notice" style="margin-top:14px;">
+              <strong>Backup warning:</strong> Photos and documents are stored inside the backup as data URLs. Very large document/photo libraries may create large backup files. A production version should use IndexedDB and a packaged export format.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="reportsView" class="view hidden">
+        <div class="grid three">
+          <div class="card">
+            <h3>Herd List</h3>
+            <p class="muted">Export animal profile summary.</p>
+            <button class="btn primary" id="exportAnimalsCsv">Export Animals CSV</button>
+          </div>
+          <div class="card">
+            <h3>Records</h3>
+            <p class="muted">Export treatment, weight, breeding, movement, and notes.</p>
+            <button class="btn primary" id="exportRecordsCsv">Export Records CSV</button>
+          </div>
+          <div class="card">
+            <h3>Print Report</h3>
+            <p class="muted">Print dashboard, herd summary, and recent records.</p>
+            <button class="btn primary" onclick="window.print()">Print Report</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">Report Preview</h3>
+          <div id="reportPreview"></div>
+        </div>
+      </section>
+
+      <section id="settingsView" class="view hidden">
+        <div class="card">
+          <h3 style="margin-top:0;">Settings & Data</h3>
+          <p class="muted">Beta data is stored locally in this browser/device. HerdLook should not require cloud storage. For real farm use, upgrade to IndexedDB and add reliable local backup/restore.</p>
+          <div class="grid two">
+            <button class="btn" id="seedDemoBtn">Load Demo Herd</button>
+            <button class="btn danger" id="clearDataBtn">Clear All Local Data</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">Local Backup</h3>
+          <p class="muted">Export a full backup before clearing browser data, changing devices, or testing major updates.</p>
+          <div class="actions">
+            <button class="btn primary" id="exportFullBackupBtn2">Export Full Backup</button>
+            <button class="btn" data-go="privacy">Open Data/Privacy Page</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">PIN / Password Lock</h3>
+          <p class="muted">Set a simple local PIN for beta security on this device. For production, use real accounts, encryption, and secure server-side authentication.</p>
+          <form id="pinForm" class="form-grid">
+            <div class="field">
+              <label>New PIN / password</label>
+              <input id="newPin" type="password" placeholder="Example: 4-8 digit PIN or password" />
+            </div>
+            <div class="field">
+              <label>Confirm PIN / password</label>
+              <input id="confirmPin" type="password" placeholder="Confirm" />
+            </div>
+            <div class="full actions">
+              <button class="btn primary" type="submit">Save PIN Lock</button>
+              <button class="btn" type="button" id="lockNowBtn">Lock Now</button>
+              <button class="btn danger" type="button" id="removePinBtn">Remove PIN</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">Claw Build Direction</h3>
+          <p class="muted">Use this beta version inside the PWA that Claw has already started. Keep the beta local-only, no cloud storage, and collect user reviews before building the full production version.</p>
+          <div class="notice">
+            <strong>Beta goal:</strong> prove the workflow: animal profile → guided reference photos → camera-assisted suggestion → manual confirmation → records. Do not build a full AI livestock identity platform until beta feedback confirms the workflow.
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3 style="margin-top:0;">Recommended next build steps</h3>
+          <ol>
+            <li>Add IndexedDB storage for larger local photo and document libraries.</li>
+            <li>Keep the main product local-first with no required cloud account.</li>
+            <li>Add RFID/tag scanning support.</li>
+            <li>Replace beta photo-similarity with a stronger livestock recognition model.</li>
+            <li>Add audit history so record changes can be tracked.</li>
+            <li>Add encrypted local document storage and optional encrypted backup files.</li>
+            <li>Add GPS map integration, pasture boundaries, and offline map tiles without requiring cloud sync.</li>
+            <li>Only add cloud sync later as an optional user-controlled feature, not the default.</li>
+          </ol>
+        </div>
+      </section>
+
+      <p class="footer-note">HerdLook — camera-assisted animal recognition and herd management.</p>
+    </main>
+  </div>
+
+  <div class="modal" id="animalModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3 id="animalModalTitle">Add Animal</h3>
+          <p>Create a profile and attach reference photos for camera lookup.</p>
+        </div>
+        <button class="btn" data-close="animalModal">Close</button>
+      </div>
+
+      <form id="animalForm">
+        <input type="hidden" id="animalId" />
+        <div class="form-grid">
+          <div class="field">
+            <label>Animal ID *</label>
+            <input id="animalCode" required placeholder="Example: Cow #17, Daisy, H-024" />
+          </div>
+          <div class="field">
+            <label>Name</label>
+            <input id="animalName" placeholder="Optional name" />
+          </div>
+          <div class="field">
+            <label>Species *</label>
+            <select id="animalSpecies" required>
+              <option>Cattle</option>
+              <option>Horse</option>
+              <option>Goat</option>
+              <option>Sheep</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Breed</label>
+            <input id="animalBreed" placeholder="Angus, Hereford, Quarter Horse..." />
+          </div>
+          <div class="field">
+            <label>Sex</label>
+            <select id="animalSex">
+              <option value="">Unknown</option>
+              <option>Female</option>
+              <option>Male</option>
+              <option>Steer</option>
+              <option>Bull</option>
+              <option>Gelding</option>
+              <option>Mare</option>
+              <option>Stallion</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Date of birth / estimated age</label>
+            <input id="animalDob" placeholder="2024-03-21 or 3 years" />
+          </div>
+          <div class="field">
+            <label>Tag / RFID / microchip</label>
+            <input id="animalTag" placeholder="Official or farm ID" />
+          </div>
+          <div class="field">
+            <label>Pasture / location</label>
+            <input id="animalLocation" placeholder="North pasture, Barn 2..." />
+          </div>
+          <div class="field full">
+            <label>Color, markings, brands, notes</label>
+            <textarea id="animalMarkings" placeholder="Black with white blaze, left rear sock, ear tag color, brand, scars..."></textarea>
+          </div>
+          <div class="field full">
+            <label>Reference photos</label>
+            <div class="notice">
+              <strong>Best practice:</strong> Minimum 3 photos: front face, left side, and right side. Recommended 6 to 8 photos: front face, left side, right side, rear, tag/brand/ID, and unique marking close-up.
+            </div>
+            <input id="animalPhotos" type="file" accept="image/*" multiple />
+            <small class="muted">Best beta photos: clear, well-lit, close enough, not blocked by fencing, and taken from several angles.</small>
+            <div id="photoCountHint" class="muted" style="margin-top:8px;"></div>
+            <div id="animalPhotoPreview" class="photo-grid"></div>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn danger" type="button" id="deleteAnimalBtn">Delete</button>
+          <button class="btn primary" type="submit">Save Animal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="recordModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3>Add Record</h3>
+          <p>Attach a health, weight, breeding, movement, note, or sale record to an animal.</p>
+        </div>
+        <button class="btn" data-close="recordModal">Close</button>
+      </div>
+
+      <form id="recordForm">
+        <div class="form-grid">
+          <div class="field">
+            <label>Animal *</label>
+            <select id="recordAnimal" required></select>
+          </div>
+          <div class="field">
+            <label>Record type *</label>
+            <select id="recordType" required>
+              <option>Health</option>
+              <option>Weight</option>
+              <option>Breeding</option>
+              <option>Movement</option>
+              <option>Note</option>
+              <option>Sale/Transfer</option>
+              <option>Vaccination</option>
+              <option>Dewormed</option>
+              <option>Dehorned</option>
+              <option>AI</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Date *</label>
+            <input id="recordDate" type="date" required />
+          </div>
+          <div class="field">
+            <label>Follow-up date</label>
+            <input id="recordFollowUp" type="date" />
+          </div>
+          <div class="field full">
+            <label>Details *</label>
+            <textarea id="recordDetails" required placeholder="Treatment, dosage, weight, breeding details, pasture movement, vet notes, sale notes..."></textarea>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn primary" type="submit">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3 id="profileTitle">Animal Profile</h3>
+          <p id="profileSub" class="muted"></p>
+        </div>
+        <button class="btn" data-close="profileModal">Close</button>
+      </div>
+
+      <div class="tabs">
+        <button class="active" data-profile-tab="overview">Overview</button>
+        <button data-profile-tab="photos">Photos</button>
+        <button data-profile-tab="records">Records</button>
+      </div>
+
+      <div id="profileContent"></div>
+    </div>
+  </div>
+<script src="app.js"></script>
+</body>
+</html>
