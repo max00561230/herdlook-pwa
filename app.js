@@ -57,19 +57,43 @@
   }
 
 
-  // ===== BETA LIMITS =====
-  const BETA_LIMITS = {
-    maxAnimals: 2,
-    maxLocations: 1,
-    maxDocuments: 1,
-    isBeta: true
-  };
+  // ===== LICENSE KEY SYSTEM =====
+  // Free tier: 2 animals, 1 location. Enter product key in Settings to unlock.
+  const VALID_KEYS = ['HL-FULL-484A2B921615667B'];
+
+  function isUnlocked() {
+    try {
+      const stored = localStorage.getItem('herdlook_license');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed && VALID_KEYS.includes(parsed.key);
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  async function attemptUnlock(key) {
+    const trimmed = key.trim().toUpperCase();
+    if (VALID_KEYS.includes(trimmed)) {
+      localStorage.setItem('herdlook_license', JSON.stringify({ key: trimmed }));
+      return true;
+    }
+    return false;
+  }
+
+  const BETA_LIMITS_BASE = { maxAnimals: 2, maxLocations: 1 };
+  const FULL_LIMITS = { maxAnimals: Infinity, maxLocations: Infinity };
+
+  function getLimits() {
+    return isUnlocked() ? FULL_LIMITS : BETA_LIMITS_BASE;
+  }
 
   const betaOverLimit = (type, current) => {
-    const limits = { animals: BETA_LIMITS.maxAnimals, locations: BETA_LIMITS.maxLocations, documents: BETA_LIMITS.maxDocuments };
+    if (isUnlocked()) return false;
+    const limits = { animals: BETA_LIMITS_BASE.maxAnimals, locations: BETA_LIMITS_BASE.maxLocations };
     const max = limits[type];
     if (current >= max) {
-      alert(`Beta limit: ${max} ${type === 'animals' ? (max === 1 ? 'animal' : 'animals') : type === 'documents' ? (max === 1 ? 'document' : 'documents') : (max === 1 ? 'location' : 'locations')} max. Upgrade to the full version for unlimited ${type}.`);
+      alert(`Free tier limit: ${max} ${type === 'animals' ? (max === 1 ? 'animal' : 'animals') : (max === 1 ? 'location' : 'locations')} max. Enter a product key in Settings → Unlock Full Version to remove all limits.`);
       return true;
     }
     return false;
@@ -246,12 +270,16 @@
       return diff >= 0 && diff <= 14;
     }).length;
 
-    // Beta limits banner
+    // Free tier / unlocked banner
     const betaBanner = $("betaBanner");
     if (betaBanner) {
-      const animalCount = state.animals.length;
-      const locationCount = state.locations.length;
-      betaBanner.innerHTML = `<strong>Beta Testing</strong> — Limited to ${BETA_LIMITS.maxAnimals} animals, ${BETA_LIMITS.maxLocations} location, and ${BETA_LIMITS.maxDocuments} document. You have used ${animalCount}/${BETA_LIMITS.maxAnimals} animals, ${locationCount}/${BETA_LIMITS.maxLocations} location, and ${state.documents.length}/${BETA_LIMITS.maxDocuments} document.`;
+      if (isUnlocked()) {
+        betaBanner.innerHTML = `<strong style="color:#2a7d4f">✔ Full Version Unlocked</strong> — Unlimited animals and locations.`;
+      } else {
+        const animalCount = state.animals.length;
+        const locationCount = state.locations.length;
+        betaBanner.innerHTML = `<strong>Free Tier</strong> — Limited to ${BETA_LIMITS_BASE.maxAnimals} animals and ${BETA_LIMITS_BASE.maxLocations} location. You have used ${animalCount}/${BETA_LIMITS_BASE.maxAnimals} animals and ${locationCount}/${BETA_LIMITS_BASE.maxLocations} location. Go to Settings → Unlock Full Version to enter your product key.`;
+      }
     }
 
     $("statAnimals").textContent = state.animals.length;
@@ -715,8 +743,8 @@
   }
 
   async function importFullBackup(file) {
-    if (BETA_LIMITS.isBeta) {
-      alert("Backup import is disabled in the beta version. Upgrade to the full version to import backups.");
+    if (!isUnlocked()) {
+      alert("Backup import requires the full version. Enter a product key in Settings → Unlock Full Version to import backups.");
       return;
     }
     if (!file) {
@@ -868,6 +896,37 @@
   $("seedDemoBtn").addEventListener("click", seedDemo);
   $("clearDataBtn").addEventListener("click", clearData);
   $("exportFullBackupBtn").addEventListener("click", exportFullBackup);
+
+  // License key unlock handler
+  $("unlockKeyBtn").addEventListener("click", async () => {
+    const key = $("unlockKeyInput").value;
+    if (!key.trim()) {
+      $("unlockStatus").textContent = "Please enter a product key.";
+      $("unlockStatus").style.color = "#b91c1c";
+      return;
+    }
+    const success = await attemptUnlock(key);
+    if (success) {
+      $("unlockStatus").textContent = "✔ Full version unlocked! All limits removed.";
+      $("unlockStatus").style.color = "#2a7d4f";
+      $("unlockKeyInput").disabled = true;
+      $("unlockKeyBtn").disabled = true;
+      $("unlockKeyBtn").textContent = "Unlocked";
+      setTimeout(() => render(), 500);
+    } else {
+      $("unlockStatus").textContent = "Invalid key. Please check and try again.";
+      $("unlockStatus").style.color = "#b91c1c";
+    }
+  });
+
+  // Check if already unlocked on load
+  if (isUnlocked()) {
+    $("unlockStatus").textContent = "✔ Full version is unlocked.";
+    $("unlockStatus").style.color = "#2a7d4f";
+    $("unlockKeyInput").disabled = true;
+    $("unlockKeyBtn").disabled = true;
+    $("unlockKeyBtn").textContent = "Unlocked";
+  }
   $("exportFullBackupBtn2").addEventListener("click", exportFullBackup);
   $("importBackupBtn").addEventListener("click", () => importFullBackup($("importBackupFile").files[0]));
 

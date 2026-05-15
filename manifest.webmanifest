@@ -1,7 +1,7 @@
 {
-  "name": "HerdLook HLv1.1 Beta",
-  "short_name": "HerdLook Beta",
-  "description": "HerdLook HLv1.1 Beta — Camera-assisted herd records. Limited to 2 animals, 1 location, and 1 document for testing.",
+  "name": "HerdLook HLv1.1",
+  "short_name": "HerdLook",
+  "description": "HerdLook HLv1.1 — Camera-assisted herd records. Free tier with 2 animals, 1 location. Unlock full version with product key.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f4f1e8",
