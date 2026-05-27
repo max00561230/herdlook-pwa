@@ -1,839 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HerdLook HLv1.1 — Camera-Assisted Herd Records</title>
-  <meta name="theme-color" content="#234436" />
-  <meta name="description" content="HerdLook HLv1.1 — Local-only camera-assisted herd management. Free tier with 2 animals, 1 location. Unlock full version with product key." />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="logo.png" type="image/png" />
-  <link rel="apple-touch-icon" href="logo.png" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HerdLook v1.2 — Herd Management</title>
+<meta name="theme-color" content="#183326">
+<meta name="description" content="HerdLook v1.2 — Camera-assisted herd records for livestock owners. Manage animals, photos, records, and camera lookup.">
+<style>
+:root{--bg:#f5f1e7;--card:#fffdf8;--ink:#17241d;--muted:#68746c;--green:#183326;--green2:#2f604b;--gold:#c58b35;--line:#ddd5c7;--bad:#a33b2f;--shadow:0 14px 38px rgba(23,36,29,.12);--r:18px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at top left,#fff8ea,var(--bg));color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}
+.appbar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(245,241,231,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.mbrand{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#eaf2ec;color:var(--green);font-size:25px;border:1px solid #d6e4d9}.mbrand strong{font-size:20px;display:block}.mbrand small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}.hamb{width:48px;height:48px;border-radius:15px;background:var(--green);color:white;font-size:24px}.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:44}.backdrop.open{display:block}
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}.side{position:sticky;top:0;height:100vh;padding:22px;background:linear-gradient(180deg,#142a20,#1f4033);color:white;overflow:auto;z-index:45}.brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}.brand h1{margin:0;font-size:30px}.brand p{margin:2px 0;color:rgba(255,255,255,.7)}.byline{font-size:13px;letter-spacing:.08em;color:rgba(255,255,255,.62)}
+.nav{display:grid;gap:8px;margin-top:18px}.nav button{display:flex;gap:10px;align-items:center;text-align:left;width:100%;border-radius:14px;padding:12px;color:rgba(255,255,255,.88);background:transparent}.nav button.active,.nav button:hover{background:rgba(255,255,255,.14);color:white}.nav .label{overflow:hidden;text-overflow:ellipsis}
+main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;gap:14px;align-items:start;margin-bottom:18px}.top h2{font-size:clamp(28px,4vw,44px);line-height:1;margin:0;letter-spacing:-.05em}.top p{color:var(--muted);margin:7px 0 0}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border-radius:14px;padding:11px 14px;min-height:44px;background:var(--card);border:1px solid var(--line);color:var(--ink);box-shadow:0 5px 14px rgba(23,36,29,.06)}.primary{background:var(--green);color:white;border-color:transparent}.accent{background:var(--gold);color:white;border-color:transparent}.danger{background:#fff0ed;color:var(--bad);border-color:#efc9c3}
+.card{background:rgba(255,253,248,.9);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:17px}.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,1fr)}.three{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:repeat(2,1fr)}.stat small,.muted{color:var(--muted)}.stat strong{font-size:38px;display:block;margin:10px 0}.notice{border:1px solid #ead8ba;background:#fff8ea;color:#6b4a19;border-radius:15px;padding:12px;margin-bottom:14px;line-height:1.45}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}.toolbar input,.toolbar select{flex:1;min-width:150px}.field{display:grid;gap:6px;margin-bottom:11px}label{font-weight:800;font-size:13px;color:#344238}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:13px;background:#fffdf8;color:var(--ink);padding:11px;min-height:44px}textarea{min-height:92px;resize:vertical}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.full{grid-column:1/-1}
+.catcard{text-align:left;display:grid;gap:8px;min-height:118px}.catcard small{color:var(--muted)}.catcard strong{font-size:32px}.catcard.active{border-color:var(--green2);box-shadow:0 0 0 3px rgba(47,96,75,.14),var(--shadow)}.idgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.idbtn{text-align:left;border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px}.idbtn strong{display:block;font-size:18px}.animals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.pill{display:inline-flex;border-radius:99px;padding:5px 9px;background:#eef5ef;color:var(--green);font-size:12px;font-weight:900;border:1px solid #d6e4d9}.record,.doc,.loc{border:1px solid var(--line);border-radius:15px;background:#fffdf8;padding:12px;margin-top:10px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.photos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.photoCard{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fffdf8}.photoCard img,.thumb img{width:100%;height:210px;object-fit:cover;display:block}.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.thumb{height:130px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f6f1e7}.match{display:grid;grid-template-columns:105px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:10px;background:#fffdf8;margin-top:10px}.match img{width:105px;height:86px;object-fit:cover;border-radius:12px}.bar{height:9px;background:#e7dfd1;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--green2),var(--gold))}
+.batch{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;border:1px solid var(--line);border-radius:15px;background:#fffdf8;padding:12px;margin-top:10px}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fffdf8;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:800;color:var(--green)}
+.modal{display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modalbox{width:min(960px,100%);max-height:92vh;overflow:auto;background:white;border-radius:24px;padding:20px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:start}.modalhead h3{margin:0;font-size:27px}
+.lock{display:none;position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#142a20,#2f604b);align-items:center;justify-content:center;padding:20px}.lock.open{display:flex}.lockbox{background:white;border-radius:24px;padding:22px;width:min(450px,100%)}
+@media(max-width:1050px){.appbar{display:flex}.layout{display:block}.side{position:fixed;inset:0 auto 0 0;width:min(82vw,320px);height:100vh;transform:translateX(-105%);transition:.22s ease;box-shadow:22px 0 70px rgba(0,0,0,.28)}.side.open{transform:translateX(0)}.nav{display:grid!important}.nav button{white-space:normal;font-size:15px}main{padding:15px}.top{display:grid}.top .actions{display:grid;grid-template-columns:1fr 1fr}.top .actions .btn:first-child{grid-column:1/-1}.stats,.three,.two,.animals,.photos,.idgrid,.formgrid,.thumbs{grid-template-columns:1fr}.batch{grid-template-columns:1fr}.match{grid-template-columns:1fr}.match img{width:100%;height:175px}.card{padding:15px}}
+@media print{.side,.appbar,.actions,.toolbar,.btn{display:none!important}.layout{display:block}main{padding:0}.card{box-shadow:none}}
+</style>
 </head>
 <body>
+<div class="lock" id="lock"><div class="lockbox"><h2>HerdLook v1.2 Locked</h2><p class="muted">Enter local PIN/password.</p><div class="field"><label>PIN/password</label><input id="unlockPin" type="password"></div><button class="btn primary" id="unlockBtn" style="width:100%">Unlock</button><p id="unlockErr" class="muted hidden" style="color:var(--bad)">Incorrect PIN/password.</p></div></div>
+<div class="appbar"><div class="mbrand"><div class="logo">🐄</div><div><strong>HerdLook</strong><small>HerdLook v1.2 by JRT</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
+<div class="layout">
+<aside class="side" id="side"><div class="brand"><div class="logo">🐄</div><div><h1>HerdLook</h1><p>Herd records PWA</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
+<button class="active" data-view="dashboard">🏠 <span class="label">Dashboard</span></button><button data-view="herd">🐂 <span class="label">Herd</span></button><button data-view="photos">🖼️ <span class="label">Animal Photos</span></button><button data-view="lookup">📷 <span class="label">Camera Lookup</span></button><button data-view="guide">✅ <span class="label">Photo Guide</span></button><button data-view="records">🩺 <span class="label">Records</span></button><button data-view="documents">🗂️ <span class="label">Documents</span></button><button data-view="locations">🗺️ <span class="label">Map/Locations</span></button><button data-view="owner">👤 <span class="label">Owner/Farm</span></button><button data-view="privacy">🔒 <span class="label">Data/Privacy</span></button><button data-view="settings">⚙️ <span class="label">Settings</span></button>
+</nav><div class="notice" style="margin-top:18px;background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.2)">HerdLook v1.2 — local-only storage. No cloud database or sync.</div></aside>
+<main>
+<header class="top"><div><h2 id="title">Dashboard</h2><p id="sub">Manage animal profiles, photos, camera lookup, and herd records.</p></div><div class="actions"><button class="btn" onclick="view('guide')">Getting Started</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button><button class="btn accent" onclick="view('lookup')">Camera Lookup</button></div></header>
 
-  <div class="sidebar-overlay"></div>
+<section id="dashboard" class="view">
+<div class="notice"><b>HerdLook v1.2:</b> Dashboard loads first. The logo/menu opens as a clean left drawer. Animal IDs are grouped by category cards to save mobile space.</div>
+<div class="grid stats"><div class="card stat"><small>Total Animals</small><strong id="sAnimals">0</strong><small>Active profiles</small></div><div class="card stat"><small>Reference Photos</small><strong id="sPhotos">0</strong><small>Saved for lookup</small></div><div class="card stat"><small>Records</small><strong id="sRecords">0</strong><small>Herd history</small></div><div class="card stat"><small>Due Soon</small><strong id="sDue">0</strong><small>Follow-ups</small></div></div>
+<div class="card" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Animals by Category</h3><p class="muted">Tap a card to list ID numbers by type.</p></div><button class="btn" onclick="selectCat('')">Show All</button></div><div id="catCards" class="grid three" style="margin-top:12px"></div><div id="catIds" class="idgrid"></div></div>
+<div class="grid two" style="margin-top:14px"><div class="card"><div class="row"><div><h3 style="margin:0">Recent Animals</h3><p class="muted">Hidden by default for mobile space.</p></div><button class="btn" id="recentBtn" onclick="toggleRecent()">Show Recent</button></div><div id="recent" class="hidden"></div></div><div class="card"><h3 style="margin-top:0">Owner/Farm</h3><div id="ownerSummary"></div></div></div>
+</section>
 
-  <header class="mobile-app-bar">
-    <div class="app-bar-brand">
-      <div class="app-bar-logo"><img src="logo.png" alt="JRT"></div>
-      <div>
-        <h1>HerdLook</h1>
-        <p>HLv1.1</p>
-      </div>
-    </div>
-    <button class="menu-toggle" id="menuToggle" aria-label="Menu">&#9776;</button>
-  </header>
+<section id="herd" class="view hidden"><div class="toolbar"><input id="search" placeholder="Search ID, name, breed, location, dam, sire..."><select id="catFilter"><option value="">All categories</option></select><select id="sort"><option value="">Sort: newest added</option><option value="dob">Sort: birth date / age</option><option value="added">Sort: date added</option><option value="id">Sort: animal ID</option></select><select id="sortOrder"><option value="desc">Order: youngest / newest first</option><option value="asc">Order: oldest / earliest first</option></select><button class="btn" onclick="toggleBatch()">Batch Edit</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button></div><div id="animalList" class="animals"></div><div id="batchPanel" class="card hidden" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Batch Edit</h3><p class="muted">Change repeated info and save all edits with one click.</p></div><button class="btn primary" onclick="saveBatch()">Save All Edits</button></div><div id="batchList"></div></div></section>
 
-  <div class="modal getting-started-modal" id="gettingStartedModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h3>Getting Started with HerdLook</h3>
-          <p class="muted">Everything you need to know to start managing your herd.</p>
-        </div>
-        <button class="btn" id="gettingStartedClose">Close</button>
-      </div>
+<section id="photos" class="view hidden"><div class="toolbar"><input id="photoSearch" placeholder="Search animal photos..."><select id="photoCat"><option value="">All categories</option></select></div><div class="card"><h3 style="margin-top:0">Animal Photo Cards</h3><p class="muted">Photos live behind this button/page so herd cards stay compact on mobile.</p><div id="photoCards" class="photos"></div></div></section>
 
-      <div class="gs-step">
-        <div class="gs-step-num">1</div>
-        <div class="gs-step-content">
-          <h4>Add Animal</h4>
-          <p>Create animal profiles with ID, name, species, breed, tag/RFID, location, and markings. Attach reference photos for camera lookup.</p>
-        </div>
-      </div>
+<section id="lookup" class="view hidden"><div class="card"><h3 style="margin-top:0">Camera Lookup</h3><div class="notice"><b>Camera-assisted lookup:</b> Uses multi-photo weighted comparison in the browser. It suggests matches only. Always manually confirm.</div><div class="grid two"><div><div class="field"><label>Take/upload photo</label><input id="lookupFile" type="file" accept="image/*" capture="environment"></div><div id="lookupPreview" class="card muted" style="height:280px;display:grid;place-items:center">No photo selected</div></div><div><h4>Suggested matches</h4><div id="matches"><div class="record muted">Upload a photo to compare against animal reference photos.</div></div></div></div></div></section>
 
-      <div class="gs-step">
-        <div class="gs-step-num">2</div>
-        <div class="gs-step-content">
-          <h4>Camera Lookup</h4>
-          <p>Take or upload a photo and HerdLook compares it against saved reference photos to suggest possible matches. Always confirm manually before viewing or updating records.</p>
-        </div>
-      </div>
+<section id="guide" class="view hidden"><div class="card"><h3 style="margin-top:0">Photo Capture Best Practices</h3><div class="notice"><b>Minimum beta requirement:</b> 3 clear photos: front face, left side, right side. Recommended: 6–8 photos per animal.</div><div class="grid two"><div class="card"><h4>Cattle: 6 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Ear tag / brand close-up</li><li>Unique marking or muzzle/nose close-up</li></ol></div><div class="card"><h4>Horses: 7 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Face / blaze close-up</li><li>Legs / socks / markings</li><li>Brand, scar, or unique marking</li></ol></div></div><h4>Quality rules</h4><ul><li>Use good daylight or even barn lighting.</li><li>Keep the animal filling most of the frame.</li><li>Avoid blur, fences, shadows, people, and other animals blocking the view.</li><li>Update photos after seasonal coat changes, new tags, injury, grooming, or weight change.</li></ul></div></section>
 
-      <div class="gs-section">
-        <strong>Local-only data mode:</strong>
-        <p>HerdLook stores owner info, animal records, photos, documents, and locations in this browser/device by default. Nothing is uploaded to a cloud database unless a future version adds that by user choice.</p>
-      </div>
+<section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
 
-      <div class="gs-section">
-        <strong>Camera-assisted lookup:</strong>
-        <p>This beta uses photo similarity and manual confirmation. It should not replace RFID, ear tags, brands, microchips, or official animal ID.</p>
-      </div>
+<section id="documents" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Add Document</h3><form id="docForm"><div class="field"><label>Title</label><input id="docTitle" required></div><div class="field"><label>Type</label><select id="docType"><option>Vet / Health</option><option>Registration</option><option>Bill of Sale</option><option>Receipt</option><option>Lab / Test Result</option><option>Other</option></select></div><div class="field"><label>Attach to animal</label><select id="docAnimal"></select></div><div class="field"><label>File</label><input id="docFile" type="file" required></div><div class="field"><label>Notes</label><textarea id="docNotes"></textarea></div><button class="btn primary">Save Document</button></form></div><div class="card"><h3 style="margin-top:0">Stored Documents</h3><div id="docList"></div></div></div></section>
 
-      <div class="gs-section">
-        <strong>Beta review approach:</strong>
-        <p>Claw should place this beta workflow inside the started PWA, collect user feedback, then build the full production version after beta reviews are complete.</p>
-      </div>
+<section id="locations" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Location</h3><form id="locForm"><div class="field"><label>Name</label><input id="locName" required></div><div class="field"><label>Type</label><select id="locType"><option>Pasture</option><option>Barn</option><option>Lot / Pen</option><option>Water</option><option>Gate</option><option>Handling Area</option><option>Quarantine</option><option>Other</option></select></div><div class="field"><label>Notes</label><textarea id="locNotes"></textarea></div><button class="btn primary">Save Location</button></form></div><div class="card"><h3 style="margin-top:0">Locations</h3><div id="locList"></div></div></div></section>
 
-      <div class="gs-section">
-        <strong>Single-file copy/paste version:</strong>
-        <p>This file contains the app layout, styling, JavaScript logic, local-only storage, backup/import, photo guide, records, documents, PIN lock, and PWA-style metadata in one file for Claw to paste into the started PWA.</p>
-      </div>
+<section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-      <div class="gs-section" style="margin-bottom:0;">
-        <strong style="margin-bottom:8px;">Reference Photo Best Practice</strong>
-        <p style="margin:0 0 8px;color:var(--muted);font-size:13px;">For better camera lookup results, capture the right photo angles.</p>
-        <div class="gs-photo-list">
-          <div class="gs-photo-item"><span class="gs-num">1</span> Front face</div>
-          <div class="gs-photo-item"><span class="gs-num">2</span> Left side full body</div>
-          <div class="gs-photo-item"><span class="gs-num">3</span> Right side full body</div>
-          <div class="gs-photo-item"><span class="gs-num">4</span> Rear view</div>
-          <div class="gs-photo-item"><span class="gs-num">5</span> Tag / brand / ID close-up</div>
-          <div class="gs-photo-item"><span class="gs-num">6</span> Unique marking, muzzle/nose, blaze, scar, or leg marking close-up</div>
-        </div>
-        <button class="btn" data-go="photoGuide" onclick="closeGettingStarted()">Open Photo Guide</button>
-      </div>
-    </div>
-  </div>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
 
-  <div class="lock-screen" id="lockScreen">
-    <div class="lock-card">
-      <div class="brand" style="color:var(--ink);margin-bottom:14px;">
-        <div class="brand-mark" style="background:#eef5ef;border-color:#d6e4d9;"><img src="logo.png" alt="JRT"></div>
-        <div>
-          <h1 style="margin:0;">HerdLook</h1>
-          <p style="color:var(--muted);margin:2px 0 0;">Enter PIN to unlock</p>
-        </div>
-      </div>
-      <h2>Enter PIN</h2>
-      <p class="muted">Your PIN protects access to HerdLook on this browser.</p>
-      <div class="field">
-        <label>PIN / password</label>
-        <input id="unlockPin" type="password" autocomplete="current-password" />
-      </div>
-      <button class="btn primary" id="unlockBtn" style="width:100%;">Unlock HerdLook</button>
-      <p id="unlockError" class="muted" style="color:var(--danger);display:none;">Incorrect PIN/password.</p>
-    </div>
-  </div>
+<section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Data</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear Local Data</button></div><div class="notice" style="margin-top:14px"><b>HerdLook v1.2:</b> This is the full paid version. Local-only storage with unlimited animals, records, documents, locations, and photos. Keep backups regular.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data first, then import.</div></div></section>
+</main></div>
 
-  <div class="app">
-    <aside>
-      <div class="brand">
-        <div class="brand-mark"><img src="logo.png" alt="JRT"></div>
-        <div>
-          <h1>HerdLook</h1>
-          <p>Camera-assisted herd records &mdash; HLv1.1</p>
-        </div>
-      </div>
+<div class="modal" id="animalModal"><div class="modalbox"><div class="modalhead"><div><h3 id="animalTitle">Add Animal</h3><p class="muted">One-click save handles profile info and photos together.</p></div><button class="btn" onclick="closeModal('animalModal')">Close</button></div><form id="animalForm" class="formgrid"><input id="animalId" type="hidden">
+<div class="field"><label>Animal ID *</label><input id="aCode" required></div><div class="field"><label>Name</label><input id="aName"></div>
+<div class="field"><label>Species</label><select id="aSpecies"><option>Cattle</option><option>Horse</option><option>Goat</option><option>Sheep</option><option>Other</option></select></div><div class="field"><label>Category *</label><select id="aCategory"></select></div>
+<div class="field"><label>Breed</label><input id="aBreed" list="breedList"><datalist id="breedList"></datalist><div id="breedChips" class="chips"></div></div><div class="field"><label>Sex</label><select id="aSex"><option></option><option>Female</option><option>Male</option><option>Cow</option><option>Bull</option><option>Steer</option><option>Heifer</option><option>Mare</option><option>Stallion</option><option>Gelding</option></select></div>
+<div class="field"><label>Date of birth</label><input id="aDob" type="date"><small class="muted">Calendar opens for month, day, and year.</small></div><div class="field"><label>Tag / RFID / microchip</label><input id="aTag"></div>
+<div class="field"><label>Location</label><input id="aLoc" list="locListData"><datalist id="locListData"></datalist><div id="locChips" class="chips"></div></div><div class="field"><label>Dam information</label><input id="aDam"></div><div class="field"><label>Sire information</label><input id="aSire"></div>
+<div class="field full"><label>Markings / notes</label><textarea id="aMark"></textarea></div>
+<div class="field full"><label>Reference photos</label><div class="notice"><b>Minimum:</b> front face, left side, right side. <b>Recommended:</b> 6–8 photos.</div><input id="aPhotos" type="file" accept="image/*" multiple><p id="photoHint" class="muted"></p><div id="photoPreview" class="thumbs"></div></div>
+<div class="actions full"><button type="button" class="btn danger" id="deleteAnimal" onclick="deleteAnimal()">Delete</button><button class="btn primary">Save Animal & Photos</button></div></form></div></div>
 
-      <nav class="nav" id="nav">
-        <button class="active" data-view="dashboard">🏠 Dashboard</button>
-        <button data-view="herd">🐂 Herd</button>
-        <button data-view="lookup">📷 Camera Lookup</button>
-        <button data-view="photoGuide">✅ Photo Guide</button>
-        <button data-view="records">🩺 Records</button>
-        <button data-view="documents">🗂️ Documents</button>
-        <button data-view="locations">🗺️ Map/Locations</button>
-        <button data-view="profile">👤 Owner/Farm</button>
-        <button data-view="instructions">❔ How To</button>
-        <button data-view="privacy">🔒 Data/Privacy</button>
-        <button data-view="reports">📄 Reports</button>
-        <button data-view="settings">⚙️ Settings</button>
-      </nav>
+<div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3>Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
 
-      <div class="side-card">
-        <strong>Free Edition</strong>
-        <p>HerdLook is free to try with basic limits. Enter a product key in Settings to unlock the full version.</p>
-      </div>
-
-      <div class="side-card">
-        <strong>Local-only storage</strong>
-        <p>HerdLook stores data on this device/browser by default. No cloud database, no server account, and no automatic upload.</p>
-      </div>
-
-      <div class="side-card">
-        <strong>Recognition rule</strong>
-        <p>HerdLook suggests possible matches only. The user must confirm before opening or updating animal records.</p>
-      </div>
-    </aside>
-
-    <main>
-      <header class="topbar">
-        <div class="topbar-left">
-          <div class="topbar-info">
-            <h2 id="pageTitle">Dashboard</h2>
-            <p id="pageSubtitle">Manage animal profiles, photos, camera lookup, and herd records.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn" id="gettingStartedBtn">Getting Started</button>
-          <button class="btn primary" id="addAnimalBtn">+ Add Animal</button>
-          <button class="btn accent" id="quickLookupBtn">Camera Lookup</button>
-        </div>
-      </header>
-
-      <section id="dashboardView" class="view">
-        <div class="beta-banner" id="betaBanner" style="background:linear-gradient(135deg, #c9852f 0%, #e6a94d 100%); color:white; border:none;">
-          <strong>Free Tier</strong> — Loading...
-        </div>
-        <div class="grid cards">
-          <div class="card stat">
-            <small>Total Animals</small>
-            <strong id="statAnimals">0</strong>
-            <span>Active herd profiles</span>
-          </div>
-          <div class="card stat">
-            <small>Reference Photos</small>
-            <strong id="statPhotos">0</strong>
-            <span>Saved for camera lookup</span>
-          </div>
-          <div class="card stat">
-            <small>Records</small>
-            <strong id="statRecords">0</strong>
-            <span>Health, weight, breeding, movement, vaccination, deworming, dehorning, AI, notes, and sale history.</span>
-          </div>
-          <div class="card stat">
-            <small>Due Soon</small>
-            <strong id="statDue">0</strong>
-            <span>Follow-ups within 14 days</span>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <div class="row">
-            <div>
-              <h3 style="margin:0;">Owner / Farm Summary</h3>
-              <p class="muted" style="margin-top:4px;">Basic owner and farm/ranch information for reports and records.</p>
-            </div>
-            <button class="btn" data-go="profile">Edit Info</button>
-          </div>
-          <div id="ownerFarmSummary" class="owner-summary" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="grid two" style="margin-top:16px;">
-          <div class="card">
-            <div class="row">
-              <div>
-                <h3 style="margin:0;">Recent Animals</h3>
-                <p class="muted" style="margin-top:4px;">Recently added or updated profiles.</p>
-              </div>
-              <button class="btn" data-go="herd">View Herd</button>
-            </div>
-            <div id="recentAnimals" class="records"></div>
-          </div>
-
-          <div class="card">
-            <div class="row">
-              <div>
-                <h3 style="margin:0;">Recent Records</h3>
-                <p class="muted" style="margin-top:4px;">Latest activity across the herd.</p>
-              </div>
-              <button class="btn" data-go="records">View Records</button>
-            </div>
-            <div id="recentRecords" class="records"></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="herdView" class="view hidden">
-        <div class="toolbar">
-          <input id="herdSearch" placeholder="Search by name, ID, tag, breed, pasture, markings..." />
-          <select id="speciesFilter">
-            <option value="">All species</option>
-            <option>Cattle</option>
-            <option>Horse</option>
-            <option>Goat</option>
-            <option>Sheep</option>
-            <option>Other</option>
-          </select>
-          <button class="btn primary" id="addAnimalBtn2">+ Add Animal</button>
-        </div>
-        <div id="animalList" class="animal-list"></div>
-      </section>
-
-      <section id="photoGuideView" class="view hidden">
-        <div class="card">
-          <h3 style="margin-top:0;">Animal Reference Photo Guide</h3>
-          <p class="muted">Use this guide when creating a new animal profile. More good reference photos improve camera-assisted lookup results.</p>
-
-          <div class="notice">
-            <strong>Minimum beta requirement:</strong> Add at least 3 clear photos before relying on camera lookup: front face, left side, and right side. Recommended: 6 to 8 photos per animal.
-          </div>
-
-          <div class="grid two">
-            <div class="card" style="box-shadow:none;">
-              <h4 style="margin-top:0;">Cattle: Recommended 6 Photos</h4>
-              <div class="checklist">
-                <div class="check-row"><span>1</span> Front face</div>
-                <div class="check-row"><span>2</span> Left side full body</div>
-                <div class="check-row"><span>3</span> Right side full body</div>
-                <div class="check-row"><span>4</span> Rear view</div>
-                <div class="check-row"><span>5</span> Ear tag / brand close-up</div>
-                <div class="check-row"><span>6</span> Unique marking or muzzle/nose pattern close-up</div>
-              </div>
-            </div>
-
-            <div class="card" style="box-shadow:none;">
-              <h4 style="margin-top:0;">Horses: Recommended 7 Photos</h4>
-              <div class="checklist">
-                <div class="check-row"><span>1</span> Front face</div>
-                <div class="check-row"><span>2</span> Left side full body</div>
-                <div class="check-row"><span>3</span> Right side full body</div>
-                <div class="check-row"><span>4</span> Rear view</div>
-                <div class="check-row"><span>5</span> Face / blaze close-up</div>
-                <div class="check-row"><span>6</span> Legs / socks / markings close-up</div>
-                <div class="check-row"><span>7</span> Brand, scar, microchip proof, or unique marking close-up</div>
-              </div>
-            </div>
-          </div>
-
-          <h4>Photo Quality Rules</h4>
-          <div class="quality-grid">
-            <div class="quality-item">Use good daylight or even barn lighting.</div>
-            <div class="quality-item">Keep the animal filling most of the frame.</div>
-            <div class="quality-item">Avoid blurry photos and fast motion.</div>
-            <div class="quality-item">Avoid heavy shadows and glare.</div>
-            <div class="quality-item">Avoid fences, gates, people, or other animals blocking the subject.</div>
-            <div class="quality-item">Take side photos with the full body visible.</div>
-            <div class="quality-item">Capture unique markings, tags, brands, scars, blaze, socks, muzzle/nose patterns, or coat patterns.</div>
-            <div class="quality-item">Update photos when the animal changes: seasonal coat, weight change, injury, new tag, or major grooming change.</div>
-          </div>
-
-          <div class="notice" style="margin-top:16px;">
-            <strong>App wording:</strong> HerdLook does not identify animals with certainty. It suggests possible matches based on saved reference photos. Always confirm before opening or updating records.
-          </div>
-        </div>
-      </section>
-
-      <section id="lookupView" class="view hidden">
-        <div class="card">
-          <h3 style="margin-top:0;">Camera Lookup</h3>
-          <p class="muted">Take or upload a photo. HerdLook will compare it against saved reference photos and suggest possible matches.</p>
-          <div class="notice">
-            <strong>Better results need better reference photos:</strong> Each animal should have at least 3 photos, and preferably 6 to 8 photos from different angles.
-          </div>
-
-          <div class="notice">
-            <strong>Manual confirmation required:</strong> Always confirm the suggested match before viewing or updating records.
-          </div>
-
-          <div class="grid two">
-            <div>
-              <div class="field">
-                <label for="lookupPhoto">Take or upload animal photo</label>
-                <input id="lookupPhoto" type="file" accept="image/*" capture="environment" />
-              </div>
-              <div id="lookupPreview" class="animal-photo" style="border-radius:18px;height:280px;">No lookup photo selected</div>
-            </div>
-
-            <div>
-              <h4 style="margin-top:0;">Suggested matches</h4>
-              <div id="matchResults" class="records">
-                <div class="empty">Upload a photo to see possible matches.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="recordsView" class="view hidden">
-        <div class="toolbar">
-          <input id="recordSearch" placeholder="Search records..." />
-          <select id="recordTypeFilter">
-            <option value="">All record types</option>
-            <option>Health</option>
-            <option>Weight</option>
-            <option>Breeding</option>
-            <option>Movement</option>
-            <option>Note</option>
-            <option>Sale/Transfer</option>
-            <option>Vaccination</option>
-            <option>Dewormed</option>
-            <option>Dehorned</option>
-            <option>AI</option>
-            <option>Other</option>
-          </select>
-          <button class="btn primary" id="addRecordBtn">+ Add Record</button>
-        </div>
-        <div class="card">
-          <h3 style="margin-top:0;">Herd Records</h3>
-          <div id="allRecords" class="records"></div>
-        </div>
-      </section>
-
-      <section id="documentsView" class="view hidden">
-        <div class="grid two">
-          <div class="card">
-            <h3 style="margin-top:0;">Add Document</h3>
-            <p class="muted">Store beta copies of vet papers, bills of sale, registration papers, test results, receipts, or pasture documents.</p>
-            <form id="documentForm">
-              <div class="field">
-                <label>Document title *</label>
-                <input id="documentTitle" required placeholder="Example: Vaccine receipt, Coggins test, bill of sale" />
-              </div>
-              <div class="field">
-                <label>Document type</label>
-                <select id="documentType">
-                  <option>Vet / Health</option>
-                  <option>Registration</option>
-                  <option>Bill of Sale</option>
-                  <option>Receipt</option>
-                  <option>Lab / Test Result</option>
-                  <option>Pasture / Land</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Attach to animal</label>
-                <select id="documentAnimal"></select>
-              </div>
-              <div class="field">
-                <label>Upload document or image *</label>
-                <input id="documentFile" type="file" required accept="image/*,.pdf,.txt,.csv,.doc,.docx" />
-              </div>
-              <div class="field">
-                <label>Notes</label>
-                <textarea id="documentNotes" placeholder="Expiration date, vet name, sale details, lab notes..."></textarea>
-              </div>
-              <button class="btn primary" type="submit">Save Document</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <h3 style="margin-top:0;">Stored Documents</h3>
-            <div id="documentList" class="doc-list"></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="locationsView" class="view hidden">
-        <div class="grid two">
-          <div class="card">
-            <h3 style="margin-top:0;">Map / Locations</h3>
-            <p class="muted">Add pastures, barns, lots, water points, gates, handling areas, or quarantine areas.</p>
-            <form id="locationForm">
-              <div class="field">
-                <label>Location name *</label>
-                <input id="locationName" required placeholder="North Pasture, Barn 2, Quarantine Pen" />
-              </div>
-              <div class="field">
-                <label>Location type</label>
-                <select id="locationType">
-                  <option>Pasture</option>
-                  <option>Barn</option>
-                  <option>Lot / Pen</option>
-                  <option>Water</option>
-                  <option>Gate</option>
-                  <option>Handling Area</option>
-                  <option>Quarantine</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-grid">
-                <div class="field">
-                  <label>Latitude</label>
-                  <input id="locationLat" placeholder="Optional GPS latitude" />
-                </div>
-                <div class="field">
-                  <label>Longitude</label>
-                  <input id="locationLng" placeholder="Optional GPS longitude" />
-                </div>
-              </div>
-              <div class="field">
-                <label>Notes</label>
-                <textarea id="locationNotes" placeholder="Acres, fencing, water source, shelter, gate code, herd notes..."></textarea>
-              </div>
-              <button class="btn primary" type="submit">Save Location</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="map-box" id="mapBox">
-              <div>
-                <strong>Beta field map</strong>
-                <p style="margin:6px 0 0;">Pins are placed visually for planning. Add GPS later for real map integration.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Location List</h3>
-          <div id="locationList" class="location-list"></div>
-        </div>
-      </section>
-
-      <section id="profileView" class="view hidden">
-        <div class="card">
-          <h3 style="margin-top:0;">Owner & Farm/Ranch Information</h3>
-          <p class="muted">This information can appear on reports, exports, and printed records.</p>
-          <form id="profileForm">
-            <div class="form-grid">
-              <div class="field">
-                <label>Owner name</label>
-                <input id="ownerName" placeholder="Owner or business name" />
-              </div>
-              <div class="field">
-                <label>Farm / ranch name</label>
-                <input id="farmName" placeholder="Farm, ranch, stable, or operation name" />
-              </div>
-              <div class="field">
-                <label>Phone</label>
-                <input id="ownerPhone" placeholder="Phone number" />
-              </div>
-              <div class="field">
-                <label>Email</label>
-                <input id="ownerEmail" type="email" placeholder="Email address" />
-              </div>
-              <div class="field full">
-                <label>Farm / ranch address</label>
-                <input id="farmAddress" placeholder="Street, city, state, ZIP" />
-              </div>
-              <div class="field">
-                <label>Primary animal type</label>
-                <input id="farmType" placeholder="Cattle, horses, mixed livestock..." />
-              </div>
-              <div class="field">
-                <label>Veterinarian / clinic</label>
-                <input id="vetInfo" placeholder="Vet name, clinic, phone" />
-              </div>
-              <div class="field full">
-                <label>Emergency / operation notes</label>
-                <textarea id="farmNotes" placeholder="Emergency contacts, gate notes, handling notes, biosecurity notes..."></textarea>
-              </div>
-            </div>
-            <button class="btn primary" type="submit">Save Owner/Farm Info</button>
-          </form>
-        </div>
-      </section>
-
-      <section id="instructionsView" class="view hidden">
-        <div class="card">
-          <h3 style="margin-top:0;">How to Use HerdLook Beta</h3>
-          <div class="instruction-list">
-            <div class="instruction-item">
-              <strong>1. Set up owner and farm/ranch info</strong>
-              <p class="muted">Open Owner/Farm and add the owner name, farm/ranch name, contact info, vet info, and notes. This helps make reports more complete.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>2. Add animal profiles</strong>
-              <p class="muted">Create one profile per animal. Add animal ID, name, species, breed, tag/RFID/microchip, location, and markings.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>3. Add good reference photos</strong>
-              <p class="muted">Use the Photo Guide. Minimum beta set: front face, left side, and right side. Best set: 6 to 8 clear photos covering face, both sides, rear, tag/brand/ID, and unique markings.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>4. Use Camera Lookup</strong>
-              <p class="muted">Take or upload a photo. HerdLook will suggest possible matches. Always confirm manually before opening or changing records.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>5. Add records</strong>
-              <p class="muted">Log health, weight, breeding, movement, notes, and sale/transfer events. Add follow-up dates when needed.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>6. Store documents</strong>
-              <p class="muted">Use the Documents page for vet papers, registration papers, receipts, test results, or bills of sale.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>7. Add map/locations</strong>
-              <p class="muted">Add pastures, barns, pens, gates, and water points. Use location names consistently on animal profiles.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>8. Export backups regularly</strong>
-              <p class="muted">Because HerdLook is local-only by default, use Data/Privacy or Settings to export a full backup file. Save that file somewhere safe.</p>
-            </div>
-            <div class="instruction-item">
-              <strong>9. Turn on a PIN lock</strong>
-              <p class="muted">Go to Settings and set a PIN. This protects casual access on the device, but it is not a replacement for full encryption.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="privacyView" class="view hidden">
-        <div class="grid two">
-          <div class="card">
-            <h3 style="margin-top:0;">Local-Only Data Storage</h3>
-            <p class="muted">HerdLook is designed for users who prefer not to use cloud storage for farm, ranch, herd, and document records.</p>
-
-            <div class="notice">
-              <strong>No cloud by default:</strong> This beta does not use Firebase, Supabase, server accounts, cloud sync, or external databases. Data stays in this browser/device unless the user exports it.
-            </div>
-
-            <div class="instruction-list">
-              <div class="instruction-item">
-                <strong>What is stored locally?</strong>
-                <p class="muted">Owner/farm info, animal profiles, records, reference photos, stored documents, map/locations, and PIN lock settings.</p>
-              </div>
-              <div class="instruction-item">
-                <strong>What can delete local data?</strong>
-                <p class="muted">Clearing browser/site data, using private browsing, device loss, damaged device storage, or uninstalling the app/browser can remove records.</p>
-              </div>
-              <div class="instruction-item">
-                <strong>How should users protect records?</strong>
-                <p class="muted">Use Export Full Backup regularly and save the backup file somewhere safe, such as an external drive, secure local folder, or encrypted storage device.</p>
-              </div>
-              <div class="instruction-item">
-                <strong>Production recommendation</strong>
-                <p class="muted">For a sold version, upgrade storage to IndexedDB and offer optional encrypted backup files. Keep cloud sync optional, not required.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3 style="margin-top:0;">Backup & Restore</h3>
-            <p class="muted">Use these tools to keep local copies of HerdLook data and move records to another device/browser.</p>
-
-            <div class="grid">
-              <button class="btn primary" id="exportFullBackupBtn">Export Full Backup</button>
-
-              <div class="field">
-                <label>Import backup file</label>
-                <input id="importBackupFile" type="file" accept="application/json,.json" />
-              </div>
-
-              <button class="btn" id="importBackupBtn">Import Backup</button>
-            </div>
-
-            <div class="notice" style="margin-top:14px;">
-              <strong>Backup warning:</strong> Photos and documents are stored inside the backup as data URLs. Very large document/photo libraries may create large backup files. A production version should use IndexedDB and a packaged export format.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="reportsView" class="view hidden">
-        <div class="grid three">
-          <div class="card">
-            <h3>Herd List</h3>
-            <p class="muted">Export animal profile summary.</p>
-            <button class="btn primary" id="exportAnimalsCsv">Export Animals CSV</button>
-          </div>
-          <div class="card">
-            <h3>Records</h3>
-            <p class="muted">Export treatment, weight, breeding, movement, and notes.</p>
-            <button class="btn primary" id="exportRecordsCsv">Export Records CSV</button>
-          </div>
-          <div class="card">
-            <h3>Print Report</h3>
-            <p class="muted">Print dashboard, herd summary, and recent records.</p>
-            <button class="btn primary" onclick="window.print()">Print Report</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Report Preview</h3>
-          <div id="reportPreview"></div>
-        </div>
-      </section>
-
-      <section id="settingsView" class="view hidden">
-        <div class="card">
-          <h3 style="margin-top:0;">🔓 Unlock Full Version</h3>
-          <p class="muted">HerdLook Free Edition limits you to 2 animals and 1 location. Enter your product key to unlock unlimited animals, locations, and backup import.</p>
-          <div class="form-grid">
-            <div class="field">
-              <label>Product Key</label>
-              <input id="unlockKeyInput" type="text" placeholder="Enter your product key (e.g. HL-FULL-XXXXX)" />
-            </div>
-            <div class="full actions">
-              <button class="btn primary" id="unlockKeyBtn">Unlock Full Version</button>
-            </div>
-          </div>
-          <p id="unlockKeyStatus" class="muted" style="margin-top:8px;display:none;"></p>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Settings & Data</h3>
-          <p class="muted">All data is stored locally on this device/browser. No cloud storage required.</p>
-          <div class="grid two">
-            <button class="btn" id="seedDemoBtn">Load Demo Herd</button>
-            <button class="btn danger" id="clearDataBtn">Clear All Local Data</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">Local Backup</h3>
-          <p class="muted">Export a full backup before clearing browser data, changing devices, or testing major updates.</p>
-          <div class="actions">
-            <button class="btn primary" id="exportFullBackupBtn2">Export Full Backup</button>
-            <button class="btn" data-go="privacy">Open Data/Privacy Page</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px;">
-          <h3 style="margin-top:0;">PIN / Password Lock</h3>
-          <p class="muted">Set a local PIN for device security. This protects access on this browser only.</p>
-          <form id="pinForm" class="form-grid">
-            <div class="field">
-              <label>New PIN / password</label>
-              <input id="newPin" type="password" placeholder="Example: 4-8 digit PIN or password" />
-            </div>
-            <div class="field">
-              <label>Confirm PIN / password</label>
-              <input id="confirmPin" type="password" placeholder="Confirm" />
-            </div>
-            <div class="full actions">
-              <button class="btn primary" type="submit">Save PIN Lock</button>
-              <button class="btn" type="button" id="lockNowBtn">Lock Now</button>
-              <button class="btn danger" type="button" id="removePinBtn">Remove PIN</button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <p class="footer-note">HerdLook — camera-assisted animal recognition and herd management.</p>
-    </main>
-  </div>
-
-  <div class="modal" id="animalModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h3 id="animalModalTitle">Add Animal</h3>
-          <p>Create a profile and attach reference photos for camera lookup.</p>
-        </div>
-        <button class="btn" data-close="animalModal">Close</button>
-      </div>
-
-      <form id="animalForm">
-        <input type="hidden" id="animalId" />
-        <div class="form-grid">
-          <div class="field">
-            <label>Animal ID *</label>
-            <input id="animalCode" required placeholder="Example: Cow #17, Daisy, H-024" />
-          </div>
-          <div class="field">
-            <label>Name</label>
-            <input id="animalName" placeholder="Optional name" />
-          </div>
-          <div class="field">
-            <label>Species *</label>
-            <select id="animalSpecies" required>
-              <option>Cattle</option>
-              <option>Horse</option>
-              <option>Goat</option>
-              <option>Sheep</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Breed</label>
-            <input id="animalBreed" placeholder="Angus, Hereford, Quarter Horse..." />
-          </div>
-          <div class="field">
-            <label>Sex</label>
-            <select id="animalSex">
-              <option value="">Unknown</option>
-              <option>Female</option>
-              <option>Male</option>
-              <option>Steer</option>
-              <option>Bull</option>
-              <option>Gelding</option>
-              <option>Mare</option>
-              <option>Stallion</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Date of birth / estimated age</label>
-            <input id="animalDob" placeholder="2024-03-21 or 3 years" />
-          </div>
-          <div class="field">
-            <label>Tag / RFID / microchip</label>
-            <input id="animalTag" placeholder="Official or farm ID" />
-          </div>
-          <div class="field">
-            <label>Pasture / location</label>
-            <input id="animalLocation" placeholder="North pasture, Barn 2..." />
-          </div>
-          <div class="field full">
-            <label>Color, markings, brands, notes</label>
-            <textarea id="animalMarkings" placeholder="Black with white blaze, left rear sock, ear tag color, brand, scars..."></textarea>
-          </div>
-          <div class="field full">
-            <label>Reference photos</label>
-            <div class="notice">
-              <strong>Best practice:</strong> Minimum 3 photos: front face, left side, and right side. Recommended 6 to 8 photos: front face, left side, right side, rear, tag/brand/ID, and unique marking close-up.
-            </div>
-            <input id="animalPhotos" type="file" accept="image/*" multiple />
-            <small class="muted">Best beta photos: clear, well-lit, close enough, not blocked by fencing, and taken from several angles.</small>
-            <div id="photoCountHint" class="muted" style="margin-top:8px;"></div>
-            <div id="animalPhotoPreview" class="photo-grid"></div>
-          </div>
-        </div>
-
-        <div class="actions" style="margin-top:14px;">
-          <button class="btn danger" type="button" id="deleteAnimalBtn">Delete</button>
-          <button class="btn primary" type="submit">Save Animal</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal" id="recordModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h3>Add Record</h3>
-          <p>Attach a health, weight, breeding, movement, note, or sale record to an animal.</p>
-        </div>
-        <button class="btn" data-close="recordModal">Close</button>
-      </div>
-
-      <form id="recordForm">
-        <div class="form-grid">
-          <div class="field">
-            <label>Animal *</label>
-            <select id="recordAnimal" required></select>
-          </div>
-          <div class="field">
-            <label>Record type *</label>
-            <select id="recordType" required>
-              <option>Health</option>
-              <option>Weight</option>
-              <option>Breeding</option>
-              <option>Movement</option>
-              <option>Note</option>
-              <option>Sale/Transfer</option>
-              <option>Vaccination</option>
-              <option>Dewormed</option>
-              <option>Dehorned</option>
-              <option>AI</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Date *</label>
-            <input id="recordDate" type="date" required />
-          </div>
-          <div class="field">
-            <label>Follow-up date</label>
-            <input id="recordFollowUp" type="date" />
-          </div>
-          <div class="field full">
-            <label>Details *</label>
-            <textarea id="recordDetails" required placeholder="Treatment, dosage, weight, breeding details, pasture movement, vet notes, sale notes..."></textarea>
-          </div>
-        </div>
-        <div class="actions" style="margin-top:14px;">
-          <button class="btn primary" type="submit">Save Record</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal" id="profileModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h3 id="profileTitle">Animal Profile</h3>
-          <p id="profileSub" class="muted"></p>
-        </div>
-        <button class="btn" data-close="profileModal">Close</button>
-      </div>
-
-      <div class="tabs">
-        <button class="active" data-profile-tab="overview">Overview</button>
-        <button data-profile-tab="photos">Photos</button>
-        <button data-profile-tab="records">Records</button>
-      </div>
-
-      <div id="profileContent"></div>
-    </div>
-  </div>
-<script src="app.js"></script>
+<script>
+const K="herdlook_v12", cats=["Cow","Bull","Bull Calf","Heifer Calf","Heifer","Steer","Horse","Other"];
+let S={animals:[],records:[],docs:[],locations:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
+const label=a=>[a.code,a.name].filter(Boolean).join(" — ")||"Unnamed", cat=a=>a.category||"Other", today=()=>new Date().toISOString().slice(0,10);
+function save(){localStorage.setItem(K,JSON.stringify(S))}
+function load(){try{Object.assign(S,JSON.parse(localStorage.getItem(K))||{})}catch{}}
+function closeDrawer(){side.classList.remove("open");backdrop.classList.remove("open")}function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
+menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
+function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],settings:["Settings","PIN, demo data, and local testing."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
+nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)view(b.dataset.view)}
+function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).length,0)}
+function render(){renderCats();renderStats();renderHerd();renderPhotos();renderRecords();renderDocs();renderLocs();renderOwner();renderSelects();renderBatch();renderSuggestions();renderLock()}
+function renderStats(){sAnimals.textContent=S.animals.length;sPhotos.textContent=countPhotos();sRecords.textContent=S.records.length;sDue.textContent=S.records.filter(r=>r.follow&&new Date(r.follow)-new Date(today())<=12096e5&&new Date(r.follow)>=new Date(today())).length;recent.classList.toggle("hidden",!S.recent);recentBtn.textContent=S.recent?"Hide Recent":"Show Recent";recent.innerHTML=S.animals.slice(-5).reverse().map(a=>`<div class="record"><b>${esc(label(a))}</b><br><span class="muted">${esc(cat(a))} • ${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</span></div>`).join("")||'<div class="record muted">No animals yet.</div>'}
+function renderCats(){catCards.innerHTML=cats.map(c=>{let arr=S.animals.filter(a=>cat(a)==c),ids=arr.map(a=>a.code||a.name||"No ID").slice(0,5).join(", ");return`<button class="card catcard ${S.cat==c?"active":""}" onclick="selectCat('${c}')"><small>${c}</small><strong>${arr.length}</strong><small>${esc(ids||"No animals")}</small></button>`}).join("");let arr=S.cat?S.animals.filter(a=>cat(a)==S.cat):S.animals;catIds.innerHTML=arr.map(a=>`<button class="idbtn" onclick="openAnimal('${a.id}')"><strong>${esc(a.code||a.name)}</strong><small class="muted">${esc(cat(a))} • ${esc(a.breed||"No breed")} • ${esc(a.location||"No location")}</small></button>`).join("")||'<div class="record muted">No animals in this category.</div>'}
+function selectCat(c){S.cat=S.cat==c?"":c;renderCats()}
+function toggleRecent(){S.recent=!S.recent;renderStats()}
+function filtered(){
+  let q=(search?.value||"").toLowerCase(),c=catFilter?.value||"",mode=sort?.value||"",order=sortOrder?.value||"desc";
+  let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,a.dam,a.sire,a.tag,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));
+  const dir=order==="asc"?1:-1;
+  if(mode==="dob"){
+    arr.sort((a,b)=>{
+      let av=a.dob?new Date(a.dob).getTime():0,bv=b.dob?new Date(b.dob).getTime():0;
+      return (av-bv)*dir;
+    });
+  } else if(mode==="added"){
+    arr.sort((a,b)=>{
+      let av=a.createdAt?new Date(a.createdAt).getTime():0,bv=b.createdAt?new Date(b.createdAt).getTime():0;
+      return (av-bv)*dir;
+    });
+  } else if(mode==="id"){
+    arr.sort((a,b)=>String(a.code||a.name||"").localeCompare(String(b.code||b.name||""))*dir);
+  } else {
+    arr.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+  }
+  return arr
+}
+function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Open/Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn primary" onclick="openRecord('${a.id}')">Add Record</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
+function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=photoCat?.value||"";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>`<div class="photoCard">${a.photos?.[0]?`<img src="${a.photos[0].src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${(a.photos||[]).length} photos</p><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`).join("")||'<div class="record muted">No photo cards found.</div>'}
+function openPhotoPage(animalId){view("photos");let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
+function renderBatch(){batchPanel.classList.toggle("hidden",!S.batch);batchList.innerHTML=S.animals.map(a=>`<div class="batch" data-id="${a.id}"><div class="field"><label>${esc(a.code||a.name)} category</label><select class="bcat">${cats.map(c=>`<option ${cat(a)==c?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Breed</label><input class="bbreed" value="${esc(a.breed||"")}"></div><div class="field"><label>Location</label><input class="bloc" value="${esc(a.location||"")}"></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`).join("")}
+function toggleBatch(){S.batch=!S.batch;renderBatch()}
+function saveBatch(){document.querySelectorAll(".batch").forEach(r=>{let a=S.animals.find(x=>x.id==r.dataset.id);if(a){a.category=r.querySelector(".bcat").value;a.breed=r.querySelector(".bbreed").value.trim();a.location=r.querySelector(".bloc").value.trim();a.updatedAt=new Date().toISOString()}});save();render();alert("All edits saved.")}
+function unique(f){return[...new Set(S.animals.map(a=>(a[f]||"").trim()).filter(Boolean))].slice(-8).reverse()}
+function renderSuggestions(){breedList.innerHTML=unique("breed").map(v=>`<option value="${esc(v)}">`).join("");locListData.innerHTML=unique("location").map(v=>`<option value="${esc(v)}">`).join("");breedChips.innerHTML=unique("breed").map(v=>`<button type="button" class="chip" onclick="aBreed.value='${esc(v)}'">${esc(v)}</button>`).join("");locChips.innerHTML=unique("location").map(v=>`<button type="button" class="chip" onclick="aLoc.value='${esc(v)}'">${esc(v)}</button>`).join("")}
+function openModal(m){$(m).classList.add("open")}function closeModal(m){$(m).classList.remove("open")}
+function openAnimal(animalId){animalForm.reset();animalIdEl=animalId;let last=S.animals.at(-1);S.photos=[];deleteAnimal.classList.toggle("hidden",!animalId);if(last&&!animalId){aSpecies.value=last.species||"Cattle";aCategory.value=last.category||"Cow";aBreed.value=last.breed||"";aLoc.value=last.location||""}let a=S.animals.find(x=>x.id==animalId);animalTitle.textContent=a?"Edit Animal":"Add Animal";if(a){animalId.value=a.id;aCode.value=a.code||"";aName.value=a.name||"";aSpecies.value=a.species||"Cattle";aCategory.value=a.category||cat(a);aBreed.value=a.breed||"";aSex.value=a.sex||"";aDob.value=a.dob||"";aTag.value=a.tag||"";aLoc.value=a.location||"";aDam.value=a.dam||"";aSire.value=a.sire||"";aMark.value=a.markings||"";S.photos=structuredClone(a.photos||[])}renderPhotoPreview();openModal("animalModal")}
+function renderPhotoPreview(){let n=S.photos.length;photoHint.textContent=`${n} reference photo${n==1?"":"s"} added. ${n>=6?"Good set.":n>=3?"Minimum reached; add more for better recognition.":"Add at least "+(3-n)+" more."}`;photoPreview.innerHTML=S.photos.map(p=>`<div class="thumb"><img src="${p.src}"></div>`).join("")}
+function fileUrl(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+function sig(src){return new Promise((res,rej)=>{let im=new Image();im.onload=()=>{let c=document.createElement("canvas"),x=c.getContext("2d",{willReadFrequently:true});c.width=c.height=32;x.drawImage(im,0,0,32,32);let d=x.getImageData(0,0,32,32).data,gray=[],sum=0,h=Array(24).fill(0);for(let i=0;i<d.length;i+=4){let r=d[i],g=d[i+1],b=d[i+2],y=.299*r+.587*g+.114*b;gray.push(y);sum+=y;h[Math.min(7,r>>5)]++;h[8+Math.min(7,g>>5)]++;h[16+Math.min(7,b>>5)]++}let avg=sum/gray.length;res({hash:gray.map(v=>v>=avg?"1":"0").join(""),hist:h.map(v=>v/gray.length)})};im.onerror=rej;im.src=src})}
+function cmp(a,b){if(!a||!b)return 0;let same=0;for(let i=0;i<a.hash.length;i++)if(a.hash[i]==b.hash[i])same++;let hd=same/a.hash.length,dist=0;for(let i=0;i<a.hist.length;i++)dist+=Math.abs(a.hist[i]-b.hist[i]);return Math.round((hd*.65+Math.max(0,1-dist/6)*.35)*100)}
+aPhotos.onchange=async e=>{for(const f of e.target.files){let src=await fileUrl(f);S.photos.push({id:id(),src,signature:await sig(src),createdAt:new Date().toISOString()})}aPhotos.value="";renderPhotoPreview()}
+animalForm.onsubmit=e=>{e.preventDefault();let existing=S.animals.find(a=>a.id==animalId.value),a={id:animalId.value||id(),code:aCode.value.trim(),name:aName.value.trim(),species:aSpecies.value,category:aCategory.value,breed:aBreed.value.trim(),sex:aSex.value,dob:aDob.value,tag:aTag.value.trim(),location:aLoc.value.trim(),dam:aDam.value.trim(),sire:aSire.value.trim(),markings:aMark.value.trim(),photos:S.photos,updatedAt:new Date().toISOString(),createdAt:existing?.createdAt||new Date().toISOString()};if(existing)Object.assign(existing,a);else S.animals.push(a);save();closeModal("animalModal");render()}
+function deleteAnimal(){if(!animalId.value||!confirm("Delete this animal and its records?"))return;S.animals=S.animals.filter(a=>a.id!=animalId.value);S.records=S.records.filter(r=>r.animalId!=animalId.value);save();closeModal("animalModal");render()}
+function renderSelects(){[catFilter,photoCat,aCategory].forEach(sel=>{if(!sel)return;let val=sel.value;sel.innerHTML=(sel==aCategory?"":"<option value=''>All categories</option>")+cats.map(c=>`<option>${c}</option>`).join("");sel.value=val|| (sel==aCategory?"Cow":"")});rAnimal.innerHTML=S.animals.map(a=>`<option value="${a.id}">${esc(label(a))}</option>`).join("");docAnimal.innerHTML="<option value=''>General</option>"+S.animals.map(a=>`<option value="${a.id}">${esc(label(a))}</option>`).join("")}
+function openRecord(animalId){recForm.reset();rDate.value=today();renderSelects();if(animalId)rAnimal.value=animalId;openModal("recordModal")}
+recForm.onsubmit=e=>{e.preventDefault();S.records.push({id:id(),animalId:rAnimal.value,type:rType.value,date:rDate.value,follow:rFollow.value,details:rDetails.value.trim(),createdAt:new Date().toISOString()});save();closeModal("recordModal");render()}
+function renderRecords(){let q=(recordSearch?.value||"").toLowerCase(),t=recordType?.value||"";recordList.innerHTML=S.records.slice().reverse().filter(r=>{let a=S.animals.find(x=>x.id==r.animalId);return(!t||r.type==t)&&[r.type,r.date,r.details,a?label(a):""].join(" ").toLowerCase().includes(q)}).map(r=>{let a=S.animals.find(x=>x.id==r.animalId);return`<div class="record"><div class="row"><div><b>${esc(r.type)} — ${esc(a?label(a):"Unknown")}</b><br><span class="muted">${esc(r.date)} ${r.follow?"• Follow-up "+esc(r.follow):""}</span></div><button class="btn danger" onclick="delRecord('${r.id}')">Delete</button></div><p>${esc(r.details)}</p></div>`}).join("")||'<div class="record muted">No records.</div>'}
+function delRecord(rid){S.records=S.records.filter(r=>r.id!=rid);save();render()}
+docForm.onsubmit=async e=>{e.preventDefault();let f=docFile.files[0];S.docs.push({id:id(),title:docTitle.value,type:docType.value,animalId:docAnimal.value,fileName:f.name,src:await fileUrl(f),notes:docNotes.value,createdAt:new Date().toISOString()});docForm.reset();save();render()}
+function renderDocs(){docList.innerHTML=S.docs.slice().reverse().map(d=>`<div class="doc"><div class="row"><div><a href="${d.src}" download="${esc(d.fileName)}"><b>${esc(d.title)}</b></a><br><span class="muted">${esc(d.type)} • ${esc(d.fileName)}</span></div><button class="btn danger" onclick="S.docs=S.docs.filter(x=>x.id!='${d.id}');save();render()">Delete</button></div><p>${esc(d.notes||"")}</p></div>`).join("")||'<div class="doc muted">No documents.</div>'}
+locForm.onsubmit=e=>{e.preventDefault();S.locations.push({id:id(),name:locName.value,type:locType.value,notes:locNotes.value});locForm.reset();save();render()}
+function renderLocs(){locList.innerHTML=S.locations.map(l=>`<div class="loc"><div class="row"><div><b>${esc(l.name)}</b><br><span class="muted">${esc(l.type)}</span></div><button class="btn danger" onclick="S.locations=S.locations.filter(x=>x.id!='${l.id}');save();render()">Delete</button></div><p>${esc(l.notes||"")}</p></div>`).join("")||'<div class="loc muted">No locations.</div>'}
+ownerForm.onsubmit=e=>{e.preventDefault();S.owner={ownerName:ownerName.value,farmName:farmName.value,ownerPhone:ownerPhone.value,ownerEmail:ownerEmail.value,farmAddress:farmAddress.value,farmType:farmType.value,vetInfo:vetInfo.value,farmNotes:farmNotes.value};save();render();alert("Owner/Farm info saved.")}
+function renderOwner(){let o=S.owner||{};ownerSummary.innerHTML=`<p><b>${esc(o.farmName||"Farm/Ranch not set")}</b></p><p class="muted">Owner: ${esc(o.ownerName||"Not set")}<br>Contact: ${esc([o.ownerPhone,o.ownerEmail].filter(Boolean).join(" • ")||"Not set")}<br>Vet: ${esc(o.vetInfo||"Not set")}</p>`;["ownerName","farmName","ownerPhone","ownerEmail","farmAddress","farmType","vetInfo","farmNotes"].forEach(k=>{if($(k))$(k).value=o[k]||""})}
+lookupFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;let src=await fileUrl(f);lookupPreview.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;let s=await sig(src);let ms=S.animals.map(a=>{let scores=(a.photos||[]).map(p=>cmp(s,p.signature)).sort((x,y)=>y-x),best=scores[0]||0,avg=scores.length?Math.round(scores.slice(0,3).reduce((q,v)=>q+v,0)/Math.min(3,scores.length)):0,score=Math.min(99,Math.round(best*.72+avg*.23+Math.min(8,(a.photos||[]).length)));return{a,score}}).filter(m=>m.score).sort((a,b)=>b.score-a.score).slice(0,5);matches.innerHTML=ms.map(m=>`<div class="match">${m.a.photos?.[0]?`<img src="${m.a.photos[0].src}">`:"<div></div>"}<div><b>${esc(label(m.a))}</b><p class="muted">${esc(cat(m.a))} • ${esc(m.a.location||"No location")}</p><div class="bar"><span style="width:${m.score}%"></span></div><small class="muted">${m.score}% camera-assisted suggestion. Confirm manually.</small></div><button class="btn primary" onclick="openAnimal('${m.a.id}')">Confirm/Open</button></div>`).join("")||'<div class="record muted">No reference photos found.</div>'}
+function exportBackup(){let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="herdlook-v12-backup-"+today()+".json";a.click();URL.revokeObjectURL(u)}
+function hasExistingData(){
+  return (S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||
+    (S.owner&&Object.keys(S.owner).some(k=>S.owner[k]));
+}
+async function importBackup(){
+  let f=importFile.files[0];
+  if(!f)return alert("Choose a backup file first.");
+  if(hasExistingData()){
+    alert("Import stopped. HerdLook will not overwrite existing local data. First export a safety backup, then use Settings → Clear Local Data. After the old data is deleted, import the backup file.");
+    return;
+  }
+  let data;
+  try{data=JSON.parse(await f.text())}catch{alert("This is not a valid HerdLook JSON backup file.");return}
+  if(!data || typeof data!=="object" || !Array.isArray(data.animals)){
+    alert("This backup file does not look like a valid HerdLook backup.");
+    return;
+  }
+  S=data;
+  save();
+  render();
+  alert("Backup imported. Existing data was not overwritten because the app was empty before import.");
+}
+function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
+function lockNow(){if(!S.pin)return alert("Set a PIN first.");lock.classList.add("open")}
+function clearPin(){S.pin="";save();renderLock()}
+function renderLock(){if(S.pin&&sessionStorage.getItem("herdlook_v12_unlocked")!="yes")lock.classList.add("open");else lock.classList.remove("open")}
+unlockBtn.onclick=()=>{if(unlockPin.value==S.pin){sessionStorage.setItem("herdlook_v12_unlocked","yes");unlockPin.value="";unlockErr.classList.add("hidden");lock.classList.remove("open")}else unlockErr.classList.remove("hidden")}
+function clearAll(){
+  if(confirm("Clear/delete all old local HerdLook data from this device? Import will only work after old data is deleted. Export a backup first if needed.")){
+    localStorage.removeItem(K);
+    sessionStorage.removeItem("herdlook_v12_unlocked");
+    location.reload();
+  }
+}
+function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",category:"Cow",breed:"Angus Cross",sex:"Cow",dob:"2022-04-15",tag:"RFID-0017",location:"North Pasture",dam:"C-003",sire:"B-012",markings:"Black cow, yellow left ear tag.",photos:[]},{id:id(),code:"B-012",name:"Ranger",species:"Cattle",category:"Bull",breed:"Angus",sex:"Bull",dob:"2020-03-02",tag:"RFID-0012",location:"Bull Lot",dam:"Unknown",sire:"Unknown",markings:"Black bull.",photos:[]},{id:id(),code:"HC-004",name:"Rose",species:"Cattle",category:"Heifer Calf",breed:"Hereford Cross",sex:"Female",dob:"2025-02-10",tag:"HC004",location:"Calf Pen",dam:"C-017",sire:"B-012",markings:"White face.",photos:[]}];S.records=[{id:id(),animalId:S.animals[0].id,type:"Health",date:today(),follow:"",details:"Routine check."}];save();render()}
+["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType"].forEach(i=>setTimeout(()=>$(i)&&($(i).oninput=render,$(i).onchange=render),0));
+load();renderSelects();render();if(!S.pin)lock.classList.remove("open");
+</script>
 </body>
 </html>
