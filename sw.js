@@ -1,4 +1,4 @@
-const CACHE_NAME = 'herdlook-beta-v7';
+const CACHE_NAME = 'herdlook-beta-v8';
 const APP_SHELL = [
   'index.html',
   'styles.css',
@@ -24,6 +24,20 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // For navigation and app shell files: network first, cache fallback
+  if (event.request.mode === 'navigate' || APP_SHELL.some(f => event.request.url.endsWith(f))) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request).then(c => c || caches.match('index.html')))
+    );
+    return;
+  }
+  // Other requests: cache first, network fallback
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -34,10 +48,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       });
-    }).catch(() => {
-      if (event.request.mode === 'navigate') {
-        return caches.match('index.html');
-      }
     })
   );
 });

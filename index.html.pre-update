@@ -214,31 +214,5 @@ function checkLicense(){let lk=localStorage.getItem(LICENSE_STORAGE);if(!lk){doc
 async function activateLicense(){let key=document.getElementById("licenseKeyInput").value.trim().toUpperCase();let errEl=document.getElementById("licenseErr");let btn=document.getElementById("activateBtn");if(!key){errEl.textContent="Please enter a license key.";errEl.classList.add("show");return}errEl.classList.remove("show");btn.textContent="Activating...";btn.disabled=true;let fp=getFingerprint();try{let res=await fetch(LICENSE_API+"/activate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({licenseKey:key,deviceFingerprint:fp,deviceLabel:navigator.userAgent?.slice(0,50)||"Unknown"})});let data=await res.json();if(data.ok){localStorage.setItem(LICENSE_STORAGE,key);document.getElementById("licenseLock").classList.remove("open");alert("HerdLook activated! License key verified for "+data.deviceLimit+" device(s).");location.reload()}else{errEl.textContent=data.message||"Activation failed.";errEl.classList.add("show");btn.textContent="Activate HerdLook";btn.disabled=false}}catch(e){errEl.textContent="Connection error. Please check your internet connection and try again.";errEl.classList.add("show");btn.textContent="Activate HerdLook";btn.disabled=false}}
 checkLicense();
 </script>
-<script>
-function checkForUpdates(){
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistration().then(reg=>{
-      if(reg){
-        reg.update().then(()=>{
-          reg.addEventListener('updatefound',()=>{
-            const newWorker=reg.installing;
-            newWorker.addEventListener('statechange',()=>{
-              if(newWorker.state==='activated'){
-                if(confirm('HerdLook has been updated. Reload now to get the latest version?'))location.reload();
-              }
-            });
-          });
-        });
-      }
-    });
-  }
-}
-// Auto-check every 30 minutes
-setInterval(checkForUpdates,30*60*1000);
-// Also check on focus
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdates()});
-// Check on load
-setTimeout(checkForUpdates,3000);
-</script>
 </body>
 </html>
