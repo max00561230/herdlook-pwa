@@ -153,7 +153,7 @@ function hasExistingData(){
 async function importBackup(){
   let f=importFile.files[0];
   if(!f)return alert("Choose a backup file first.");
-  if(f.size>100*1024*1024)return alert("Backup file is too large (over 100 MB).");
+  if(f.size>500*1024*1024)return alert("Backup file is too large (over 500 MB).");
   // Warn but don't block if existing data
   if(hasExistingData()){
     if(!confirm("You have existing data. Importing will replace it. Export a backup first if needed. Continue?"))return;
