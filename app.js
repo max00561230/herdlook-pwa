@@ -752,22 +752,49 @@
       return;
     }
 
-    const text = await file.text();
-    let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      alert("This does not look like a valid JSON backup file.");
+    // Check file size (max 50 MB)
+    if (file.size > 50 * 1024 * 1024) {
+      alert("Backup file is too large (over 50 MB). Please contact support.");
       return;
     }
 
-    const data = parsed.data || parsed;
-    const looksValid =
-      Array.isArray(data.animals || []) &&
-      Array.isArray(data.records || []);
+    let text;
+    try {
+      text = await file.text();
+    } catch {
+      alert("Could not read the backup file. Please try again.");
+      return;
+    }
 
-    if (!looksValid) {
-      alert("This does not look like a HerdLook backup file.");
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      alert("This does not look like a valid JSON backup file. Error: " + e.message);
+      return;
+    }
+
+    // Support multiple backup formats:
+    // 1. New format: { app: "HerdLook", data: { animals: [...], records: [...] } }
+    // 2. Old format: { animals: [...], records: [...] } (no wrapper)
+    // 3. Any object with animals array somewhere in it
+    let data;
+    if (parsed && parsed.data && typeof parsed.data === "object") {
+      // New wrapped format
+      data = parsed.data;
+    } else if (parsed && Array.isArray(parsed.animals)) {
+      // Old flat format
+      data = parsed;
+    } else {
+      // Try to find animals anywhere in the object
+      data = parsed.data || parsed;
+    }
+
+    const hasAnimals = Array.isArray(data.animals);
+    const hasRecords = Array.isArray(data.records);
+
+    if (!hasAnimals && !hasRecords) {
+      alert("This does not look like a HerdLook backup file. No animals or records found.");
       return;
     }
 
