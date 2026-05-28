@@ -751,10 +751,6 @@
   }
 
   async function importFullBackup(file) {
-    if (!isUnlocked()) {
-      alert("Backup import requires the full version. Enter a product key in Settings → Unlock Full Version to import backups.");
-      return;
-    }
     if (!file) {
       alert("Choose a HerdLook backup JSON file first.");
       return;
