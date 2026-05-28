@@ -179,11 +179,10 @@ async function importBackup(){
   // Merge backup data into state, preserving existing fields not in backup
   if(Array.isArray(backupData.animals))S.animals=backupData.animals;
   if(Array.isArray(backupData.records))S.records=backupData.records;
-  if(Array.isArray(backupData.docs))S.docs=backupData.docs;else if(Array.isArray(backupData.documents))S.documents=backupData.documents;
+  if(Array.isArray(backupData.docs))S.docs=backupData.docs;else if(Array.isArray(backupData.documents))S.docs=backupData.documents;
   if(Array.isArray(backupData.locations))S.locations=backupData.locations;
-  if(backupData.profile&&typeof backupData.profile==="object")S.profile=backupData.profile;
-  if(backupData.owner&&typeof backupData.owner==="object")S.owner=backupData.owner;
-  if(backupData.security&&typeof backupData.security==="object")S.security=backupData.security;
+  if(backupData.owner&&typeof backupData.owner==="object")S.owner=backupData.owner;else if(backupData.profile&&typeof backupData.profile==="object")S.owner=backupData.profile;
+  if(backupData.security&&typeof backupData.security==="object")S.pin=backupData.security.pin||"";else if(typeof backupData.pin==="string")S.pin=backupData.pin;
   save();
   render();
   alert("Backup imported successfully!");

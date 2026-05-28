@@ -1,4 +1,4 @@
-const CACHE_NAME = 'herdlook-beta-v6';
+const CACHE_NAME = 'herdlook-beta-v7';
 const APP_SHELL = [
   'index.html',
   'styles.css',
