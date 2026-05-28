@@ -59,10 +59,15 @@
 
   // ===== LICENSE KEY SYSTEM =====
   // Free tier: 2 animals, 1 location. Enter product key in Settings to unlock.
+  // Supports both old local key (herdlook_license) and new API-activated key (herdlook_v12_license)
   const VALID_KEYS = ['HL-FULL-484A2B921615667B'];
 
   function isUnlocked() {
     try {
+      // Check new API-activated license first (stored as plain key string)
+      const newKey = localStorage.getItem('herdlook_v12_license');
+      if (newKey && newKey.trim()) return true;
+      // Check old local license format
       const stored = localStorage.getItem('herdlook_license');
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -78,6 +83,9 @@
       localStorage.setItem('herdlook_license', JSON.stringify({ key: trimmed }));
       return true;
     }
+    // Also accept any key that was activated via the JRT API (stored in herdlook_v12_license)
+    const newKey = localStorage.getItem('herdlook_v12_license');
+    if (newKey && newKey.trim()) return true;
     return false;
   }
 
