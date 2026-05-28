@@ -61,7 +61,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import note:</b> You can import a backup even with existing data. You'll be asked to confirm before replacing. Both old and new backup formats are supported.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
 
 <section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Data</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear Local Data</button></div><div class="notice" style="margin-top:14px"><b>HerdLook v1.2:</b> This is the full paid version. Local-only storage with unlimited animals, records, documents, locations, and photos. Keep backups regular.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data first, then import.</div></div></section>
 </main></div>
@@ -153,20 +153,40 @@ function hasExistingData(){
 async function importBackup(){
   let f=importFile.files[0];
   if(!f)return alert("Choose a backup file first.");
+  if(f.size>100*1024*1024)return alert("Backup file is too large (over 100 MB).");
+  // Warn but don't block if existing data
   if(hasExistingData()){
-    alert("Import stopped. HerdLook will not overwrite existing local data. First export a safety backup, then use Settings → Clear Local Data. After the old data is deleted, import the backup file.");
-    return;
+    if(!confirm("You have existing data. Importing will replace it. Export a backup first if needed. Continue?"))return;
   }
-  let data;
-  try{data=JSON.parse(await f.text())}catch{alert("This is not a valid HerdLook JSON backup file.");return}
-  if(!data || typeof data!=="object" || !Array.isArray(data.animals)){
-    alert("This backup file does not look like a valid HerdLook backup.");
-    return;
+  let raw, data;
+  try{raw=await f.text();data=JSON.parse(raw)}catch(e){alert("Could not read or parse the backup file. Make sure it\'s a valid JSON file exported from HerdLook.");return}
+  // Support both old format {animals:[...]} and new format {app:"HerdLook",data:{animals:[...]}}
+  let backupData;
+  if(data&&data.data&&typeof data.data==="object"&&Array.isArray(data.data.animals)){
+    backupData=data.data; // New wrapped format: {app:"HerdLook",data:{animals:[...]}}
+  }else if(data&&typeof data==="object"&&Array.isArray(data.animals)){
+    backupData=data; // Old flat format: {animals:[...]}
+  }else if(data&&typeof data==="object"){
+    // Try to find animals array anywhere
+    backupData=data.data||data;
+  }else{
+    alert("This backup file does not look like a valid HerdLook backup. No animal data found.");return;
   }
-  S=data;
+  // Verify we found something useful
+  if(!Array.isArray(backupData.animals)&&!Array.isArray(backupData.records)){
+    alert("This backup file does not contain any herd data (animals or records). It may be from a different app.");return;
+  }
+  // Merge backup data into state, preserving existing fields not in backup
+  if(Array.isArray(backupData.animals))S.animals=backupData.animals;
+  if(Array.isArray(backupData.records))S.records=backupData.records;
+  if(Array.isArray(backupData.docs))S.docs=backupData.docs;else if(Array.isArray(backupData.documents))S.documents=backupData.documents;
+  if(Array.isArray(backupData.locations))S.locations=backupData.locations;
+  if(backupData.profile&&typeof backupData.profile==="object")S.profile=backupData.profile;
+  if(backupData.owner&&typeof backupData.owner==="object")S.owner=backupData.owner;
+  if(backupData.security&&typeof backupData.security==="object")S.security=backupData.security;
   save();
   render();
-  alert("Backup imported. Existing data was not overwritten because the app was empty before import.");
+  alert("Backup imported successfully!");
 }
 function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
 function lockNow(){if(!S.pin)return alert("Set a PIN first.");lock.classList.add("open")}
