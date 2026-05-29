@@ -1,11 +1,11 @@
 {
-  "name": "HerdLook HLv1.1",
+  "name": "HerdLook v1.3",
   "short_name": "HerdLook",
-  "description": "HerdLook HLv1.1 — Camera-assisted herd records. Free tier with 2 animals, 1 location. Unlock full version with product key.",
+  "description": "HerdLook v1.3 — Camera-assisted herd records. Manage animals, photos, records, sales, and camera lookup.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f4f1e8",
-  "theme_color": "#234436",
+  "theme_color": "#183326",
   "icons": [
     {
       "src": "logo.png",
