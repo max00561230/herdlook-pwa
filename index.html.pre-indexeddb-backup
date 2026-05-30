@@ -308,86 +308,24 @@ function storageAvailable(){
  return false;
  }
 }
-function openHerdLookDB(){
- return new Promise((resolve,reject)=>{
- if(!("indexedDB" in window)){
- reject(new Error("IndexedDB is not supported in this browser."));
- return;
- }
- const request=indexedDB.open(DB_NAME,1);
- request.onupgradeneeded=()=>{
- const db=request.result;
- if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
- };
- request.onsuccess=()=>resolve(request.result);
- request.onerror=()=>reject(request.error || new Error("IndexedDB open failed"));
- });
-}
-async function saveToIndexedDB(data){
- const db=await openHerdLookDB();
- return new Promise((resolve,reject)=>{
- const tx=db.transaction(DB_STORE,"readwrite");
- tx.objectStore(DB_STORE).put(data,DB_KEY);
- tx.oncomplete=()=>{db.close();resolve(true)};
- tx.onerror=()=>{db.close();reject(tx.error || new Error("IndexedDB save failed"))};
- });
-}
-async function loadFromIndexedDB(){
- const db=await openHerdLookDB();
- return new Promise((resolve,reject)=>{
- const tx=db.transaction(DB_STORE,"readonly");
- const req=tx.objectStore(DB_STORE).get(DB_KEY);
- req.onsuccess=()=>resolve(req.result || null);
- req.onerror=()=>reject(req.error || new Error("IndexedDB read failed"));
- tx.oncomplete=()=>db.close();
- });
-}
-async function clearIndexedDB(){
- try{
- const db=await openHerdLookDB();
- await new Promise((resolve,reject)=>{
- const tx=db.transaction(DB_STORE,"readwrite");
- tx.objectStore(DB_STORE).delete(DB_KEY);
- tx.oncomplete=()=>{db.close();resolve(true)};
- tx.onerror=()=>{db.close();reject(tx.error || new Error("IndexedDB clear failed"))};
- });
- }catch(err){ console.warn("IndexedDB clear warning:",err); }
-}
 function save(){
  try{
  S.savedAt = new Date().toISOString();
- S.schemaVersion = "herdlook-full-indexeddb-v3";
- const text = JSON.stringify(S);
-
- // Backup copy for easy debugging / emergency fallback.
- try{ localStorage.setItem(K, text); }catch(err){ console.warn("localStorage backup save failed:", err); }
-
- // Primary durable save.
- saveToIndexedDB(S).catch(err=>{
- console.error("HerdLook IndexedDB save failed:", err);
- alert("HerdLook could not save to the local database. Export a backup before closing. Avoid Private/Incognito mode or temporary preview URLs.");
- });
-
+ localStorage.setItem(K, JSON.stringify(S));
+ const verify = localStorage.getItem(K);
+ if(!verify) throw new Error("localStorage verification failed: empty readback");
  return true;
  }catch(err){
  console.error("HerdLook save failed:", err);
- alert("HerdLook could not save data. Export a backup before closing.");
+ alert("HerdLook could not save data to this browser. Do not close the app yet. Export a backup now. If you are in Private Browsing, Incognito mode, or a temporary preview URL, local data may not persist.");
  return false;
  }
 }
-async function load(){
+function load(){
  try{
- let raw = null;
-
- // Primary durable store.
- try{ raw = await loadFromIndexedDB(); }catch(err){ console.warn("IndexedDB load failed, trying localStorage:", err); }
-
- // Fallback backup store.
- if(!raw){
  const rawText = localStorage.getItem(K);
- raw = rawText ? JSON.parse(rawText) : null;
- }
-
+ if(!rawText) return;
+ const raw = JSON.parse(rawText);
  if(raw) S = normalizeImportedData(raw);
  }catch(err){
  console.error("HerdLook load failed:", err);
@@ -794,7 +732,7 @@ window.savePin = savePin;
 window.lockNow = lockNow;
 window.clearPin = clearPin;
 
-window.addEventListener("beforeunload",()=>{try{localStorage.setItem(K,JSON.stringify(S));saveToIndexedDB(S).catch(e=>console.error("beforeunload IDB save failed:",e))}catch(e){console.error("HerdLook beforeunload save failed:",e)}});
+window.addEventListener("beforeunload",()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){console.error("HerdLook beforeunload save failed:",e)}});
 load();renderSelects();render();if(!S.pin)lock.classList.remove("open");
 </script>
 </body>
