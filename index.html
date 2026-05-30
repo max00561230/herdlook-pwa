@@ -98,7 +98,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records. After importing a backup, use App Test → Run Persistence Test before closing the browser. Full version now uses IndexedDB as the primary local database with localStorage as a backup copy.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records. After importing a backup, use App Test → Run Persistence Test before closing the browser. Full version uses IndexedDB and localStorage synchronized together. Clear All Local Data clears both so hidden old imports cannot reappear.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
 
 
 <section id="apptest" class="view hidden">
@@ -113,7 +113,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
   </div>
 </section>
 
-<section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Testing</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear Local Data</button></div><div class="notice" style="margin-top:14px"><b>Claw direction:</b> This is the single-file beta. Keep local-only. After beta reviews, split into production PWA files and upgrade storage to IndexedDB.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data first, then import.</div></div></section>
+<section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Testing</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear All Local Data</button><button class="btn" onclick="repairStorage()">Repair/Sync Storage</button></div><div class="notice" style="margin-top:14px"><b>Claw direction:</b> This is the single-file beta. Keep local-only. After beta reviews, split into production PWA files and upgrade storage to IndexedDB.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data with "Clear All Local Data" first, then import.</div></div></section>
 </main></div>
 
 <div class="modal" id="animalModal"><div class="modalbox"><div class="modalhead"><div><h3 id="animalTitle">Add Animal</h3><p class="muted">One-click save handles profile info and photos together.</p></div><button class="btn" onclick="closeModal('animalModal')">Close</button></div><form id="animalForm" class="formgrid"><input id="animalId" type="hidden">
@@ -347,11 +347,26 @@ async function clearIndexedDB(){
  const db=await openHerdLookDB();
  await new Promise((resolve,reject)=>{
  const tx=db.transaction(DB_STORE,"readwrite");
- tx.objectStore(DB_STORE).delete(DB_KEY);
+ tx.objectStore(DB_STORE).clear();
  tx.oncomplete=()=>{db.close();resolve(true)};
- tx.onerror=()=>{db.close();reject(tx.error || new Error("IndexedDB clear failed"))};
+ tx.onerror=()=>{db.close();reject(tx.error || new Error("IndexedDB store clear failed"))};
  });
- }catch(err){ console.warn("IndexedDB clear warning:",err); }
+ }catch(err){ console.warn("IndexedDB store clear warning:",err); }
+
+ try{
+ await new Promise((resolve,reject)=>{
+ const req=indexedDB.deleteDatabase(DB_NAME);
+ req.onsuccess=()=>resolve(true);
+ req.onerror=()=>reject(req.error || new Error("IndexedDB deleteDatabase failed"));
+ req.onblocked=()=>resolve(false);
+ });
+ }catch(err){ console.warn("IndexedDB database delete warning:",err); }
+}
+async function clearAllStorageLayers(){
+ try{ localStorage.removeItem(K); }catch{}
+ try{ localStorage.removeItem(K + "_storage_test"); }catch{}
+ try{ await clearIndexedDB(); }catch(err){ console.warn("clearAllStorageLayers warning:",err); }
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 }
 function save(){
  try{
@@ -377,18 +392,21 @@ function save(){
 }
 async function load(){
  try{
- let raw = null;
-
- // Primary durable store.
- try{ raw = await loadFromIndexedDB(); }catch(err){ console.warn("IndexedDB load failed, trying localStorage:", err); }
-
- // Fallback backup store.
- if(!raw){
+ let idbRaw=null, lsRaw=null;
+ try{ idbRaw = await loadFromIndexedDB(); }catch(err){ console.warn("IndexedDB load failed:", err); }
+ try{
  const rawText = localStorage.getItem(K);
- raw = rawText ? JSON.parse(rawText) : null;
- }
+ lsRaw = rawText ? JSON.parse(rawText) : null;
+ }catch(err){ console.warn("localStorage load failed:", err); }
 
- if(raw) S = normalizeImportedData(raw);
+ const idbNorm = idbRaw ? normalizeImportedData(idbRaw) : null;
+ const lsNorm = lsRaw ? normalizeImportedData(lsRaw) : null;
+ const count = d => (d?.animals?.length||0)+(d?.records?.length||0)+(d?.docs?.length||0)+(d?.locations?.length||0)+(d?.sales?.length||0);
+
+ if(idbNorm || lsNorm){
+ S = count(idbNorm) >= count(lsNorm) ? idbNorm : lsNorm;
+ save();
+ }
  }catch(err){
  console.error("HerdLook load failed:", err);
  }
@@ -659,6 +677,9 @@ async function importBackup(){
     return;
   }
   S=normalizeImportedData(data);
+  // Clear stale storage layers before saving imported data so both IDB and LS are in sync
+  try{ await clearAllStorageLayers(); }catch{}
+  S=normalizeImportedData(data);
   const verified = persistAndVerify("import");
   renderSelects();
   render();
@@ -673,12 +694,16 @@ function lockNow(){if(!S.pin)return alert("Set a PIN first.");lock.classList.add
 function clearPin(){S.pin="";save();renderLock()}
 function renderLock(){if(S.pin&&sessionStorage.getItem("herdlookUnlocked")!="yes")lock.classList.add("open");else lock.classList.remove("open")}
 unlockBtn.onclick=()=>{if(unlockPin.value==S.pin){sessionStorage.setItem("herdlookUnlocked","yes");unlockPin.value="";unlockErr.classList.add("hidden");lock.classList.remove("open")}else unlockErr.classList.remove("hidden")}
-function clearAll(){
-  if(confirm("Clear/delete all old local HerdLook data from this device? Import will only work after old data is deleted. Export a backup first if needed.")){
-    localStorage.removeItem(K);
+async function clearAll(){
+  if(confirm("Clear ALL local HerdLook data from this device? This clears both IndexedDB and localStorage. Export a backup first if needed.")){
+    await clearAllStorageLayers();
     sessionStorage.removeItem("herdlookUnlocked");
     location.reload();
   }
+}
+function repairStorage(){
+  save();
+  alert("Storage synced. Both IndexedDB and localStorage now have the current data. Close and reopen the same app URL to confirm.");
 }
 function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",category:"Cow",breed:"Angus Cross",sex:"Cow",dob:"2022-04-15",tag:"RFID-0017",location:"North Pasture",dam:"C-003",sire:"B-012",markings:"Black cow, yellow left ear tag.",photos:[]},{id:id(),code:"B-012",name:"Ranger",species:"Cattle",category:"Bull",breed:"Angus",sex:"Bull",dob:"2020-03-02",tag:"RFID-0012",location:"Bull Lot",dam:"Unknown",sire:"Unknown",markings:"Black bull.",photos:[]},{id:id(),code:"HC-004",name:"Rose",species:"Cattle",category:"Heifer Calf",breed:"Hereford Cross",sex:"Female",dob:"2025-02-10",tag:"HC004",location:"Calf Pen",dam:"C-017",sire:"B-012",markings:"White face.",photos:[]}];S.records=[{id:id(),animalId:S.animals[0].id,type:"Health",date:today(),follow:"",details:"Routine check."}];S.sales=[{id:id(),animalId:S.animals[0].id,type:"bought",date:today(),price:"1200",party:"Sample Seller",paymentStatus:"Paid",notes:"Sample purchase entry."}];save();render()}
 ["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType","saleSearch","saleStatusFilter"].forEach(i=>setTimeout(()=>$(i)&&($(i).oninput=render,$(i).onchange=render),0));
@@ -790,6 +815,7 @@ window.exportBackup = exportBackup;
 window.importBackup = importBackup;
 window.seed = seed;
 window.clearAll = clearAll;
+window.repairStorage = repairStorage;
 window.savePin = savePin;
 window.lockNow = lockNow;
 window.clearPin = clearPin;
