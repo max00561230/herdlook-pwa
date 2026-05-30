@@ -104,7 +104,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <section id="apptest" class="view hidden">
   <div class="card">
     <h3 style="margin-top:0">App Test / Link Check</h3>
-    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p> If no animals exist, the test will load a temporary test herd first.</p>
+    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p>
     <div class="actions">
       <button class="btn primary" onclick="runAppTest()">Run App Test</button>
       <button class="btn" onclick="seed()">Load Test Herd</button>
@@ -732,6 +732,7 @@ window.savePin = savePin;
 window.lockNow = lockNow;
 window.clearPin = clearPin;
 
+window.addEventListener("beforeunload",()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){console.error("HerdLook beforeunload save failed:",e)}});
 load();renderSelects();render();if(!S.pin)lock.classList.remove("open");
 </script>
 </body>
