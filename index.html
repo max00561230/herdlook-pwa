@@ -104,7 +104,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <section id="apptest" class="view hidden">
   <div class="card">
     <h3 style="margin-top:0">App Test / Link Check</h3>
-    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions.</p>
+    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p>
     <div class="actions">
       <button class="btn primary" onclick="runAppTest()">Run App Test</button>
       <button class="btn" onclick="seed()">Load Test Herd</button>
@@ -585,7 +585,16 @@ function runAppTest(){
     ok("openSale function exists", typeof openSale==="function");
     ok("openRecord function exists", typeof openRecord==="function");
     ok("import migration exists", typeof normalizeImportedData==="function");
-    ok("At least one animal for card testing", S.animals.length>0, S.animals.length ? `${S.animals.length} animals found` : "Load Test Herd first");
+    if(!S.animals.length){
+      try{
+        seed();
+        ok("At least one animal for card testing", S.animals.length>0, S.animals.length ? `${S.animals.length} animals found — test herd loaded automatically.` : "No animals were present and test herd could not be loaded.");
+      }catch(err){
+        ok("At least one animal for card testing", false, "No animals found and test herd could not be loaded: " + err.message);
+      }
+    }else{
+      ok("At least one animal for card testing", S.animals.length>0, `${S.animals.length} animals found`);
+    }
 
     if(S.animals.length){
       const first=S.animals[0];
