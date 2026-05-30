@@ -98,13 +98,13 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records. After importing a backup, use App Test → Run Persistence Test before closing the browser.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
 
 
 <section id="apptest" class="view hidden">
   <div class="card">
     <h3 style="margin-top:0">App Test / Link Check</h3>
-    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p>
+    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p> If no animals exist, the test will load a temporary test herd first.</p>
     <div class="actions">
       <button class="btn primary" onclick="runAppTest()">Run App Test</button>
       <button class="btn" onclick="seed()">Load Test Herd</button>
@@ -296,12 +296,40 @@ function normalizeImportedData(raw){
     view:"dashboard"
   };
 }
-function save(){localStorage.setItem(K,JSON.stringify(S))}
+function storageAvailable(){
+ try{
+ const testKey = K + "_storage_test";
+ localStorage.setItem(testKey, "ok");
+ const ok = localStorage.getItem(testKey) === "ok";
+ localStorage.removeItem(testKey);
+ return ok;
+ }catch(err){
+ console.error("HerdLook localStorage unavailable:", err);
+ return false;
+ }
+}
+function save(){
+ try{
+ S.savedAt = new Date().toISOString();
+ localStorage.setItem(K, JSON.stringify(S));
+ const verify = localStorage.getItem(K);
+ if(!verify) throw new Error("localStorage verification failed: empty readback");
+ return true;
+ }catch(err){
+ console.error("HerdLook save failed:", err);
+ alert("HerdLook could not save data to this browser. Do not close the app yet. Export a backup now. If you are in Private Browsing, Incognito mode, or a temporary preview URL, local data may not persist.");
+ return false;
+ }
+}
 function load(){
-  try{
-    const raw=JSON.parse(localStorage.getItem(K)||"null");
-    if(raw) S=normalizeImportedData(raw);
-  }catch{}
+ try{
+ const rawText = localStorage.getItem(K);
+ if(!rawText) return;
+ const raw = JSON.parse(rawText);
+ if(raw) S = normalizeImportedData(raw);
+ }catch(err){
+ console.error("HerdLook load failed:", err);
+ }
 }
 function closeDrawer(){side.classList.remove("open");backdrop.classList.remove("open")}function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
 menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
@@ -529,10 +557,30 @@ function renderLocs(){locList.innerHTML=S.locations.map(l=>`<div class="loc"><di
 ownerForm.onsubmit=e=>{e.preventDefault();S.owner={ownerName:ownerName.value,farmName:farmName.value,ownerPhone:ownerPhone.value,ownerEmail:ownerEmail.value,farmAddress:farmAddress.value,farmType:farmType.value,vetInfo:vetInfo.value,farmNotes:farmNotes.value};save();render();alert("Owner/Farm info saved.")}
 function renderOwner(){let o=S.owner||{};ownerSummary.innerHTML=`<p><b>${esc(o.farmName||"Farm/Ranch not set")}</b></p><p class="muted">Owner: ${esc(o.ownerName||"Not set")}<br>Contact: ${esc([o.ownerPhone,o.ownerEmail].filter(Boolean).join(" • ")||"Not set")}<br>Vet: ${esc(o.vetInfo||"Not set")}</p>`;["ownerName","farmName","ownerPhone","ownerEmail","farmAddress","farmType","vetInfo","farmNotes"].forEach(k=>{if($(k))$(k).value=o[k]||""})}
 lookupFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;let src=await fileUrl(f);lookupPreview.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;let s=await sig(src);let ms=S.animals.map(a=>{let scores=(a.photos||[]).map(p=>cmp(s,p.signature)).sort((x,y)=>y-x),best=scores[0]||0,avg=scores.length?Math.round(scores.slice(0,3).reduce((q,v)=>q+v,0)/Math.min(3,scores.length)):0,score=Math.min(99,Math.round(best*.72+avg*.23+Math.min(8,(a.photos||[]).length)));return{a,score}}).filter(m=>m.score).sort((a,b)=>b.score-a.score).slice(0,5);matches.innerHTML=ms.map(m=>`<div class="match">${m.a.photos?.[0]?`<img src="${m.a.photos[0].src}">`:"<div></div>"}<div><b>${esc(label(m.a))}</b><p class="muted">${esc(cat(m.a))} • ${esc(m.a.location||"No location")}</p><div class="bar"><span style="width:${m.score}%"></span></div><small class="muted">${m.score}% advanced beta suggestion. Confirm manually.</small></div><button class="btn primary" onclick="openAnimal('${m.a.id}')">Confirm/Open</button></div>`).join("")||'<div class="record muted">No reference photos found.</div>'}
-function exportBackup(){let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u)}
+function exportBackup(){S.exportedAt=new Date().toISOString();S.schemaVersion="herdlook-full-v2-sales-migration";save();let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u)}
 function hasExistingData(){
   return (S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||
     (S.owner&&Object.keys(S.owner).some(k=>S.owner[k]));
+}
+function persistAndVerify(reason="save"){
+  const saved = save();
+  if(!saved) return false;
+  try{
+    const rawText = localStorage.getItem(K);
+    const raw = rawText ? JSON.parse(rawText) : null;
+    const normalized = normalizeImportedData(raw);
+    const currentAnimals = S.animals ? S.animals.length : 0;
+    const storedAnimals = normalized.animals ? normalized.animals.length : 0;
+    if(currentAnimals !== storedAnimals){
+      alert(`HerdLook ${reason} warning: saved data readback count did not match. Export a backup before closing.`);
+      return false;
+    }
+    return true;
+  }catch(err){
+    console.error("HerdLook persistence verification failed:", err);
+    alert("HerdLook saved data, but verification failed. Export a backup before closing.");
+    return false;
+  }
 }
 async function importBackup(){
   let f=importFile.files[0];
@@ -549,10 +597,14 @@ async function importBackup(){
     return;
   }
   S=normalizeImportedData(data);
-  save();
+  const verified = persistAndVerify("import");
   renderSelects();
   render();
-  alert("Backup imported and migrated into the new HerdLook card/category format. Check Dashboard category cards, Animal Photos, Records, Documents, and Locations.");
+  if(verified){
+    alert("Backup imported, migrated, and saved to this browser. Close and reopen the same app URL to confirm data remains. Check Dashboard category cards, Animal Photos, Records, Documents, Locations, and Buy/Sell.");
+  }else{
+    alert("Backup imported into the open app, but permanent browser storage could not be verified. Export a backup before closing.");
+  }
 }
 function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
 function lockNow(){if(!S.pin)return alert("Set a PIN first.");lock.classList.add("open")}
@@ -627,7 +679,42 @@ function runAppTest(){
     </div>`).join("")}
   `;
 }
+function runPersistenceTest(){
+  const results=[];
+  const ok=(name,pass,detail="")=>results.push({name,pass,detail});
+  try{
+    ok("localStorage available", storageAvailable());
+    const testKey=K+"_ptest_"+Date.now();
+    localStorage.setItem(testKey,"1");
+    ok("Write test", localStorage.getItem(testKey)==="1");
+    localStorage.setItem(testKey,"2");
+    ok("Update test", localStorage.getItem(testKey)==="2");
+    localStorage.removeItem(testKey);
+    ok("Delete test", localStorage.getItem(testKey)===null);
+    const countBefore=S.animals?S.animals.length:0;
+    save();
+    const rawText=localStorage.getItem(K);
+    ok("Save completed", !!rawText);
+    const raw=rawText?JSON.parse(rawText):null;
+    const normalized=normalizeImportedData(raw);
+    ok("Animal count matches after save", normalized.animals?.length===countBefore, `In memory: ${countBefore}, stored: ${normalized.animals?.length}`);
+    ok("Records count matches", normalized.records?.length===S.records?.length, `In memory: ${S.records?.length}, stored: ${normalized.records?.length}`);
+    ok("Sales count matches", (normalized.sales||[]).length===(S.sales||[]).length, `In memory: ${(S.sales||[]).length}, stored: ${(normalized.sales||[]).length}`);
+  }catch(err){
+    ok("Persistence test error", false, err.message);
+  }
+  const passCount=results.filter(r=>r.pass).length;
+  const failCount=results.length-passCount;
+  appTestResults.innerHTML=`
+    <h4 style="margin:0 0 8px">Persistence Test: ${passCount} passed, ${failCount} failed</h4>
+    ${results.map(r=>`<div style="padding:7px 0;border-top:1px solid var(--line)">
+      <b style="color:${r.pass?"#2f604b":"#a33b2f"}">${r.pass?"PASS":"FAIL"}</b> — ${esc(r.name)}
+      ${r.detail?`<br><span class="muted">${esc(r.detail)}</span>`:""}
+    </div>`).join("")}
+  `;
+}
 window.runAppTest = runAppTest;
+window.runPersistenceTest = runPersistenceTest;
 window.openAnimal = openAnimal;
 window.openSale = openSale;
 window.openRecord = openRecord;
