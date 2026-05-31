@@ -325,12 +325,20 @@ lookupFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;let src=await
 function exportBackup(){let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u)}
 function hasExistingData(){return(S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||(S.owner&&Object.keys(S.owner).some(k=>S.owner[k]))}
 
+async function readFileForImport(file){
+ // FileReader fallback for iOS Safari where file.text() may fail silently
+ if(file.text&&typeof file.text==="function"){try{const t=await file.text();if(t&&t.trim())return t}catch(e){console.warn("file.text() failed on iOS, using FileReader",e)}}
+ return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("FileReader failed to read file"));r.readAsText(file)})}
+
 async function importBackup(){
  let f=importFile.files[0];
  if(!f)return alert("Choose a backup file first.");
- if(hasExistingData()){alert("Import stopped. HerdLook will not overwrite existing local data. First export a safety backup, then use Settings \u2192 Clear All Local Data. After the old data is deleted, import the backup file.");return}
+ // On iPhone: if existing data found, offer to clear and import instead of hard-blocking
+ if(hasExistingData()){const ok=confirm("You already have data on this device. To import a backup, the old data needs to be cleared first.\n\nTap OK to clear old data and import your backup, or Cancel to stop.");if(!ok)return;await clearAllStorageLayers();S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};save()}
+ let text;
+ try{text=await readFileForImport(f)}catch(e){console.error("File read error:",e);alert("Could not read the file. Try restarting Safari or using a different browser.");return}
  let data;
- try{data=JSON.parse(await f.text())}catch{alert("This is not a valid HerdLook JSON backup file.");return}
+ try{data=JSON.parse(text)}catch(e){console.error("JSON parse error:",e);alert("This file is not a valid HerdLook JSON backup.");return}
  const checkRoot=data?.data&&typeof data.data==="object"?data.data:data;
  if(!checkRoot||typeof checkRoot!=="object"||!Array.isArray(checkRoot.animals)){alert("This backup file does not look like a valid HerdLook backup.");return}
  S=normalizeImportedData(data);
@@ -340,9 +348,9 @@ async function importBackup(){
  S.view="dashboard";
  view("dashboard");
  render();
- // Delayed render pass to ensure Dashboard shows imported data immediately
+ // Delayed render pass for slow devices
  setTimeout(()=>{render();renderSelects();},200);
- alert("Backup imported and migrated. Both IndexedDB and localStorage are synchronized. Check Dashboard, Animal Photos, Records, Documents, and Locations.");
+ alert("Backup imported successfully! Check Dashboard for your data.");
 }
 
 function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
