@@ -408,27 +408,32 @@ window.addEventListener("beforeunload",()=>{try{localStorage.setItem(K,JSON.stri
 
 /* === STARTUP HYDRATION / RENDER FIX === */
 async function hydrateAndRenderApp(){
+ console.log("[HerdLook] hydrateAndRenderApp starting...");
  // 1. Wait for saved data to load (localStorage + IndexedDB)
  await load();
+ console.log("[HerdLook] Data loaded. Animals:", S.animals.length);
  // 2. Populate select dropdowns
  renderSelects();
  // 3. Force Dashboard view + render
  S.view="dashboard";
  view("dashboard");
+ console.log("[HerdLook] After view(dashboard), sAnimals:", document.getElementById("sAnimals")?.textContent);
  // 4. Safety: delayed render passes for slow IndexedDB/Safari/mobile
- setTimeout(()=>{render(); renderSelects();},100);
- setTimeout(()=>{render(); renderSelects();},500);
+ setTimeout(()=>{console.log("[HerdLook] Delayed render 100ms");render();renderSelects();},100);
+ setTimeout(()=>{console.log("[HerdLook] Delayed render 500ms");render();renderSelects();},500);
  // 5. Lock screen check
  if(!S.pin)lock.classList.remove("open");
 }
 
 // Boot on DOM ready
-// Boot: load data and render immediately
-window.addEventListener("DOMContentLoaded",async()=>{
+// Boot: load data and render on startup
+let _booted=false;
+async function boot(){
+ if(_booted)return;_booted=true;
  await hydrateAndRenderApp();
-});
-// Also try immediate boot (script is at bottom of body, DOM likely ready)
-if(document.readyState!=="loading"){hydrateAndRenderApp();}
+}
+if(document.readyState==="loading"){window.addEventListener("DOMContentLoaded",boot);}
+else{boot();}
 
 // Rehydrate when returning to the app (back/forward cache, tab focus)
 window.addEventListener("pageshow",e=>{if(e.persisted){load();render();renderSelects();}});
