@@ -154,32 +154,37 @@ const DB_NAME="HerdLookFullLocalDB",DB_STORE="herdlook_state",DB_KEY="herdlook_f
 
 function openHerdLookDB(){
  return new Promise((resolve,reject)=>{
-  const req=indexedDB.open(DB_NAME,1);
-  req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(DB_STORE))db.createObjectStore(DB_STORE,{keyPath:"key"})};
-  req.onsuccess=()=>resolve(req.result);
-  req.onerror=()=>reject(req.error||new Error("IndexedDB open failed"));
+  try{
+   const req=indexedDB.open(DB_NAME,1);
+   req.onupgradeneeded=e=>{try{const db=e.target.result;if(!db.objectStoreNames.contains(DB_STORE))db.createObjectStore(DB_STORE,{keyPath:"key"})}catch(e){console.warn("IDB upgrade warning:",e)}};
+   req.onsuccess=()=>resolve(req.result);
+   req.onerror=()=>{console.warn("IDB open failed");resolve(null)};
+   req.onblocked=()=>{console.warn("IDB open blocked");resolve(null)};
+  }catch(e){console.warn("IDB open crash:",e);resolve(null)}
  });
 }
 function saveToIndexedDB(data){
  return new Promise(async(resolve,reject)=>{
   try{
    const db=await openHerdLookDB();
+   if(!db){resolve(false);return}
    const tx=db.transaction(DB_STORE,"readwrite");
    tx.objectStore(DB_STORE).put({key:DB_KEY,data:JSON.parse(JSON.stringify(data))});
    tx.oncomplete=()=>{db.close();resolve(true)};
-   tx.onerror=()=>{db.close();reject(tx.error||new Error("IDB write failed"))};
-  }catch(e){reject(e)}
+   tx.onerror=()=>{db.close();resolve(false)};
+  }catch(e){resolve(false)}
  });
 }
 function loadFromIndexedDB(){
  return new Promise(async(resolve,reject)=>{
   try{
    const db=await openHerdLookDB();
+   if(!db){resolve(null);return}
    const tx=db.transaction(DB_STORE,"readonly");
    const req=tx.objectStore(DB_STORE).get(DB_KEY);
    req.onsuccess=()=>{db.close();resolve(req.result?.data||null)};
-   req.onerror=()=>{db.close();reject(req.error||new Error("IDB read failed"))};
-  }catch(e){reject(e)}
+   req.onerror=()=>{db.close();resolve(null)};
+  }catch(e){resolve(null)}
  });
 }
 async function clearIndexedDB(){
@@ -213,18 +218,20 @@ function save(){
 }
 
 async function load(){
- let idbData=null,lsData=null;
- try{idbData=await loadFromIndexedDB()}catch(e){console.warn("IDB load warning:",e)}
- try{lsData=JSON.parse(localStorage.getItem(K)||"null")}catch{}
- let idbNorm=idbData?normalizeImportedData(idbData):null;
- let lsNorm=lsData?normalizeImportedData(lsData):null;
- if(idbNorm&&lsNorm){
-  const idbCount=(idbNorm.animals||[]).length+(idbNorm.records||[]).length;
-  const lsCount=(lsNorm.animals||[]).length+(lsNorm.records||[]).length;
-  S=idbCount>=lsCount?idbNorm:lsNorm;
- }else if(idbNorm){S=idbNorm}
- else if(lsNorm){S=lsNorm}
- save();
+ try{
+  let idbData=null,lsData=null;
+  try{idbData=await loadFromIndexedDB()}catch(e){console.warn("IDB load warning:",e)}
+  try{lsData=JSON.parse(localStorage.getItem(K)||"null")}catch{}
+  let idbNorm=idbData?normalizeImportedData(idbData):null;
+  let lsNorm=lsData?normalizeImportedData(lsData):null;
+  if(idbNorm&&lsNorm){
+   const idbCount=(idbNorm.animals||[]).length+(idbNorm.records||[]).length;
+   const lsCount=(lsNorm.animals||[]).length+(lsNorm.records||[]).length;
+   S=idbCount>=lsCount?idbNorm:lsNorm;
+  }else if(idbNorm){S=idbNorm}
+  else if(lsNorm){S=lsNorm}
+  save();
+ }catch(e){console.error("HerdLook load error:",e);try{const lsData=JSON.parse(localStorage.getItem(K)||"null");if(lsData)S=normalizeImportedData(lsData)}catch(e2){console.error("HerdLook localStorage fallback error:",e2)}}
 }
 /* ===== END DURABLE STORAGE v4 ===== */
 
@@ -439,14 +446,17 @@ async function hydrateAndRenderApp(){
 let _booted=false;
 async function boot(){
  if(_booted)return;_booted=true;
- await hydrateAndRenderApp();
+ try{await hydrateAndRenderApp();}catch(e){console.error("[HerdLook] Boot error:",e);try{load();view("dashboard");render();}catch(e2){console.error("[HerdLook] Fallback boot error:",e2)}}
 }
 if(document.readyState==="loading"){window.addEventListener("DOMContentLoaded",boot);}
 else{boot();}
 
 // Rehydrate when returning to the app (back/forward cache, tab focus)
-window.addEventListener("pageshow",e=>{if(e.persisted){load();render();renderSelects();}});
-window.addEventListener("focus",()=>{load();render();renderSelects();});
+window.addEventListener("pageshow",async e=>{try{if(e.persisted){await load();render();renderSelects();}}catch(e){console.warn("HerdLook pageshow warning:",e)}});
+window.addEventListener("focus",async()=>{try{await load();render();renderSelects();}catch(e){console.warn("HerdLook focus warning:",e)}});
+window.addEventListener('error',e=>{console.error('[HerdLook] Global error:',e.error||e.message)});
+window.addEventListener('unhandledrejection',e=>{console.error('[HerdLook] Unhandled promise:',e.reason)});
 </script>
+
 </body>
 </html>
