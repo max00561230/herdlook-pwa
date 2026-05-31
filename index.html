@@ -423,7 +423,12 @@ async function hydrateAndRenderApp(){
 }
 
 // Boot on DOM ready
-hydrateAndRenderApp();
+// Boot: load data and render immediately
+window.addEventListener("DOMContentLoaded",async()=>{
+ await hydrateAndRenderApp();
+});
+// Also try immediate boot (script is at bottom of body, DOM likely ready)
+if(document.readyState!=="loading"){hydrateAndRenderApp();}
 
 // Rehydrate when returning to the app (back/forward cache, tab focus)
 window.addEventListener("pageshow",e=>{if(e.persisted){load();render();renderSelects();}});
