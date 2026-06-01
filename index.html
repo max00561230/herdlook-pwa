@@ -98,7 +98,13 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records. After importing a backup, use App Test → Run Persistence Test before closing the browser. Full version uses IndexedDB and localStorage synchronized together. Clear All Local Data clears both so hidden old imports cannot reappear.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import rule:</b> If you have existing data, the import will offer to clear it first. On iPhone: save the backup file to the Files app first, then import from there.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json,text/plain,*/*"><button class="btn" onclick="importBackup()">Import Backup</button></div></div></div></section>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json,text/plain"><button class="btn" onclick="importBackup()">Import Backup</button></div>
+<div id="importStatus" class="notice" style="margin-top:12px"><b>Import status:</b> No file selected yet.</div>
+<div class="field" style="margin-top:12px">
+ <label>iPhone fallback: paste backup JSON here</label>
+ <textarea id="importPasteBox" placeholder="If iPhone file import does not work, open the backup JSON file, copy all text, paste it here, then tap Import Pasted Backup."></textarea>
+</div>
+<div class="actions"><button class="btn" onclick="importBackupFromPaste()">Import Pasted Backup</button></div></div></div></section>
 
 
 <section id="apptest" class="view hidden">
@@ -378,46 +384,120 @@ function exportBackup(){
  a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u);
 }
 
-async function readFileForImport(file){
- // FileReader fallback for iOS Safari where file.text() may fail silently
- if(file.text&&typeof file.text==="function"){try{const t=await file.text();if(t&&t.trim())return t}catch(e){console.warn("file.text() failed on iOS, using FileReader",e)}}
- return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("FileReader failed to read file"));r.readAsText(file)})}
-
-async function importBackup(){
- let f=importFile.files[0];
- if(!f)return alert("Choose a backup file first.");
- // Always check the real persisted stores before import.
- await load();
- if(!hlIsEmptyState(S)){
-  const ok=confirm("You already have data on this device. To import a backup, the old data needs to be cleared first.\\n\\nTap OK to clear old data and import your backup, or Cancel to stop.");
-  if(!ok)return;
-  await hlClearDB();
-  try{localStorage.removeItem(K)}catch{}
-  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
-  S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+function setImportStatus(message, isError=false){
+ const el=document.getElementById("importStatus");
+ if(el){
+ el.innerHTML='<b>Import status:</b> '+esc(message);
+ el.style.background=isError?"#fff0ed":"#fff8ea";
+ el.style.borderColor=isError?"#efc9c3":"#ead8ba";
+ el.style.color=isError?"#a33b2f":"#6b4a19";
  }
- let text;
- try{text=await readFileForImport(f)}catch(e){console.error("File read error:",e);alert("Could not read the file. Make sure it was exported from HerdLook and saved to Files app first.");return}
- if(!text||!text.trim()){alert("The file appears empty. Re-export your backup from the desktop version and try again.");return}
- let data;
- try{data=JSON.parse(text)}catch(e){console.error("JSON parse error:",e);alert("This is not a valid HerdLook JSON backup file.");return}
+ console.log("HerdLook import status:", message);
+}
+async function readFileAsTextMobileSafe(file){
+ if(!file) throw new Error("No file selected.");
+ setImportStatus('File selected: '+(file.name||'backup file')+' ('+bytesToMB(file.size||0)+' MB). Reading file...');
+ if(file.text){
+ try{
+ const text=await file.text();
+ if(text&&text.trim()) return text;
+ }catch(err){console.warn("file.text failed, trying FileReader",err);}
+ }
+ return await new Promise((resolve,reject)=>{
+ const reader=new FileReader();
+ reader.onload=()=>resolve(String(reader.result||''));
+ reader.onerror=()=>reject(reader.error||new Error("Could not read selected file."));
+ reader.readAsText(file);
+ });
+}
+function parseBackupText(text){
+ if(!text||!text.trim()) throw new Error("The backup file was empty or could not be read.");
+ return JSON.parse(text.trim().replace(/^﻿/,""));
+}
+function hasExistingData(){return(S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||(S.owner&&Object.keys(S.owner).some(k=>S.owner[k]))}
+async function hasPersistedData(){try{const d=await hlLoadDB();if(d&&d.animals&&d.animals.length)return true}catch{}return false}
+async function completeBackupImport(data, sourceLabel="backup"){
  const checkRoot=data?.data&&typeof data.data==="object"?data.data:data;
- if(!checkRoot||typeof checkRoot!=="object"||!Array.isArray(checkRoot.animals)){alert("This backup file does not look like a valid HerdLook backup.");return}
- // Clear any stale layers, then save imported data to both stores.
- await hlClearDB();
- try{localStorage.removeItem(K)}catch{}
+ if(!checkRoot||typeof checkRoot!=="object"||!Array.isArray(checkRoot.animals)){
+ throw new Error("This does not look like a valid HerdLook backup. It must contain an animals list.");
+ }
+ if(hasExistingData()||(typeof hasPersistedData==="function"&&await hasPersistedData())){
+ throw new Error("Import stopped because existing local data was found. Go to Settings → Clear All Local Data, let the app reload empty, then import again.");
+ }
+ setImportStatus("Backup file is valid. Preparing storage...");
+ if(typeof mobileStorageNotice==="function"){
  const notice=await mobileStorageNotice(data);
  console.log("HerdLook mobile storage notice:",notice);
+ }
+ if(typeof clearAllStorageLayers==="function") await clearAllStorageLayers();
  S=normalizeImportedData(data);
- const ok=await saveAndVerify("import");
  S.view="dashboard";
+ setImportStatus('Backup parsed. Found '+(S.animals?.length||0)+' animals, '+(S.records?.length||0)+' records, '+(S.docs?.length||0)+' documents, '+(S.locations?.length||0)+' locations. Saving...');
+ let ok=false;
+ if(typeof persistAndVerify==="function") ok=await persistAndVerify("import");
+ else if(typeof saveAndVerify==="function") ok=await saveAndVerify("import");
+ else ok=save();
  renderSelects();
  render();
- view("dashboard");
- setTimeout(()=>{renderSelects();render();view("dashboard");},200);
- alert(ok?"Backup imported, migrated, saved, and rendered on Dashboard. Close and reopen the same app URL to confirm it remains.":"Backup imported but storage verification failed. Export a backup before closing.");
+ if(typeof view==="function") view("dashboard");
+ setTimeout(()=>{try{renderSelects();render();if(typeof view==="function")view("dashboard");}catch{}},250);
+ if(!ok){
+ setImportStatus("Backup imported into the open app, but permanent storage could not be verified. Export a backup before closing.",true);
+ alert("Backup imported, but storage verification failed. Export a backup before closing.");
+ return false;
+ }
+ setImportStatus('Import complete from '+sourceLabel+'. Data was saved and Dashboard was updated.');
+ alert("Import complete. Data was saved and Dashboard was updated.");
+ return true;
 }
 
+async function importBackup(){
+ try{
+ const input=document.getElementById("importFile");
+ const file=input&&input.files?input.files[0]:null;
+ if(!file){
+ setImportStatus("No file selected. Choose a backup file first, or use the paste backup option.",true);
+ alert("Choose a backup file first, or paste the backup JSON into the iPhone fallback box.");
+ return;
+ }
+ const text=await readFileAsTextMobileSafe(file);
+ setImportStatus("File read complete. Parsing backup JSON...");
+ const data=parseBackupText(text);
+ await completeBackupImport(data,file.name||"selected file");
+ }catch(err){
+ console.error("HerdLook import failed:",err);
+ setImportStatus(err.message||"Import failed.",true);
+ alert("Import failed: "+(err.message||"Unknown error"));
+ }
+}
+async function importBackupFromPaste(){
+ try{
+ const box=document.getElementById("importPasteBox");
+ const text=box?box.value:"";
+ if(!text||!text.trim()){
+ setImportStatus("Paste box is empty. Paste the full backup JSON first.",true);
+ alert("Paste the full backup JSON first.");
+ return;
+ }
+ setImportStatus("Parsing pasted backup JSON...");
+ const data=parseBackupText(text);
+ await completeBackupImport(data,"pasted backup JSON");
+ }catch(err){
+ console.error("HerdLook pasted import failed:",err);
+ setImportStatus(err.message||"Pasted import failed.",true);
+ alert("Pasted import failed: "+(err.message||"Unknown error"));
+ }
+}
+window.importBackupFromPaste=importBackupFromPaste;
+
+const importFileInput=document.getElementById("importFile");
+if(importFileInput){
+ importFileInput.addEventListener("change",()=>{
+ const file=importFileInput.files&&importFileInput.files[0];
+ if(file) setImportStatus("Selected "+(file.name||"backup file")+" ("+bytesToMB(file.size||0)+" MB). Tap Import Backup to continue.");
+ else setImportStatus("No file selected yet.");
+ });
+}
 function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
 function lockNow(){if(!S.pin)return alert("Set a PIN first.");lock.classList.add("open")}
 function clearPin(){S.pin="";save();renderLock()}
