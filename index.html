@@ -45,12 +45,13 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 @media print{.side,.appbar,.actions,.toolbar,.btn{display:none!important}.layout{display:block}main{padding:0}.card{box-shadow:none}}
 </style>
+
 </head>
 <body>
 <div class="lock" id="lock"><div class="lockbox"><h2>HerdLook Locked</h2><p class="muted">Enter local PIN/password.</p><div class="field"><label>PIN/password</label><input id="unlockPin" type="password"></div><button class="btn primary" id="unlockBtn" style="width:100%">Unlock</button><p id="unlockErr" class="muted hidden" style="color:var(--bad)">Incorrect PIN/password.</p></div></div>
-<div class="appbar"><div class="mbrand"><div class="logo">🐄</div><div><strong>HerdLook</strong><small>by Jade Rose Technology</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
+<div class="appbar"><div class="mbrand"><div class="logo">🐂</div><div><strong>HerdLook</strong><small>by Jade Rose Technology</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
 <div class="layout">
-<aside class="side" id="side"><div class="brand"><div class="logo">🐄</div><div><h1>HerdLook</h1><p>Camera-assisted herd records</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
+<aside class="side" id="side"><div class="brand"><div class="logo">🐂</div><div><h1>HerdLook</h1><p>Camera-assisted herd records</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
 <button class="active" data-view="dashboard">🏠 <span class="label">Dashboard</span></button><button data-view="herd">🐂 <span class="label">Herd</span></button><button data-view="photos">🖼️ <span class="label">Animal Photos</span></button><button data-view="lookup">📷 <span class="label">Camera Lookup</span></button><button data-view="guide">✅ <span class="label">Photo Guide</span></button><button data-view="records">🩺 <span class="label">Records</span></button><button data-view="sales">💵 <span class="label">Buy/Sell</span></button><button data-view="documents">🗂️ <span class="label">Documents</span></button><button data-view="locations">🗺️ <span class="label">Map/Locations</span></button><button data-view="owner">👤 <span class="label">Owner/Farm</span></button><button data-view="privacy">🔒 <span class="label">Data/Privacy</span></button><button data-view="apptest">🧪 <span class="label">App Test</span></button><button data-view="settings">⚙️ <span class="label">Settings</span></button>
 </nav><div class="notice" style="margin-top:18px;background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.2)">Local-only beta. No cloud database or automatic sync.</div></aside>
 <main>
@@ -69,27 +70,26 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="lookup" class="view hidden"><div class="card"><h3 style="margin-top:0">Camera Lookup</h3><div class="notice"><b>Advanced beta recognition:</b> Uses multi-photo weighted comparison in the browser. It suggests matches only. Always manually confirm.</div><div class="grid two"><div><div class="field"><label>Take/upload photo</label><input id="lookupFile" type="file" accept="image/*" capture="environment"></div><div id="lookupPreview" class="card muted" style="height:280px;display:grid;place-items:center">No photo selected</div></div><div><h4>Suggested matches</h4><div id="matches"><div class="record muted">Upload a photo to compare against animal reference photos.</div></div></div></div></div></section>
 
-<section id="guide" class="view hidden"><div class="card"><h3 style="margin-top:0">Photo Capture Best Practices</h3><div class="notice"><b>Minimum beta requirement:</b> 3 clear photos: front face, left side, right side. Recommended: 6–8 photos per animal.</div><div class="grid two"><div class="card"><h4>Cattle: 6 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Ear tag / brand close-up</li><li>Unique marking or muzzle/nose close-up</li></ol></div><div class="card"><h4>Horses: 7 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Face / blaze close-up</li><li>Legs / socks / markings</li><li>Brand, scar, or unique marking</li></ol></div></div><h4>Quality rules</h4><ul><li>Use good daylight or even barn lighting.</li><li>Keep the animal filling most of the frame.</li><li>Avoid blur, fences, shadows, people, and other animals blocking the view.</li><li>Update photos after seasonal coat changes, new tags, injury, grooming, or weight change.</li></ul></div></section>
+<section id="guide" class="view hidden"><div class="card"><h3 style="margin-top:0">Photo Capture Best Practices</h3><div class="notice"><b>Minimum beta requirement:</b> 3 clear photos: front face, left side, right side. Recommended: 6-8 photos per animal.</div><div class="grid two"><div class="card"><h4>Cattle: 6 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Ear tag / brand close-up</li><li>Unique marking or muzzle/nose close-up</li></ol></div><div class="card"><h4>Horses: 7 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Face / blaze close-up</li><li>Legs / socks / markings</li><li>Brand, scar, or unique marking</li></ol></div></div><h4>Quality rules</h4><ul><li>Use good daylight or even barn lighting.</li><li>Keep the animal filling most of the frame.</li><li>Avoid blur, fences, shadows, people, and other animals blocking the view.</li><li>Update photos after seasonal coat changes, new tags, injury, grooming, or weight change.</li></ul></div></section>
 
 <section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
 
-
 <section id="sales" class="view hidden">
-  <div class="toolbar">
-    <input id="saleSearch" placeholder="Search sales by animal, buyer/seller, notes...">
-    <select id="saleStatusFilter">
-      <option value="">All sale statuses</option>
-      <option value="active">Active / owned</option>
-      <option value="sold">Sold</option>
-      <option value="bought">Bought / purchased</option>
-    </select>
-    <button class="btn primary" onclick="openSale()">+ Add Buy/Sell Entry</button>
-  </div>
-  <div class="card">
-    <h3 style="margin-top:0">Buy/Sell Animal Records</h3>
-    <p class="muted">Track animal purchase date, purchase price, sold date, sale price, buyer/seller, and notes. Sale info also appears on animal cards.</p>
-    <div id="salesList"></div>
-  </div>
+ <div class="toolbar">
+ <input id="saleSearch" placeholder="Search sales by animal, buyer/seller, notes...">
+ <select id="saleStatusFilter">
+ <option value="">All sale statuses</option>
+ <option value="active">Active / owned</option>
+ <option value="sold">Sold</option>
+ <option value="bought">Bought / purchased</option>
+ </select>
+ <button class="btn primary" onclick="openSale()">+ Add Buy/Sell Entry</button>
+ </div>
+ <div class="card">
+ <h3 style="margin-top:0">Buy/Sell Animal Records</h3>
+ <p class="muted">Track animal purchase date, purchase price, sold date, sale price, buyer/seller, and notes. Sale info also appears on animal cards.</p>
+ <div id="salesList"></div>
+ </div>
 </section>
 
 <section id="documents" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Add Document</h3><form id="docForm"><div class="field"><label>Title</label><input id="docTitle" required></div><div class="field"><label>Type</label><select id="docType"><option>Vet / Health</option><option>Registration</option><option>Bill of Sale</option><option>Receipt</option><option>Lab / Test Result</option><option>Other</option></select></div><div class="field"><label>Attach to animal</label><select id="docAnimal"></select></div><div class="field"><label>File</label><input id="docFile" type="file" required></div><div class="field"><label>Notes</label><textarea id="docNotes"></textarea></div><button class="btn primary">Save Document</button></form></div><div class="card"><h3 style="margin-top:0">Stored Documents</h3><div id="docList"></div></div></div></section>
@@ -98,28 +98,33 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions"><button class="btn primary" onclick="exportBackup()">Export Full Backup</button><input id="importFile" type="file" accept=".json,application/json,text/plain"><button class="btn" onclick="importBackup()">Import Backup</button></div>
-<div id="importStatus" class="notice" style="margin-top:12px"><b>Import status:</b> No file selected yet.</div>
-<div class="field" style="margin-top:12px">
- <label>iPhone fallback: paste backup JSON here</label>
- <textarea id="importPasteBox" placeholder="If iPhone file import does not work, open the backup JSON file, copy all text, paste it here, then tap Import Pasted Backup."></textarea>
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions">
+ <button class="btn primary" onclick="exportBackup()">Export Full Backup</button>
+ <button class="btn" onclick="exportMobileTransferBackup()">Export Mobile Transfer Backup</button>
 </div>
-<div class="actions"><button class="btn" onclick="importBackupFromPaste()">Import Pasted Backup</button></div></div></div></section>
-
+<div class="notice" style="margin-top:12px">
+ <b>iPhone transfer rule:</b> Full backups with photos/documents can be too large for iPhone import. For iPhone, export a Mobile Transfer Backup from desktop, then import that smaller file on iPhone.
+</div>
+<div class="field" style="margin-top:12px">
+ <label>Import HerdLook backup</label>
+ <input id="importFile" type="file" accept=".json,application/json,text/plain">
+</div>
+<div class="actions"><button class="btn primary" onclick="importBackup()">Import Selected Backup</button></div>
+<div id="importStatus" class="notice" style="margin-top:12px"><b>Import status:</b> Choose a backup file. On iPhone, use a Mobile Transfer Backup.</div></div></div></section>
 
 <section id="apptest" class="view hidden">
-  <div class="card">
-    <h3 style="margin-top:0">App Test / Link Check</h3>
-    <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p>
-    <div class="actions">
-      <button class="btn primary" onclick="runAppTest()">Run App Test</button><button class="btn" onclick="runPersistenceTest()">Run Persistence Test</button><button class="btn" onclick="runMobileStorageTest()">Run iPhone Storage Test</button>
-      <button class="btn" onclick="seed()">Load Test Herd</button>
-    </div>
-    <div id="appTestResults" class="record" style="margin-top:14px">No test run yet.</div>
-  </div>
+ <div class="card">
+ <h3 style="margin-top:0">App Test / Link Check</h3>
+ <p class="muted">Run this before release. It checks key views, buttons, modals, animal-card actions, and startup hydration. If no animals exist, the test will load a temporary test herd first.</p>
+ <div class="actions">
+ <button class="btn primary" onclick="runAppTest()">Run App Test</button><button class="btn" onclick="runPersistenceTest()">Run Persistence Test</button><button class="btn" onclick="runMobileStorageTest()">Run iPhone Storage Test</button>
+ <button class="btn" onclick="seed()">Load Test Herd</button>
+ </div>
+ <div id="appTestResults" class="record" style="margin-top:14px">No test run yet.</div>
+ </div>
 </section>
 
-<section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Testing</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear All Local Data</button><button class="btn" onclick="repairStorage()">Repair/Sync Storage</button></div><div class="notice" style="margin-top:14px"><b>Claw direction:</b> This is the single-file beta. Keep local-only. After beta reviews, split into production PWA files and upgrade storage to IndexedDB.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data with "Clear All Local Data" first, then import.</div></div></section>
+<section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Testing</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear All Local Data</button><button class="btn" onclick="repairStorage()">Repair/Sync Storage</button></div><div class="notice" style="margin-top:14px"><b>Claw direction:</b> This is the single-file beta. Keep local-only. After beta reviews, split into production PWA files and upgrade storage to IndexedDB.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data first, then import.</div></div></section>
 </main></div>
 
 <div class="modal" id="animalModal"><div class="modalbox"><div class="modalhead"><div><h3 id="animalTitle">Add Animal</h3><p class="muted">One-click save handles profile info and photos together.</p></div><button class="btn" onclick="closeModal('animalModal')">Close</button></div><form id="animalForm" class="formgrid"><input id="animalId" type="hidden">
@@ -129,11 +134,10 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="field"><label>Date of birth</label><input id="aDob" type="date"><small class="muted">Calendar opens for month, day, and year.</small></div><div class="field"><label>Tag / RFID / microchip</label><input id="aTag"></div>
 <div class="field"><label>Location</label><input id="aLoc" list="locListData"><datalist id="locListData"></datalist><div id="locChips" class="chips"></div></div><div class="field"><label>Dam information</label><input id="aDam"></div><div class="field"><label>Sire information</label><input id="aSire"></div>
 <div class="field full"><label>Markings / notes</label><textarea id="aMark"></textarea></div>
-<div class="field full"><label>Reference photos</label><div class="notice"><b>Minimum:</b> front face, left side, right side. <b>Recommended:</b> 6–8 photos.</div><input id="aPhotos" type="file" accept="image/*" multiple><p id="photoHint" class="muted"></p><div id="photoPreview" class="thumbs"></div></div>
+<div class="field full"><label>Reference photos</label><div class="notice"><b>Minimum:</b> front face, left side, right side. <b>Recommended:</b> 6-8 photos.</div><input id="aPhotos" type="file" accept="image/*" multiple><p id="photoHint" class="muted"></p><div id="photoPreview" class="thumbs"></div></div>
 <div class="actions full"><button type="button" class="btn danger" id="deleteAnimal" onclick="deleteAnimal()">Delete</button><button class="btn primary">Save Animal & Photos</button></div></form></div></div>
 
 <div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3>Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
-
 
 <div class="modal" id="saleModal"><div class="modalbox"><div class="modalhead"><div><h3 id="saleTitle">Add Buy/Sell Entry</h3><p class="muted">Record animal purchase or sale information. This also updates the animal card status.</p></div><button class="btn" onclick="closeModal('saleModal')">Close</button></div>
 <form id="saleForm" class="formgrid">
@@ -149,7 +153,6 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 </form></div></div>
 
 <script>
-
 const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Heifer Calf","Heifer","Steer","Horse","Other"];
 let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
@@ -454,9 +457,9 @@ async function completeBackupImport(data, sourceLabel="backup"){
 async function importBackup(){
  try{
  const input=document.getElementById("importFile");
- const file=input&&input.files?input.files[0]:null;
+ const file=input&&input.files?input.files[0]:null;if(isIOSDevice()&&file.size&&file.size>50*1024*1024){const mb=bytesToMB(file.size);const msg="This backup is "+mb+" and is too large for reliable iPhone import. On desktop, use Export Mobile Transfer Backup, then import that smaller file on iPhone.";setImportStatus(msg,true);alert(msg);return;}
  if(!file){
- setImportStatus("No file selected. Choose a backup file first, or use the paste backup option.",true);
+ setImportStatus("No file selected. Choose a backup file first.",true);
  alert("Choose a backup file first, or paste the backup JSON into the iPhone fallback box.");
  return;
  }
@@ -470,6 +473,44 @@ async function importBackup(){
  alert("Import failed: "+(err.message||"Unknown error"));
  }
 }
+
+function stripLargeMediaForMobileTransfer(data){
+ const clone = JSON.parse(JSON.stringify(data));
+ clone.mobileTransfer = true;
+ clone.mobileTransferNote = "Photos and document file data were excluded to make this backup import reliably on iPhone. Animal records, categories, sale data, owner/farm info, locations, and document metadata are included.";
+ clone.exportedAt = new Date().toISOString();
+ clone.schemaVersion = "herdlook-mobile-transfer-v1";
+ clone.animals = (clone.animals || []).map(a => ({
+  ...a,
+  photos: (a.photos || []).map((p, index) => ({
+   id: p.id || "photo-"+(index+1),
+   src: "",
+   omitted: true,
+   note: "Photo data excluded from mobile transfer backup. Re-add photo on iPhone if needed.",
+   createdAt: p.createdAt || ""
+  }))
+ }));
+ clone.docs = (clone.docs || []).map(d => ({
+  ...d,
+  src: "",
+  omitted: true,
+  note: "Document file data excluded from mobile transfer backup. Re-add document file on iPhone if needed."
+ }));
+ return clone;
+}
+function exportMobileTransferBackup(){
+ const transfer = stripLargeMediaForMobileTransfer(S);
+ const blob = new Blob([JSON.stringify(transfer,null,2)], {type:"application/json"});
+ const u = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+ a.href = u;
+ a.download = "herdlook-mobile-transfer-backup-" + today() + ".json";
+ a.click();
+ URL.revokeObjectURL(u);
+ alert("Mobile Transfer Backup exported. Use this smaller file for iPhone import. Photos/document files are not included; re-add them on iPhone if needed.");
+}
+window.exportMobileTransferBackup = exportMobileTransferBackup;
+
 async function importBackupFromPaste(){
  try{
  const box=document.getElementById("importPasteBox");
@@ -494,7 +535,7 @@ const importFileInput=document.getElementById("importFile");
 if(importFileInput){
  importFileInput.addEventListener("change",()=>{
  const file=importFileInput.files&&importFileInput.files[0];
- if(file) setImportStatus("Selected "+(file.name||"backup file")+" ("+bytesToMB(file.size||0)+" MB). Tap Import Backup to continue.");
+ if(file) setImportStatus("Selected "+(file.name||"backup file")+" ("+bytesToMB(file.size||0)+" MB). Tap Import Selected Backup to continue.");
  else setImportStatus("No file selected yet.");
  });
 }
@@ -626,6 +667,5 @@ window.addEventListener("focus",()=>setTimeout(()=>hydrateAndRenderApp("focus"),
 window.addEventListener('error',e=>{console.error('[HerdLook] Global error:',e.error||e.message)});
 window.addEventListener('unhandledrejection',e=>{console.error('[HerdLook] Unhandled promise:',e.reason)});
 </script>
-
 </body>
 </html>
