@@ -44,6 +44,28 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 }
 
 @media print{.side,.appbar,.actions,.toolbar,.btn{display:none!important}.layout{display:block}main{padding:0}.card{box-shadow:none}}
+
+.drill-btn{cursor:pointer;text-align:left;border:2px solid transparent;transition:border-color .15s,box-shadow .15s}
+.drill-btn:hover,.drill-btn:active{border-color:var(--green2);box-shadow:var(--shadow)}
+.drill-btn strong{font-size:36px;display:block;margin:4px 0}
+.drill-btn small{display:block;color:var(--muted)}
+.drill-btn span.muted{font-size:12px;margin-top:4px;display:block}
+.drill-card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px;cursor:pointer;transition:border-color .15s}
+.drill-card:hover,.drill-card:active{border-color:var(--green2)}
+.drill-card h4{margin:0 0 4px}
+.drill-card .count{font-size:24px;font-weight:900;color:var(--green2)}
+.drill-back{margin-bottom:12px}
+.drill-item{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.drill-item .info{min-width:0}
+.drill-item .info strong{display:block;font-size:16px}
+.drill-item .info small{color:var(--muted)}
+.drill-item .actions{flex-shrink:0}
+.search-group{margin-top:14px}
+.search-group h4{margin:0 0 6px}
+.search-item{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:10px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.status-deceased{background:#fff0ed;border-color:#efc9c3;color:var(--bad)}
+.status-sold{background:#fff8ea;border-color:#ead8ba;color:#6b4a19}
+.status-bought{background:#eef5ef;border-color:#d6e4d9;color:var(--green2)}
 </style>
 
 </head>
@@ -58,10 +80,11 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <header class="top"><div><h2 id="title">Dashboard</h2><p id="sub">Manage animal profiles, photos, camera lookup, and herd records.</p></div><div class="actions"><button class="btn" onclick="view('guide')">Getting Started</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button><button class="btn accent" onclick="view('lookup')">Camera Lookup</button></div></header>
 
 <section id="dashboard" class="view">
-<div class="notice"><b>Mobile UX update:</b> Dashboard loads first. The logo/menu opens as a clean left drawer. Animal IDs are grouped by category cards to save mobile space.</div>
-<div class="grid stats"><div class="card stat"><small>Total Animals</small><strong id="sAnimals">0</strong><small>Active profiles</small></div><div class="card stat"><small>Reference Photos</small><strong id="sPhotos">0</strong><small>Saved for lookup</small></div><div class="card stat"><small>Records</small><strong id="sRecords">0</strong><small>Herd history</small></div><div class="card stat"><small>Due Soon</small><strong id="sDue">0</strong><small>Follow-ups</small></div></div>
-<div class="card" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Animals by Category</h3><p class="muted">Tap a card to list ID numbers by type.</p></div><button class="btn" onclick="selectCat('')">Show All</button></div><div id="catCards" class="grid three" style="margin-top:12px"></div><div id="catIds" class="idgrid"></div></div>
-<div class="grid two" style="margin-top:14px"><div class="card"><div class="row"><div><h3 style="margin:0">Recent Animals</h3><p class="muted">Hidden by default for mobile space.</p></div><button class="btn" id="recentBtn" onclick="toggleRecent()">Show Recent</button></div><div id="recent" class="hidden"></div></div><div class="card"><h3 style="margin-top:0">Owner/Farm</h3><div id="ownerSummary"></div></div></div>
+<div class="notice"><b>Dashboard drill-down:</b> Tap a summary card to explore. Long lists are hidden until you drill in.</div>
+<div class="grid stats drill-cards"><button class="card stat drill-btn" onclick="openDashboardDrill('animals')">ð <strong id="sAnimals">0</strong><small>Total Animals</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('photos')">ð¼ï¸ <strong id="sPhotos">0</strong><small>Reference Photos</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('records')">ð©º <strong id="sRecords">0</strong><small>Records</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('due')">ð <strong id="sDue">0</strong><small>Due Soon</small><span class="muted">Tap to explore â</span></button></div>
+<div class="card" style="margin-top:10px"><div class="field" style="margin-bottom:0"><label>Search</label><input id="globalSearch" type="text" placeholder="Search animal ID, type, records, activities..." oninput="handleGlobalSearch(this.value)"></div><div id="searchResults" class="hidden" style="margin-top:10px"></div></div>
+<div id="drillPanel" class="hidden" style="margin-top:14px"><div id="drillContent"></div></div>
+<div id="dashboardDefault" class="grid two" style="margin-top:14px"><div class="card"><div class="row"><div><h3 style="margin:0">Recent Animals</h3><p class="muted">Hidden by default for mobile space.</p></div><button class="btn" id="recentBtn" onclick="toggleRecent()">Show Recent</button></div><div id="recent" class="hidden"></div></div><div class="card"><h3 style="margin-top:0">Owner/Farm</h3><div id="ownerSummary"></div></div></div>
 </section>
 
 <section id="herd" class="view hidden"><div class="toolbar"><input id="search" placeholder="Search ID, name, breed, location, dam, sire..."><select id="catFilter"><option value="">All categories</option></select><select id="sort"><option value="">Sort: newest added</option><option value="dob">Sort: birth date / age</option><option value="added">Sort: date added</option><option value="id">Sort: animal ID</option></select><select id="sortOrder"><option value="desc">Order: youngest / newest first</option><option value="asc">Order: oldest / earliest first</option></select><button class="btn" onclick="toggleBatch()">Batch Edit</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button></div><div id="animalList" class="animals"></div><div id="batchPanel" class="card hidden" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Batch Edit</h3><p class="muted">Change repeated info and save all edits with one click.</p></div><button class="btn primary" onclick="saveBatch()">Save All Edits</button></div><div id="batchList"></div></div></section>
@@ -72,7 +95,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="guide" class="view hidden"><div class="card"><h3 style="margin-top:0">Photo Capture Best Practices</h3><div class="notice"><b>Minimum beta requirement:</b> 3 clear photos: front face, left side, right side. Recommended: 6-8 photos per animal.</div><div class="grid two"><div class="card"><h4>Cattle: 6 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Ear tag / brand close-up</li><li>Unique marking or muzzle/nose close-up</li></ol></div><div class="card"><h4>Horses: 7 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Face / blaze close-up</li><li>Legs / socks / markings</li><li>Brand, scar, or unique marking</li></ol></div></div><h4>Quality rules</h4><ul><li>Use good daylight or even barn lighting.</li><li>Keep the animal filling most of the frame.</li><li>Avoid blur, fences, shadows, people, and other animals blocking the view.</li><li>Update photos after seasonal coat changes, new tags, injury, grooming, or weight change.</li></ul></div></section>
 
-<section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
+<section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option><option>Death/Loss</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
 
 <section id="sales" class="view hidden">
  <div class="toolbar">
@@ -137,7 +160,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="field full"><label>Reference photos</label><div class="notice"><b>Minimum:</b> front face, left side, right side. <b>Recommended:</b> 6-8 photos.</div><input id="aPhotos" type="file" accept="image/*" multiple><p id="photoHint" class="muted"></p><div id="photoPreview" class="thumbs"></div></div>
 <div class="actions full"><button type="button" class="btn danger" id="deleteAnimal" onclick="deleteAnimal()">Delete</button><button class="btn primary">Save Animal & Photos</button></div></form></div></div>
 
-<div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3>Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
+<div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3>Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option><option>Death/Loss</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
 
 <div class="modal" id="saleModal"><div class="modalbox"><div class="modalhead"><div><h3 id="saleTitle">Add Buy/Sell Entry</h3><p class="muted">Record animal purchase or sale information. This also updates the animal card status.</p></div><button class="btn" onclick="closeModal('saleModal')">Close</button></div>
 <form id="saleForm" class="formgrid">
@@ -151,10 +174,20 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="field full"><label>Notes</label><textarea id="saleNotes" placeholder="Bill of sale notes, delivery, terms, reason for sale, purchase source..."></textarea></div>
 <div class="actions full"><button class="btn primary">Save Buy/Sell Entry</button></div>
 </form></div></div>
+<div class="modal" id="deathLossModal"><div class="modalbox"><div class="modalhead"><div><h3 id="deathLossTitle">Record Death / Loss</h3><p class="muted">Mark this animal as deceased and create a Death/Loss record.</p></div><button class="btn" onclick="closeModal('deathLossModal')">Close</button></div>
+<form id="deathLossForm" class="formgrid">
+<input id="deathLossAnimalId" type="hidden">
+<div class="field"><label>Date *</label><input id="deathLossDate" type="date" required></div>
+<div class="field"><label>Cause</label><input id="deathLossCause" placeholder="Cause of death or loss"></div>
+<div class="field"><label>Estimated value / loss amount</label><input id="deathLossValue" type="number" min="0" step="0.01" placeholder="0.00"></div>
+<div class="field full"><label>Notes</label><textarea id="deathLossNotes" placeholder="Additional details about the loss..."></textarea></div>
+<div class="actions full"><button class="btn primary" type="button" onclick="saveDeathLoss()">Save Death/Loss Record</button></div>
+</form></div></div>
+
 
 <script>
-const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Heifer Calf","Heifer","Steer","Horse","Other"];
-let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Steer Calf","Heifer Calf","Heifer","Steer","Horse","Other","Death/Loss"];
+let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
 const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
 const label=a=>[a.code,a.name].filter(Boolean).join(" — ")||"Unnamed", today=()=>new Date().toISOString().slice(0,10);
 
@@ -296,7 +329,9 @@ async function load(){
 /* ===== END DURABLE STORAGE v4 ===== */
 
 function inferCategory(a){
+ if(a.status&&a.status.toLowerCase().includes("deceased"))return "Death/Loss";
  const words=[a.category,a.type,a.sex,a.species,a.code,a.name,a.markings,a.notes].join(" ").toLowerCase();
+ if(words.includes("steer calf"))return "Steer Calf";
  if(words.includes("bull calf"))return "Bull Calf";
  if(words.includes("heifer calf"))return "Heifer Calf";
  if(words.includes("heifer"))return "Heifer";
@@ -320,6 +355,12 @@ function normalizeImportedData(raw){
  const animals=sourceAnimals.map((a,index)=>{
   const normalized={id:String(a.id||a.animalId||a.uuid||id()),code:String(a.code||a.animalCode||a.tagId||a.animalNumber||a.number||a.idNumber||a.name||`Animal-${index+1}`),name:String(a.name||a.animalName||""),species:String(a.species||(String(a.category||"").toLowerCase().includes("horse")?"Horse":"Cattle")),category:String(a.category||inferCategory(a)),breed:String(a.breed||a.breedName||""),sex:String(a.sex||a.gender||""),dob:String(a.dob||a.birthDate||a.dateOfBirth||""),tag:String(a.tag||a.rfid||a.microchip||a.tagNumber||a.earTag||""),location:String(a.location||a.pasture||a.pen||a.barn||""),dam:String(a.dam||a.damInfo||a.damName||a.mother||""),sire:String(a.sire||a.sireInfo||a.sireName||a.father||""),markings:String(a.markings||a.notes||a.description||""),photos:Array.isArray(a.photos)?a.photos:(Array.isArray(a.images)?a.images:[]),createdAt:a.createdAt||a.created||new Date().toISOString(),updatedAt:a.updatedAt||a.updated||new Date().toISOString()};
   normalized.photos=normalized.photos.map(p=>{if(typeof p==="string")return{id:id(),src:p,createdAt:new Date().toISOString()};return{id:p.id||id(),src:p.src||p.dataUrl||p.url||p.image||"",signature:p.signature||null,createdAt:p.createdAt||new Date().toISOString()}}).filter(p=>p.src);
+ normalized.status=a.status||"";
+ normalized.deathLossDate=a.deathLossDate||a.deathDate||a.lossDate||"";
+ normalized.deathLossCause=a.deathLossCause||a.causeOfDeath||a.deathCause||a.lossCause||"";
+ normalized.deathLossNotes=a.deathLossNotes||a.deathNotes||a.lossNotes||"";
+ normalized.deathLossValue=a.deathLossValue||a.deathValue||a.lossValue||"";
+ normalized.deathLossRecordedAt=a.deathLossRecordedAt||"";
   return normalized;
  });
  const validIds=new Set(animals.map(a=>a.id));
@@ -643,6 +684,154 @@ function runAppTest(){
 function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",category:"Cow",breed:"Angus Cross",sex:"Cow",dob:"2022-04-15",tag:"RFID-0017",location:"North Pasture",dam:"C-003",sire:"B-012",markings:"Black cow, yellow left ear tag.",photos:[]},{id:id(),code:"B-012",name:"Ranger",species:"Cattle",category:"Bull",breed:"Angus",sex:"Bull",dob:"2020-03-02",tag:"RFID-0012",location:"Bull Lot",dam:"Unknown",sire:"Unknown",markings:"Black bull.",photos:[]},{id:id(),code:"HC-004",name:"Rose",species:"Cattle",category:"Heifer Calf",breed:"Hereford Cross",sex:"Female",dob:"2025-02-10",tag:"HC004",location:"Calf Pen",dam:"C-017",sire:"B-012",markings:"White face.",photos:[]}];S.records=[{id:id(),animalId:S.animals[0].id,type:"Health",date:today(),follow:"",details:"Routine check."}];S.sales=[{id:id(),animalId:S.animals[0].id,type:"bought",date:today(),price:"1200",party:"Sample Seller",paymentStatus:"Paid",notes:"Sample purchase entry."}];save();render()}
 
 ["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType","saleSearch","saleStatusFilter"].forEach(i=>setTimeout(()=>$i&&($(i).oninput=render),0));
+
+
+
+// === DASHBOARD DRILL-DOWN ===
+function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();render();}
+window.openDashboardDrill=openDashboardDrill;
+function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();render();}
+window.openDashboardSubCategory=openDashboardSubCategory;
+function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();render();}
+window.closeDashboardDrill=closeDashboardDrill;
+
+function renderDashboard(){
+ const panel=S.dashboardDrill?.panel;
+ const sub=S.dashboardDrill?.subCategory;
+ const drillEl=$("drillPanel");
+ const defaultEl=$("dashboardDefault");
+ const contentEl=$("drillContent");
+ const searchEl=$("globalSearch");
+ const resultsEl=$("searchResults");
+ if(S.searchQuery&&searchEl)searchEl.value=S.searchQuery;
+ if(!panel){if(drillEl)drillEl.classList.add("hidden");if(defaultEl)defaultEl.classList.remove("hidden");if(resultsEl)resultsEl.classList.add("hidden");return;}
+ if(drillEl)drillEl.classList.remove("hidden");if(defaultEl)defaultEl.classList.add("hidden");
+ let html='<button class="btn" onclick="closeDashboardDrill()">&larr; Back to Summary</button>';
+ if(panel==="animals")html+=renderAnimalDrill(sub);
+ else if(panel==="photos")html+=renderPhotoDrill(sub);
+ else if(panel==="records")html+=renderRecordDrill(sub);
+ else if(panel==="due")html+=renderDueDrill(sub);
+ if(contentEl)contentEl.innerHTML=html;
+}
+window.renderDashboard=renderDashboard;
+
+function renderAnimalDrill(sub){
+ const animals=S.animals||[];
+ if(!sub){
+  let html='<h3 style="margin:14px 0 8px">Animals by Category</h3><div class="grid two">';
+  cats.forEach(cat=>{const count=animals.filter(a=>(a.category||inferCategory(a))===cat).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(cat)}')"><h4>${esc(cat)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
+  html+='</div>';return html;
+ }
+ const filtered=animals.filter(a=>(a.category||inferCategory(a))===sub);
+ let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' ('+filtered.length+')</h3>';
+ filtered.slice(0,20).forEach(a=>{const st=animalStatus(a);html+=`<div class="drill-item${st==="Deceased / Loss"?" status-deceased":st==="Sold"?" status-sold":st==="Bought"?" status-bought":""}"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${esc(st)}${a.location?" · "+esc(a.location):""}</small></div><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Open/Edit</button></div></div>`;});
+ if(filtered.length>20)html+=`<p class="muted">Showing 20 of ${filtered.length}. Use Herd page for full list.</p>`;
+ return html;
+}
+
+function renderPhotoDrill(sub){
+ const animals=S.animals||[];
+ if(!sub){
+  const noPhoto=animals.filter(a=>!a.photos||a.photos.length===0);
+  const few=animals.filter(a=>a.photos&&a.photos.length>=1&&a.photos.length<=2);
+  const good=animals.filter(a=>a.photos&&a.photos.length>=3);
+  const needsBetter=animals.filter(a=>!a.photos||a.photos.length<3);
+  let html='<h3 style="margin:14px 0 8px">Photo Status</h3><div class="grid two">';
+  html+=`<div class="drill-card" onclick="openDashboardSubCategory('none')"><h4>No Photos</h4><div class="count">${noPhoto.length}</div><small>tap to view</small></div>`;
+  html+=`<div class="drill-card" onclick="openDashboardSubCategory('few')"><h4>1-2 Photos</h4><div class="count">${few.length}</div><small>tap to view</small></div>`;
+  html+=`<div class="drill-card" onclick="openDashboardSubCategory('good')"><h4>3+ Photos</h4><div class="count">${good.length}</div><small>tap to view</small></div>`;
+  html+=`<div class="drill-card" onclick="openDashboardSubCategory('needsBetter')"><h4>Needs Better</h4><div class="count">${needsBetter.length}</div><small>tap to view</small></div>`;
+  html+='</div>';return html;
+ }
+ let filtered;
+ if(sub==="none")filtered=animals.filter(a=>!a.photos||a.photos.length===0);
+ else if(sub==="few")filtered=animals.filter(a=>a.photos&&a.photos.length>=1&&a.photos.length<=2);
+ else if(sub==="good")filtered=animals.filter(a=>a.photos&&a.photos.length>=3);
+ else filtered=animals.filter(a=>!a.photos||a.photos.length<3);
+ let html='<h3 style="margin:14px 0 8px">'+esc(sub==="none"?"No Photos":sub==="few"?"1-2 Photos":sub==="good"?"3+ Photos":"Needs Better Photos")+' ('+filtered.length+')</h3>';
+ filtered.slice(0,20).forEach(a=>{html+=`<div class="drill-item"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${a.photos?a.photos.length:0} photos</small></div><div class="actions"><button class="btn" onclick="openPhotoPage('${a.id}')">Add/Edit Photos</button></div></div>`;});
+ return html;
+}
+
+function renderRecordDrill(sub){
+ const records=S.records||[];
+ const recordTypes=["Health","Weight","Breeding","Movement","Buy/Sell","Death/Loss","Notes","Other"];
+ if(!sub){
+  let html='<h3 style="margin:14px 0 8px">Records by Type</h3><div class="grid two">';
+  recordTypes.forEach(t=>{const count=records.filter(r=>r.type===t||(t==="Other"&&!recordTypes.slice(0,-1).includes(r.type))).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(t)}')"><h4>${esc(t)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
+  html+='</div>';return html;
+ }
+ let filtered;
+ if(sub==="Other")filtered=records.filter(r=>!recordTypes.slice(0,-1).includes(r.type));
+ else filtered=records.filter(r=>r.type===sub);
+ let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' Records ('+filtered.length+')</h3>';
+ filtered.slice(0,20).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="drill-item"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"Unknown")}</strong><small>${esc(r.type)} · ${esc(r.date||"No date")} · ${esc((r.details||"").slice(0,60))}</small></div><div class="actions"><button class="btn" onclick="openRecord()">Open/Edit</button></div></div>`;});
+ return html;
+}
+
+function renderDueDrill(sub){
+ const records=S.records||[];
+ const dueTypes=["Health","Breeding","Movement","Follow-up","Custom Reminder","Other"];
+ if(!sub){
+  const dueRecords=records.filter(r=>r.follow&&r.follow>=today());
+  let html='<h3 style="margin:14px 0 8px">Due Soon</h3><div class="grid two">';
+  dueTypes.forEach(t=>{let count;if(t==="Follow-up")count=dueRecords.filter(r=>r.type==="Note"||!dueTypes.slice(0,-1).includes(r.type)).length;else count=dueRecords.filter(r=>r.type===t).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(t)}')"><h4>${esc(t)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
+  html+='</div>';return html;
+ }
+ const dueRecords=records.filter(r=>r.follow&&r.follow>=today());
+ let filtered;
+ if(sub==="Follow-up")filtered=dueRecords;
+ else filtered=dueRecords.filter(r=>r.type===sub);
+ let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' Due Soon ('+filtered.length+')</h3>';
+ filtered.slice(0,20).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="drill-item"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"Unknown")}</strong><small>${esc(r.type)} · Due ${esc(r.follow)} · ${esc((r.details||"").slice(0,60))}</small></div><div class="actions"><button class="btn" onclick="openRecord()">Open/Edit</button></div></div>`;});
+ return html;
+}
+
+// === GLOBAL SEARCH ===
+function handleGlobalSearch(query){
+ const el=$("searchResults");if(!el)return;
+ if(!query||query.length<2){el.classList.add("hidden");el.innerHTML="";S.searchQuery="";return;}
+ S.searchQuery=query;const q=query.toLowerCase();let html="";
+ const animalMatches=(S.animals||[]).filter(a=>[a.code,a.name,a.category,a.breed,a.location,a.dam,a.sire,a.sex,a.tag,a.markings,a.status].some(f=>String(f||"").toLowerCase().includes(q)));
+ if(animalMatches.length>0){html+='<div class="search-group"><h4>Animals ('+animalMatches.length+')</h4>';animalMatches.slice(0,10).forEach(a=>{html+=`<div class="search-item"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${esc(animalStatus(a))}</small></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`;});html+='</div>';}
+ const recordMatches=(S.records||[]).filter(r=>[r.type,r.details,r.date,r.animalId].some(f=>String(f||"").toLowerCase().includes(q)));
+ if(recordMatches.length>0){html+='<div class="search-group"><h4>Records ('+recordMatches.length+')</h4>';recordMatches.slice(0,10).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="search-item"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"")}</strong><small>${esc(r.type)} · ${esc(r.date||"")}</small></div><button class="btn" onclick="openRecord()">Open</button></div>`;});html+='</div>';}
+ const salesMatches=(S.sales||[]).filter(s=>[s.party,s.notes,s.type].some(f=>String(f||"").toLowerCase().includes(q)));
+ if(salesMatches.length>0){html+='<div class="search-group"><h4>Buy/Sell ('+salesMatches.length+')</h4>';salesMatches.slice(0,10).forEach(s=>{const a=(S.animals||[]).find(a2=>a2.id===s.animalId);html+=`<div class="search-item"><div class="info"><strong>${a?esc(label(a)):esc(s.animalId||"")}</strong><small>${esc(s.type)} · ${esc(s.party||"")}</small></div><button class="btn" onclick="openSale()">Open</button></div>`;});html+='</div>';}
+ const docMatches=(S.docs||[]).filter(d=>[d.title,d.type,d.notes].some(f=>String(f||"").toLowerCase().includes(q)));
+ if(docMatches.length>0){html+='<div class="search-group"><h4>Documents ('+docMatches.length+')</h4>';docMatches.slice(0,10).forEach(d=>{html+=`<div class="search-item"><div class="info"><strong>${esc(d.title)}</strong><small>${esc(d.type)}</small></div></div>`;});html+='</div>';}
+ const locMatches=(S.locations||[]).filter(l=>[l.name,l.type,l.notes].some(f=>String(f||"").toLowerCase().includes(q)));
+ if(locMatches.length>0){html+='<div class="search-group"><h4>Locations ('+locMatches.length+')</h4>';locMatches.slice(0,10).forEach(l=>{html+=`<div class="search-item"><div class="info"><strong>${esc(l.name)}</strong><small>${esc(l.type)}</small></div></div>`;});html+='</div>';}
+ if(!html)html='<p class="muted">No results found.</p>';
+ el.innerHTML=html;el.classList.remove("hidden");
+}
+window.handleGlobalSearch=handleGlobalSearch;
+
+// === ANIMAL STATUS ===
+function animalStatus(a){
+ if(a.status==="Deceased / Loss"||a.status==="Deceased"||a.status==="Deceased/Loss"||a.deathLossDate)return "Deceased / Loss";
+ const sale=(S.sales||[]).find(s=>s.animalId===a.id&&s.type==="sold");if(sale)return "Sold";
+ const bought=(S.sales||[]).find(s=>s.animalId===a.id&&s.type==="bought");if(bought)return "Bought";
+ return "Active / Owned";
+}
+window.animalStatus=animalStatus;
+
+// === DEATH/LOSS ===
+function openDeathLoss(animalId){
+ const a=(S.animals||[]).find(a2=>a2.id===animalId);if(!a){alert("Animal not found.");return;}
+ $("deathLossAnimalId").value=animalId;$("deathLossDate").value=today();$("deathLossCause").value="";$("deathLossValue").value="";$("deathLossNotes").value="";
+ $("deathLossTitle").textContent="Record Death / Loss — "+label(a);openModal("deathLossModal");
+}
+window.openDeathLoss=openDeathLoss;
+
+function saveDeathLoss(){
+ const animalId=$("deathLossAnimalId").value;const a=(S.animals||[]).find(a2=>a2.id===animalId);if(!a){alert("Animal not found.");return;}
+ a.status="Deceased / Loss";a.deathLossDate=$("deathLossDate").value||today();a.deathLossCause=$("deathLossCause").value||"";a.deathLossNotes=$("deathLossNotes").value||"";a.deathLossValue=$("deathLossValue").value||"";a.deathLossRecordedAt=new Date().toISOString();
+ S.records.push({id:id(),animalId,type:"Death/Loss",date:a.deathLossDate,follow:"",details:(a.deathLossCause?a.deathLossCause+": ":"")+(a.deathLossNotes||a.deathLossCause||"Animal marked as deceased"),createdAt:new Date().toISOString(),updatedAt:""});
+ save();renderSelects();render();closeModal("deathLossModal");
+}
+window.saveDeathLoss=saveDeathLoss;
+
 
 window.addEventListener("beforeunload",()=>{try{save()}catch{}});
 
