@@ -479,7 +479,7 @@ async function runMobileStorageTest(){
 <div style="padding:7px 0;border-top:1px solid var(--line)">
 <b>${ios?"iPhone/iPad detected":"Not detected as iPhone/iPad"}</b>
 <br><span class="muted">Persistent storage confirmed: ${persistent?"Yes":"No / not supported"}</span>
-<br><span class="muted">Storage estimate: ${estimate?bytesToMB(estimate.usage)+" MB used of about "+bytesToMB(estimate.quota)+" MB":"Not available"}</span>
+<br><span class="muted">Storage estimate: ${estimate?bytesToMB(estimate.usage)+" used of about "+bytesToMB(estimate.quota):"Not available"}</span>
 </div>
 <div style="padding:7px 0;border-top:1px solid var(--line)">
 <span class="muted">For iPhone: use Safari or Home Screen app from the same stable URL. Do not use Private Browsing or an in-app browser.</span>
