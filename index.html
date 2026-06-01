@@ -106,7 +106,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
     <h3 style="margin-top:0">App Test / Link Check</h3>
     <p class="muted">Run this before release. It checks key views, buttons, modals, and animal-card actions. If no animals exist, the test will load a temporary test herd first.</p>
     <div class="actions">
-      <button class="btn primary" onclick="runAppTest()">Run App Test</button>
+      <button class="btn primary" onclick="runAppTest()">Run App Test</button><button class="btn" onclick="runPersistenceTest()">Run Persistence Test</button><button class="btn" onclick="runMobileStorageTest()">Run iPhone Storage Test</button>
       <button class="btn" onclick="seed()">Load Test Herd</button>
     </div>
     <div id="appTestResults" class="record" style="margin-top:14px">No test run yet.</div>
@@ -212,26 +212,67 @@ async function clearAllStorageLayers(){
  S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 }
 
+/* ===== iPHONE / MOBILE STORAGE HELPERS ===== */
+function isIOSDevice(){return/iphone|ipad|ipod/i.test(navigator.userAgent)||(/Mac/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
+async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)return await navigator.storage.persist()}catch(e){console.warn("persist() not supported:",e)}return false}
+async function getStorageEstimate(){try{if(navigator.storage&&navigator.storage.estimate)return await navigator.storage.estimate()}catch(e){}return null}
+function bytesToMB(b){if(!b)return"0 MB";return(b/1024/1024).toFixed(1)+" MB"}
+function hlCountData(state){if(!state)return 0;return(state.animals||[]).length+(state.records||[]).length+(state.docs||[]).length+(state.locations||[]).length+(state.sales||[]).length}
+function hlIsEmptyState(state){if(!state)return true;return hlCountData(state)===0&&!state.owner?.ownerName&&!state.owner?.farmName&&!state.pin}
+function hlLoadDB(){return loadFromIndexedDB()}
+function hlClearDB(){return clearIndexedDB()}
+async function mobileStorageNotice(data){const ios=isIOSDevice(),est=await getStorageEstimate(),persist=await requestPersistentStorage();const msg=`iPhone/iPad: ${ios?"Yes":"No"}. Storage: ${est?bytesToMB(est.usage)+" used of "+bytesToMB(est.quota):"N/A"}. Persist: ${persist?"Yes":"No/unsupported"}.`;console.log("HerdLook mobileStorageNotice:",msg);return{ios,estimate:est,persistent:persist,msg}}
+/* ===== END iPHONE STORAGE HELPERS ===== */
+
 function save(){
- try{localStorage.setItem(K,JSON.stringify(S))}catch(e){console.warn("localStorage save warning:",e)}
- try{saveToIndexedDB(S)}catch(e){console.warn("IDB save warning:",e)}
+ try{
+  S.savedAt=new Date().toISOString();
+  S.schemaVersion="herdlook-full-ios-durable-v5";
+  const snapshot=JSON.parse(JSON.stringify(S));
+  const text=JSON.stringify(snapshot);
+  try{
+   if(text.length<4500000)localStorage.setItem(K,text);
+   else localStorage.setItem(K+"_meta",JSON.stringify({savedAt:S.savedAt,schemaVersion:S.schemaVersion,animals:S.animals?.length||0,largeBackup:true}));
+  }catch(err){console.warn("localStorage backup save failed:",err)}
+  saveToIndexedDB(snapshot).catch(err=>{
+   console.error("HerdLook IndexedDB save failed:",err);
+   alert("HerdLook could not save to this iPhone/browser local database. Export a backup before closing. Use Safari, not Private Browsing or an in-app browser.");
+  });
+  return true;
+ }catch(err){
+  console.error("HerdLook save failed:",err);
+  alert("HerdLook could not save data. Export a backup before closing.");
+  return false;
+ }
+}
+async function saveAndVerify(reason="save"){
+ if(!save())return false;
+ await new Promise(r=>setTimeout(r,300));
+ let fromDB=null,fromLS=null;
+ try{fromDB=await hlLoadDB()}catch(err){console.warn("DB verify failed",err)}
+ try{const t=localStorage.getItem(K);fromLS=t?JSON.parse(t):null}catch{}
+ const dbNorm=fromDB?normalizeImportedData(fromDB):null;
+ const lsNorm=fromLS?normalizeImportedData(fromLS):null;
+ const current=hlCountData(S);
+ const stored=Math.max(hlCountData(dbNorm),hlCountData(lsNorm));
+ if(stored<current){
+  alert(`HerdLook ${reason} warning: saved data did not verify. Export a backup before closing.`);
+  return false;
+ }
+ return true;
 }
 
 async function load(){
- try{
-  let idbData=null,lsData=null;
-  try{idbData=await loadFromIndexedDB()}catch(e){console.warn("IDB load warning:",e)}
-  try{lsData=JSON.parse(localStorage.getItem(K)||"null")}catch{}
-  let idbNorm=idbData?normalizeImportedData(idbData):null;
-  let lsNorm=lsData?normalizeImportedData(lsData):null;
-  if(idbNorm&&lsNorm){
-   const idbCount=(idbNorm.animals||[]).length+(idbNorm.records||[]).length;
-   const lsCount=(lsNorm.animals||[]).length+(lsNorm.records||[]).length;
-   S=idbCount>=lsCount?idbNorm:lsNorm;
-  }else if(idbNorm){S=idbNorm}
-  else if(lsNorm){S=lsNorm}
-  save();
- }catch(e){console.error("HerdLook load error:",e);try{const lsData=JSON.parse(localStorage.getItem(K)||"null");if(lsData)S=normalizeImportedData(lsData)}catch(e2){console.error("HerdLook localStorage fallback error:",e2)}}
+ let fromDB=null,fromLS=null;
+ try{fromDB=await hlLoadDB()}catch(err){console.warn("IndexedDB load failed",err)}
+ try{const t=localStorage.getItem(K);fromLS=t?JSON.parse(t):null}catch(err){console.warn("localStorage load failed",err)}
+ const dbNorm=fromDB?normalizeImportedData(fromDB):null;
+ const lsNorm=fromLS?normalizeImportedData(fromLS):null;
+ const best=hlCountData(dbNorm)>=hlCountData(lsNorm)?dbNorm:lsNorm;
+ if(best&&!hlIsEmptyState(best)){
+  S=best;
+  save(); // sync both layers to same state
+ }
 }
 /* ===== END DURABLE STORAGE v4 ===== */
 
@@ -329,8 +370,13 @@ function renderOwner(){let o=S.owner||{};ownerSummary.innerHTML=`<p><b>${esc(o.f
 
 lookupFile.onchange=async e=>{let f=e.target.files[0];if(!f)return;let src=await fileUrl(f);lookupPreview.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;let s=await sig(src);let ms=S.animals.map(a=>{let scores=(a.photos||[]).map(p=>cmp(s,p.signature)).sort((x,y)=>y-x),best=scores[0]||0,avg=scores.length?Math.round(scores.slice(0,3).reduce((q,v)=>q+v,0)/Math.min(3,scores.length)):0,score=Math.min(99,Math.round(best*.72+avg*.23+Math.min(8,(a.photos||[]).length)));return{a,score}}).filter(m=>m.score).sort((a,b)=>b.score-a.score).slice(0,5);matches.innerHTML=ms.map(m=>`<div class="match">${m.a.photos?.[0]?`<img src="${m.a.photos[0].src}">`:"<div></div>"}<div><b>${esc(label(m.a))}</b><p class="muted">${esc(cat(m.a))} • ${esc(m.a.location||"No location")}</p><div class="bar"><span style="width:${m.score}%"></span></div><small class="muted">${m.score}% advanced beta suggestion. Confirm manually.</small></div><button class="btn primary" onclick="openAnimal('${m.a.id}')">Confirm/Open</button></div>`).join("")||'<div class="record muted">No reference photos found.</div>'}
 
-function exportBackup(){let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u)}
-function hasExistingData(){return(S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||(S.owner&&Object.keys(S.owner).some(k=>S.owner[k]))}
+function exportBackup(){
+ S.exportedAt=new Date().toISOString();
+ S.schemaVersion="herdlook-full-durable-v4";
+ save();
+ let blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=u;a.download="herdlook-local-backup-"+today()+".json";a.click();URL.revokeObjectURL(u);
+}
 
 async function readFileForImport(file){
  // FileReader fallback for iOS Safari where file.text() may fail silently
@@ -340,25 +386,36 @@ async function readFileForImport(file){
 async function importBackup(){
  let f=importFile.files[0];
  if(!f)return alert("Choose a backup file first.");
- // On iPhone: if existing data found, offer to clear and import instead of hard-blocking
- if(hasExistingData()){const ok=confirm("You already have data on this device. To import a backup, the old data needs to be cleared first.\n\nTap OK to clear old data and import your backup, or Cancel to stop.");if(!ok)return;await clearAllStorageLayers();S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};save()}
+ // Always check the real persisted stores before import.
+ await load();
+ if(!hlIsEmptyState(S)){
+  const ok=confirm("You already have data on this device. To import a backup, the old data needs to be cleared first.\\n\\nTap OK to clear old data and import your backup, or Cancel to stop.");
+  if(!ok)return;
+  await hlClearDB();
+  try{localStorage.removeItem(K)}catch{}
+  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
+  S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ }
  let text;
- try{text=await readFileForImport(f)}catch(e){console.error("File read error:",e);alert("Could not read the file.\n\nTry this:\n1. Make sure the file was exported from HerdLook\n2. If sending via AirDrop/email, save it to Files app first, then import\n3. Restart Safari and try again");return}
- if(!text||!text.trim()){alert("The file appears empty. Please re-export your backup from the desktop and try again.");return}
+ try{text=await readFileForImport(f)}catch(e){console.error("File read error:",e);alert("Could not read the file. Make sure it was exported from HerdLook and saved to Files app first.");return}
+ if(!text||!text.trim()){alert("The file appears empty. Re-export your backup from the desktop version and try again.");return}
  let data;
- try{data=JSON.parse(text)}catch(e){console.error("JSON parse error:",e);alert("This is not a valid JSON backup file.\n\nCommon causes:\n• File was saved as plain text instead of .json\n• File was corrupted during transfer\n• Wrong file selected\n\nTry re-exporting from the desktop version and make sure to pick the .json file.");return}
+ try{data=JSON.parse(text)}catch(e){console.error("JSON parse error:",e);alert("This is not a valid HerdLook JSON backup file.");return}
  const checkRoot=data?.data&&typeof data.data==="object"?data.data:data;
  if(!checkRoot||typeof checkRoot!=="object"||!Array.isArray(checkRoot.animals)){alert("This backup file does not look like a valid HerdLook backup.");return}
+ // Clear any stale layers, then save imported data to both stores.
+ await hlClearDB();
+ try{localStorage.removeItem(K)}catch{}
+ const notice=await mobileStorageNotice(data);
+ console.log("HerdLook mobile storage notice:",notice);
  S=normalizeImportedData(data);
- save();
- try{await saveToIndexedDB(S);const verify=await loadFromIndexedDB();if(!verify||!Array.isArray(verify.animals)){console.warn("IDB readback verification incomplete, localStorage backup still active")}}catch(e){console.warn("IDB import verify warning:",e)}
- renderSelects();
+ const ok=await saveAndVerify("import");
  S.view="dashboard";
- view("dashboard");
+ renderSelects();
  render();
- // Delayed render pass for slow devices
- setTimeout(()=>{render();renderSelects();},200);
- alert("Backup imported successfully! Check Dashboard for your data.");
+ view("dashboard");
+ setTimeout(()=>{renderSelects();render();view("dashboard");},200);
+ alert(ok?"Backup imported, migrated, saved, and rendered on Dashboard. Close and reopen the same app URL to confirm it remains.":"Backup imported but storage verification failed. Export a backup before closing.");
 }
 
 function savePin(){S.pin=pin.value;pin.value="";save();alert("PIN saved.")}
@@ -368,33 +425,69 @@ function renderLock(){if(S.pin&&sessionStorage.getItem("herdlookUnlocked")!="yes
 unlockBtn.onclick=()=>{if(unlockPin.value==S.pin){sessionStorage.setItem("herdlookUnlocked","yes");unlockPin.value="";unlockErr.classList.add("hidden");lock.classList.remove("open")}else unlockErr.classList.remove("hidden")}
 
 async function clearAll(){
- if(!confirm("Clear/delete ALL local HerdLook data from this device? This clears both IndexedDB and localStorage. Export a backup first if needed."))return;
- await clearAllStorageLayers();
- sessionStorage.removeItem("herdlookUnlocked");
+ if(!confirm("This will clear ALL HerdLook local data in this browser. Export a backup first if needed. Continue?")){return;}
+ await hlClearDB();
+ try{localStorage.removeItem(K)}catch{}
+ try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
  S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
  location.reload();
 }
 
-function repairStorage(){
- save();
- alert("Storage repair/sync complete. Both IndexedDB and localStorage are now synchronized with current in-memory data.");
+async function repairStorage(){
+ let fromDB=null,fromLS=null;
+ try{fromDB=normalizeImportedData(await hlLoadDB()||{})}catch{}
+ try{const t=localStorage.getItem(K);fromLS=t?normalizeImportedData(JSON.parse(t)):null}catch{}
+ const best=hlCountData(fromDB)>=hlCountData(fromLS)?fromDB:fromLS;
+ if(!best||hlCountData(best)===0){alert("No stored HerdLook data found to repair.");return}
+ S=best;const ok=await saveAndVerify("storage repair");renderSelects();render();alert(ok?"Storage repaired and synchronized.":"Storage repair attempted, but verification failed. Export a backup before closing.");
 }
 
 async function runPersistenceTest(){
- const testKey=K+"_storage_test";
- const testVal="persistence_test_"+Date.now();
- try{localStorage.setItem(testKey,testVal)}catch{}
- let results="<b>Persistence Test</b><br>";
- let lsOk=false,idbOk=false;
- try{lsOk=localStorage.getItem(testKey)===testVal}catch{}
- try{const d=await loadFromIndexedDB();idbOk=!!d&&Array.isArray(d.animals)}catch{}
- results+=`localStorage: ${lsOk?"✅ PASS":"❌ FAIL"}<br>`;
- results+=`IndexedDB: ${idbOk?"✅ PASS":"❌ FAIL"}<br>`;
- results+=`<br><b>Next step:</b> Close the browser completely, then reopen this app at the same URL. If data persists, durable storage is working correctly.`;
- results+=`<br><br><small>Data disappears when changing preview links because browser storage is separated by URL/domain. Use a stable deployed domain for real data.</small>`;
- try{localStorage.removeItem(testKey)}catch{}
- appTestResults.innerHTML=results;
+ const before=JSON.stringify(S);
+ const current=hlCountData(S);
+ const ok=await saveAndVerify("persistence test");
+ let fromDB=null,fromLS=null;
+ try{fromDB=await hlLoadDB()}catch{}
+ try{const t=localStorage.getItem(K);fromLS=t?JSON.parse(t):null}catch{}
+ const stored=Math.max(hlCountData(normalizeImportedData(fromDB||{})),hlCountData(normalizeImportedData(fromLS||{})));
+ const pass=ok&&stored>=current;
+ if(window.appTestResults){
+  appTestResults.innerHTML=`<h4 style="margin:0 0 8px">Persistence Test: ${pass?"PASS":"FAIL"}</h4>
+<div style="padding:7px 0;border-top:1px solid var(--line)"><b style="color:${pass?"#2f604b":"#a33b2f"}">${pass?"PASS":"FAIL"}</b> — Durable storage readback<br><span class="muted">Current items: ${current}; stored items after save/readback: ${stored}</span></div>
+<div style="padding:7px 0;border-top:1px solid var(--line)"><span class="muted">Reopen the same exact app URL/domain after closing. Changing preview URLs creates a different browser storage area.</span></div>`;
+ }else alert(pass?"Persistence test passed.":"Persistence test failed. Export a backup before closing.");
+ S=JSON.parse(before);save();
 }
+
+async function runMobileStorageTest(){
+ const estimate=await getStorageEstimate();
+ const persistent=await requestPersistentStorage();
+ const ios=isIOSDevice();
+ let idbPass=false;
+ try{
+  await saveToIndexedDB({...S,mobileStorageTest:{time:new Date().toISOString()}});
+  const raw=await loadFromIndexedDB();
+  idbPass=!!raw;
+ }catch(err){console.error("Mobile storage test failed:",err)}
+
+ const resultHTML=`
+<h4 style="margin:0 0 8px">iPhone/Mobile Storage Test</h4>
+<div style="padding:7px 0;border-top:1px solid var(--line)">
+<b style="color:${idbPass?"#2f604b":"#a33b2f"}">${idbPass?"PASS":"FAIL"}</b> — IndexedDB save/readback
+</div>
+<div style="padding:7px 0;border-top:1px solid var(--line)">
+<b>${ios?"iPhone/iPad detected":"Not detected as iPhone/iPad"}</b>
+<br><span class="muted">Persistent storage confirmed: ${persistent?"Yes":"No / not supported"}</span>
+<br><span class="muted">Storage estimate: ${estimate?bytesToMB(estimate.usage)+" MB used of about "+bytesToMB(estimate.quota)+" MB":"Not available"}</span>
+</div>
+<div style="padding:7px 0;border-top:1px solid var(--line)">
+<span class="muted">For iPhone: use Safari or Home Screen app from the same stable URL. Do not use Private Browsing or an in-app browser.</span>
+</div>`;
+ if(window.appTestResults)appTestResults.innerHTML=resultHTML;
+ else alert(idbPass?"Mobile storage test passed.":"Mobile storage test failed.");
+}
+window.runMobileStorageTest=runMobileStorageTest;
 
 function runAppTest(){
  let r="",pass=true;
@@ -420,40 +513,36 @@ function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",c
 
 ["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType","saleSearch","saleStatusFilter"].forEach(i=>setTimeout(()=>$i&&($(i).oninput=render),0));
 
-window.addEventListener("beforeunload",()=>{try{localStorage.setItem(K,JSON.stringify(S));saveToIndexedDB(S).catch(e=>console.warn("beforeunload IDB save warning:",e))}catch(e){console.warn("HerdLook beforeunload save warning:",e)}});
+window.addEventListener("beforeunload",()=>{try{save()}catch{}});
 
 /* === STARTUP HYDRATION / RENDER FIX === */
-async function hydrateAndRenderApp(){
- console.log("[HerdLook] hydrateAndRenderApp starting...");
- // 1. Wait for saved data to load (localStorage + IndexedDB)
- await load();
- console.log("[HerdLook] Data loaded. Animals:", S.animals.length);
- // 2. Populate select dropdowns
- renderSelects();
- // 3. Force Dashboard view + render
- S.view="dashboard";
- view("dashboard");
- console.log("[HerdLook] After view(dashboard), sAnimals:", document.getElementById("sAnimals")?.textContent);
- // 4. Safety: delayed render passes for slow IndexedDB/Safari/mobile
- setTimeout(()=>{console.log("[HerdLook] Delayed render 100ms");render();renderSelects();},100);
- setTimeout(()=>{console.log("[HerdLook] Delayed render 500ms");render();renderSelects();},500);
- // 5. Lock screen check
- if(!S.pin)lock.classList.remove("open");
+async function hydrateAndRenderApp(reason="startup"){
+ try{
+  await load();
+  renderSelects();
+  render();
+  // Force Dashboard to render after storage hydration so saved/imported data
+  // appears immediately without needing the user to click Dashboard.
+  const targetView=document.getElementById(S.view)?S.view:"dashboard";
+  view(targetView||"dashboard");
+  // Extra delayed render catches slower IndexedDB startup on Safari/mobile.
+  setTimeout(()=>{try{renderSelects();render()}catch(err){console.warn("Delayed render warning:",err)}},150);
+  setTimeout(()=>{try{renderSelects();render()}catch(err){console.warn("Second delayed render warning:",err)}},700);
+ }catch(err){
+  console.error("HerdLook hydrate/render failed:",err);
+ }
 }
 
-// Boot on DOM ready
-// Boot: load data and render on startup
-let _booted=false;
-async function boot(){
- if(_booted)return;_booted=true;
- try{await hydrateAndRenderApp();}catch(e){console.error("[HerdLook] Boot error:",e);try{load();view("dashboard");render();}catch(e2){console.error("[HerdLook] Fallback boot error:",e2)}}
+// Initial load: saved data must be loaded before first usable render.
+if(document.readyState==="loading"){
+ document.addEventListener("DOMContentLoaded",()=>hydrateAndRenderApp("DOMContentLoaded"));
+}else{
+ hydrateAndRenderApp("startup");
 }
-if(document.readyState==="loading"){window.addEventListener("DOMContentLoaded",boot);}
-else{boot();}
 
-// Rehydrate when returning to the app (back/forward cache, tab focus)
-window.addEventListener("pageshow",async e=>{try{if(e.persisted){await load();render();renderSelects();}}catch(e){console.warn("HerdLook pageshow warning:",e)}});
-window.addEventListener("focus",async()=>{try{await load();render();renderSelects();}catch(e){console.warn("HerdLook focus warning:",e)}});
+// When returning to the app, refresh from durable storage and re-render.
+window.addEventListener("pageshow",()=>hydrateAndRenderApp("pageshow"));
+window.addEventListener("focus",()=>setTimeout(()=>hydrateAndRenderApp("focus"),100));
 window.addEventListener('error',e=>{console.error('[HerdLook] Global error:',e.error||e.message)});
 window.addEventListener('unhandledrejection',e=>{console.error('[HerdLook] Unhandled promise:',e.reason)});
 </script>
