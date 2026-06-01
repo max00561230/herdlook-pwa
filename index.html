@@ -688,11 +688,11 @@ function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",c
 
 
 // === DASHBOARD DRILL-DOWN ===
-function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();render();}
+function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
 window.openDashboardDrill=openDashboardDrill;
-function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();render();}
+function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();view("dashboard");renderDashboard();}
 window.openDashboardSubCategory=openDashboardSubCategory;
-function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();render();}
+function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
 window.closeDashboardDrill=closeDashboardDrill;
 
 function renderDashboard(){
