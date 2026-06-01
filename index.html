@@ -221,6 +221,16 @@ async function clearAllStorageLayers(){
  S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 }
 
+async function clearAll(){
+ if(!confirm("This will clear ALL HerdLook local data in this browser. Export a backup first if needed. Continue?"))return;
+ await hlClearDB();
+ try{localStorage.removeItem(K)}catch{}
+ try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
+ location.reload();
+}
+
 /* ===== iPHONE / MOBILE STORAGE HELPERS ===== */
 function isIOSDevice(){return/iphone|ipad|ipod/i.test(navigator.userAgent)||(/Mac/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)return await navigator.storage.persist()}catch(e){console.warn("persist() not supported:",e)}return false}
@@ -460,7 +470,7 @@ async function importBackup(){
  const file=input&&input.files?input.files[0]:null;if(isIOSDevice()&&file.size&&file.size>50*1024*1024){const mb=bytesToMB(file.size);const msg="This backup is "+mb+" and is too large for reliable iPhone import. On desktop, use Export Mobile Transfer Backup, then import that smaller file on iPhone.";setImportStatus(msg,true);alert(msg);return;}
  if(!file){
  setImportStatus("No file selected. Choose a backup file first.",true);
- alert("Choose a backup file first, or paste the backup JSON into the iPhone fallback box.");
+ alert("Choose a backup file first.");
  return;
  }
  const text=await readFileAsTextMobileSafe(file);
