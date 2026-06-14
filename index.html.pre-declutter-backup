@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#183326">
 <meta name="description" content="HerdLook local-only herd management beta with mobile drawer, categories, photos, camera lookup, and records.">
 <style>
-:root{--bg:#f5f1e7;--card:#fffdf8;--ink:#17241d;--muted:#68746c;--green:#183326;--green2:#2f604b;--gold:#c58b35;--line:#ddd5c7;--bad:#a33b2f;--shadow:0 14px 38px rgba(23,36,29,.12);--r:18px;--hl-green:#0f4d2a;--hl-green-2:#176235;--hl-green-soft:#dcefdc;--hl-orange:#e96b2c;--hl-cream:#fbfaf5;--hl-card:#ffffff;--hl-border:#e2ddd3;--hl-text:#1e241f;--hl-muted:#687267;--hl-shadow:0 10px 28px rgba(18,45,28,.12);--hl-radius:18px}
+:root{--bg:#f5f1e7;--card:#fffdf8;--ink:#17241d;--muted:#68746c;--green:#183326;--green2:#2f604b;--gold:#c58b35;--line:#ddd5c7;--bad:#a33b2f;--shadow:0 14px 38px rgba(23,36,29,.12);--r:18px}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at top left,#fff8ea,var(--bg));color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}
 .appbar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(245,241,231,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.mbrand{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#eaf2ec;color:var(--green);font-size:25px;border:1px solid #d6e4d9}.mbrand strong{font-size:20px;display:block}.mbrand small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}.hamb{width:48px;height:48px;border-radius:15px;background:var(--green);color:white;font-size:24px}.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:44}.backdrop.open{display:block}
 .layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}.side{position:sticky;top:0;height:100vh;padding:22px;background:linear-gradient(180deg,#142a20,#1f4033);color:white;overflow:auto;z-index:45}.brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}.brand h1{margin:0;font-size:30px}.brand p{margin:2px 0;color:rgba(255,255,255,.7)}.byline{font-size:13px;letter-spacing:.08em;color:rgba(255,255,255,.62)}
@@ -44,78 +44,6 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 }
 
 @media print{.side,.appbar,.actions,.toolbar,.btn{display:none!important}.layout{display:block}main{padding:0}.card{box-shadow:none}}
-
-.drill-btn{cursor:pointer;text-align:left;border:2px solid transparent;transition:border-color .15s,box-shadow .15s}
-.drill-btn:hover,.drill-btn:active{border-color:var(--green2);box-shadow:var(--shadow)}
-.drill-btn strong{font-size:36px;display:block;margin:4px 0}
-.drill-btn small{display:block;color:var(--muted)}
-.drill-btn span.muted{font-size:12px;margin-top:4px;display:block}
-.drill-card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px;cursor:pointer;transition:border-color .15s}
-.drill-card:hover,.drill-card:active{border-color:var(--green2)}
-.drill-card h4{margin:0 0 4px}
-.drill-card .count{font-size:24px;font-weight:900;color:var(--green2)}
-.drill-back{margin-bottom:12px}
-.drill-item{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.drill-item .info{min-width:0}
-.drill-item .info strong{display:block;font-size:16px}
-.drill-item .info small{color:var(--muted)}
-.drill-item .actions{flex-shrink:0}
-.search-group{margin-top:14px}
-.search-group h4{margin:0 0 6px}
-.search-item{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:10px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.status-deceased{background:#fff0ed;border-color:#efc9c3;color:var(--bad)}
-.status-sold{background:#fff8ea;border-color:#ead8ba;color:#6b4a19}
-.status-bought{background:#eef5ef;border-color:#d6e4d9;color:var(--green2)}
-
-/* === HerdLook Animal Profile (Flyer Layout) === */
-.hl-app-shell{min-height:100vh;background:radial-gradient(circle at top right,rgba(23,98,53,.13),transparent 34%),linear-gradient(180deg,#f7f5ec 0%,#fff 44%,#f7f4eb 100%);color:var(--hl-text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:86px}
-.hl-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,var(--hl-green),var(--hl-green-2));color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.18)}
-.hl-brand{display:flex;align-items:center;gap:10px}
-.hl-logo{width:42px;height:42px;display:grid;place-items:center;background:#fff;color:var(--hl-green);border-radius:999px;font-size:22px;font-weight:900}
-.hl-brand-name{font-size:1.35rem;font-weight:900;line-height:1}
-.hl-brand-sub{margin-top:3px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;opacity:.82}
-.hl-menu-btn{border:0;background:transparent;color:#fff;font-size:1.8rem;line-height:1;cursor:pointer}
-.hl-animal-profile{width:min(100%,760px);margin:0 auto;padding:14px}
-.hl-hero-card,.hl-animal-main-card,.hl-panel{background:var(--hl-card);border:1px solid var(--hl-border);border-radius:var(--hl-radius);box-shadow:var(--hl-shadow);overflow:hidden;margin-bottom:14px}
-.hl-hero-photo-wrap{width:100%;height:clamp(230px,42vw,360px);background:#d8e3d4;overflow:hidden;display:grid;place-items:center;color:var(--hl-muted);font-size:1rem}
-.hl-hero-photo{width:100%;height:100%;object-fit:cover;display:block}
-.hl-photo-strip{display:flex;gap:8px;padding:9px;overflow-x:auto;background:rgba(255,255,255,.92);border-top:1px solid var(--hl-border)}
-.hl-thumb{flex:0 0 86px;height:62px;border:2px solid transparent;border-radius:10px;overflow:hidden;background:#eef3ea;cursor:pointer;padding:0}
-.hl-thumb.active{border-color:var(--hl-green)}
-.hl-thumb img{width:100%;height:100%;object-fit:cover}
-.hl-empty-thumb{display:grid;place-items:center;height:100%;font-size:.75rem;color:#607060}
-.hl-more-thumb{flex:0 0 86px;height:62px;border-radius:10px;border:0;background:linear-gradient(135deg,rgba(15,77,42,.8),rgba(15,77,42,.55));color:#fff;font-weight:900;font-size:1.2rem;cursor:pointer}
-.hl-animal-main-card{padding:16px}
-.hl-animal-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.hl-animal-title-row h1{margin:0 0 7px;color:var(--hl-green);font-size:clamp(1.55rem,5vw,2.15rem);line-height:1.06}
-.hl-animal-meta{margin:4px 0;color:var(--hl-text);font-size:.96rem}
-.hl-animal-meta .dot{color:var(--hl-green-2);font-weight:900;padding:0 6px}
-.hl-status-pill{flex:0 0 auto;background:var(--hl-green-soft);color:var(--hl-green);border:1px solid rgba(15,77,42,.18);padding:7px 13px;border-radius:999px;font-weight:800;font-size:.9rem;white-space:nowrap}
-.hl-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}
-.hl-status-card{border:1px solid var(--hl-border);background:#fff;border-radius:14px;padding:13px 8px;min-height:98px;text-align:center;box-shadow:0 6px 14px rgba(27,39,30,.08);cursor:pointer;font:inherit;color:var(--hl-text)}
-.hl-status-icon{color:var(--hl-green);font-size:1.55rem;font-weight:900;margin-bottom:4px}
-.hl-status-icon.hl-orange{color:var(--hl-orange)}
-.hl-status-label{text-transform:uppercase;color:var(--hl-text);font-size:.74rem;font-weight:900;letter-spacing:.04em}
-.hl-status-value{margin-top:5px;color:var(--hl-green);font-weight:800;font-size:.96rem}
-.hl-panel{padding:15px}
-.hl-panel h2,.hl-section-head h2{margin:0;color:var(--hl-green);font-size:1.05rem;text-transform:uppercase;letter-spacing:.04em}
-.hl-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-.hl-section-head button{border:0;background:transparent;color:var(--hl-green);font-weight:900;cursor:pointer}
-.hl-record-list{border:1px solid var(--hl-border);border-radius:14px;overflow:hidden;background:#fff}
-.hl-record-row{display:grid;grid-template-columns:94px 1fr auto 18px;gap:8px;align-items:center;padding:11px 10px;border-bottom:1px solid var(--hl-border);font-size:.92rem;cursor:pointer;width:100%;text-align:left;background:transparent;color:var(--hl-text);font:inherit}
-.hl-record-row:last-child{border-bottom:0}
-.hl-record-date{color:var(--hl-text);white-space:nowrap}
-.hl-record-type{font-weight:750}
-.hl-record-note{color:var(--hl-muted);text-align:right}
-.hl-record-arrow{color:var(--hl-muted);font-size:1.15rem}
-.hl-actions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
-.hl-action-btn{border:1px solid var(--hl-border);background:#fff;color:var(--hl-text);border-radius:14px;padding:12px 6px 10px;min-height:84px;box-shadow:0 5px 13px rgba(27,39,30,.08);cursor:pointer;font-weight:750;font-size:.78rem;font:inherit}
-.hl-action-icon{display:block;margin:0 auto 7px;color:var(--hl-green);font-size:1.65rem;line-height:1}
-.hl-bottom-nav{position:fixed;left:50%;bottom:0;z-index:30;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--hl-border);box-shadow:0 -8px 20px rgba(18,45,28,.1)}
-.hl-bottom-nav button{border:0;background:transparent;color:#697369;padding:8px 4px 10px;min-height:62px;font-size:1.22rem;cursor:pointer;font:inherit}
-.hl-bottom-nav button span{display:block;margin-top:2px;font-size:.72rem;font-weight:750}
-.hl-bottom-nav button.active{color:var(--hl-green)}
-@media(max-width:520px){.hl-animal-profile{padding:10px}.hl-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hl-status-card{min-height:88px;padding:10px 5px}.hl-record-row{grid-template-columns:82px 1fr;gap:4px 8px}.hl-record-note{text-align:left;grid-column:2/3;font-size:.82rem}.hl-record-arrow{display:none}.hl-actions-grid{grid-template-columns:repeat(2,1fr)}.hl-action-btn{min-height:72px}}
 </style>
 
 </head>
@@ -124,17 +52,16 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="appbar"><div class="mbrand"><div class="logo">🐂</div><div><strong>HerdLook</strong><small>by Jade Rose Technology</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
 <div class="layout">
 <aside class="side" id="side"><div class="brand"><div class="logo">🐂</div><div><h1>HerdLook</h1><p>Camera-assisted herd records</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
-<button class="active" data-view="dashboard">🏠 <span class="label">Dashboard</span></button><button data-view="animalProfile">🐄 <span class="label">Animal Profile</span></button><button data-view="herd">🐂 <span class="label">Herd</span></button><button data-view="photos">🖼️ <span class="label">Animal Photos</span></button><button data-view="lookup">📷 <span class="label">Camera Lookup</span></button><button data-view="guide">✅ <span class="label">Photo Guide</span></button><button data-view="records">🩺 <span class="label">Records</span></button><button data-view="sales">💵 <span class="label">Buy/Sell</span></button><button data-view="documents">🗂️ <span class="label">Documents</span></button><button data-view="locations">🗺️ <span class="label">Map/Locations</span></button><button data-view="owner">👤 <span class="label">Owner/Farm</span></button><button data-view="privacy">🔒 <span class="label">Data/Privacy</span></button><button data-view="apptest">🧪 <span class="label">App Test</span></button><button data-view="settings">⚙️ <span class="label">Settings</span></button>
+<button class="active" data-view="dashboard">🏠 <span class="label">Dashboard</span></button><button data-view="herd">🐂 <span class="label">Herd</span></button><button data-view="photos">🖼️ <span class="label">Animal Photos</span></button><button data-view="lookup">📷 <span class="label">Camera Lookup</span></button><button data-view="guide">✅ <span class="label">Photo Guide</span></button><button data-view="records">🩺 <span class="label">Records</span></button><button data-view="sales">💵 <span class="label">Buy/Sell</span></button><button data-view="documents">🗂️ <span class="label">Documents</span></button><button data-view="locations">🗺️ <span class="label">Map/Locations</span></button><button data-view="owner">👤 <span class="label">Owner/Farm</span></button><button data-view="privacy">🔒 <span class="label">Data/Privacy</span></button><button data-view="apptest">🧪 <span class="label">App Test</span></button><button data-view="settings">⚙️ <span class="label">Settings</span></button>
 </nav><div class="notice" style="margin-top:18px;background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.2)">Local-only beta. No cloud database or automatic sync.</div></aside>
 <main>
 <header class="top"><div><h2 id="title">Dashboard</h2><p id="sub">Manage animal profiles, photos, camera lookup, and herd records.</p></div><div class="actions"><button class="btn" onclick="view('guide')">Getting Started</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button><button class="btn accent" onclick="view('lookup')">Camera Lookup</button></div></header>
 
 <section id="dashboard" class="view">
-<div class="notice"><b>Dashboard drill-down:</b> Tap a summary card to explore. Long lists are hidden until you drill in.</div>
-<div class="grid stats drill-cards"><button class="card stat drill-btn" onclick="openDashboardDrill('animals')">ð <strong id="sAnimals">0</strong><small>Total Animals</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('photos')">ð¼ï¸ <strong id="sPhotos">0</strong><small>Reference Photos</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('records')">ð©º <strong id="sRecords">0</strong><small>Records</small><span class="muted">Tap to explore â</span></button><button class="card stat drill-btn" onclick="openDashboardDrill('due')">ð <strong id="sDue">0</strong><small>Due Soon</small><span class="muted">Tap to explore â</span></button></div>
-<div class="card" style="margin-top:10px"><div class="field" style="margin-bottom:0"><label>Search</label><input id="globalSearch" type="text" placeholder="Search animal ID, type, records, activities..." oninput="handleGlobalSearch(this.value)"></div><div id="searchResults" class="hidden" style="margin-top:10px"></div></div>
-<div id="drillPanel" class="hidden" style="margin-top:14px"><div id="drillContent"></div></div>
-<div id="dashboardDefault" class="grid two" style="margin-top:14px"><div class="card"><div class="row"><div><h3 style="margin:0">Recent Animals</h3><p class="muted">Hidden by default for mobile space.</p></div><button class="btn" id="recentBtn" onclick="toggleRecent()">Show Recent</button></div><div id="recent" class="hidden"></div></div><div class="card"><h3 style="margin-top:0">Owner/Farm</h3><div id="ownerSummary"></div></div></div>
+<div class="notice"><b>Mobile UX update:</b> Dashboard loads first. The logo/menu opens as a clean left drawer. Animal IDs are grouped by category cards to save mobile space.</div>
+<div class="grid stats"><div class="card stat"><small>Total Animals</small><strong id="sAnimals">0</strong><small>Active profiles</small></div><div class="card stat"><small>Reference Photos</small><strong id="sPhotos">0</strong><small>Saved for lookup</small></div><div class="card stat"><small>Records</small><strong id="sRecords">0</strong><small>Herd history</small></div><div class="card stat"><small>Due Soon</small><strong id="sDue">0</strong><small>Follow-ups</small></div></div>
+<div class="card" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Animals by Category</h3><p class="muted">Tap a card to list ID numbers by type.</p></div><button class="btn" onclick="selectCat('')">Show All</button></div><div id="catCards" class="grid three" style="margin-top:12px"></div><div id="catIds" class="idgrid"></div></div>
+<div class="grid two" style="margin-top:14px"><div class="card"><div class="row"><div><h3 style="margin:0">Recent Animals</h3><p class="muted">Hidden by default for mobile space.</p></div><button class="btn" id="recentBtn" onclick="toggleRecent()">Show Recent</button></div><div id="recent" class="hidden"></div></div><div class="card"><h3 style="margin-top:0">Owner/Farm</h3><div id="ownerSummary"></div></div></div>
 </section>
 
 <section id="herd" class="view hidden"><div class="toolbar"><input id="search" placeholder="Search ID, name, breed, location, dam, sire..."><select id="catFilter"><option value="">All categories</option></select><select id="sort"><option value="">Sort: newest added</option><option value="dob">Sort: birth date / age</option><option value="added">Sort: date added</option><option value="id">Sort: animal ID</option></select><select id="sortOrder"><option value="desc">Order: youngest / newest first</option><option value="asc">Order: oldest / earliest first</option></select><button class="btn" onclick="toggleBatch()">Batch Edit</button><button class="btn primary" onclick="openAnimal()">+ Add Animal</button></div><div id="animalList" class="animals"></div><div id="batchPanel" class="card hidden" style="margin-top:14px"><div class="row"><div><h3 style="margin:0">Batch Edit</h3><p class="muted">Change repeated info and save all edits with one click.</p></div><button class="btn primary" onclick="saveBatch()">Save All Edits</button></div><div id="batchList"></div></div></section>
@@ -145,7 +72,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="guide" class="view hidden"><div class="card"><h3 style="margin-top:0">Photo Capture Best Practices</h3><div class="notice"><b>Minimum beta requirement:</b> 3 clear photos: front face, left side, right side. Recommended: 6-8 photos per animal.</div><div class="grid two"><div class="card"><h4>Cattle: 6 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Ear tag / brand close-up</li><li>Unique marking or muzzle/nose close-up</li></ol></div><div class="card"><h4>Horses: 7 photos</h4><ol><li>Front face</li><li>Left side full body</li><li>Right side full body</li><li>Rear view</li><li>Face / blaze close-up</li><li>Legs / socks / markings</li><li>Brand, scar, or unique marking</li></ol></div></div><h4>Quality rules</h4><ul><li>Use good daylight or even barn lighting.</li><li>Keep the animal filling most of the frame.</li><li>Avoid blur, fences, shadows, people, and other animals blocking the view.</li><li>Update photos after seasonal coat changes, new tags, injury, grooming, or weight change.</li></ul></div></section>
 
-<section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option><option>Death/Loss</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
+<section id="records" class="view hidden"><div class="toolbar"><input id="recordSearch" placeholder="Search records..."><select id="recordType"><option value="">All record types</option><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select><button class="btn primary" onclick="openRecord()">+ Add Record</button></div><div class="card"><h3 style="margin-top:0">Records</h3><div id="recordList"></div></div></section>
 
 <section id="sales" class="view hidden">
  <div class="toolbar">
@@ -197,7 +124,6 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
  </div>
 </section>
 
-<section id="animalProfile" class="view hidden"></section>
 <section id="settings" class="view hidden"><div class="card"><h3 style="margin-top:0">Security & Testing</h3><div class="field"><label>Set local PIN/password</label><input id="pin" type="password"></div><div class="actions"><button class="btn primary" onclick="savePin()">Save PIN</button><button class="btn" onclick="lockNow()">Lock Now</button><button class="btn danger" onclick="clearPin()">Remove PIN</button><button class="btn" onclick="seed()">Load Demo Herd</button><button class="btn danger" onclick="clearAll()">Clear All Local Data</button><button class="btn" onclick="repairStorage()">Repair/Sync Storage</button></div><div class="notice" style="margin-top:14px"><b>Claw direction:</b> This is the single-file beta. Keep local-only. After beta reviews, split into production PWA files and upgrade storage to IndexedDB.</div><div class="notice"><b>Import rule:</b> A backup import must not overwrite existing data. User must clear/delete old data first, then import.</div></div></section>
 </main></div>
 
@@ -211,9 +137,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="field full"><label>Reference photos</label><div class="notice"><b>Minimum:</b> front face, left side, right side. <b>Recommended:</b> 6-8 photos.</div><input id="aPhotos" type="file" accept="image/*" multiple><p id="photoHint" class="muted"></p><div id="photoPreview" class="thumbs"></div></div>
 <div class="actions full"><button type="button" class="btn danger" id="deleteAnimal" onclick="deleteAnimal()">Delete</button><button class="btn primary">Save Animal & Photos</button></div></form></div></div>
 
-<div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3 id="recordModalTitle">Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><input id="rId" type="hidden"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option><option>Death/Loss</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
-
-<div class="modal" id="recordDetailModal"><div class="modalbox"><div class="modalhead"><h3>Record Detail</h3><button class="btn" onclick="closeModal('recordDetailModal')">Close</button></div><div id="recordDetailContent" style="margin-top:12px"></div></div></div>
+<div class="modal" id="recordModal"><div class="modalbox"><div class="modalhead"><h3>Add Record</h3><button class="btn" onclick="closeModal('recordModal')">Close</button></div><form id="recForm" class="formgrid"><div class="field"><label>Animal</label><select id="rAnimal" required></select></div><div class="field"><label>Type</label><select id="rType"><option>Health</option><option>Weight</option><option>Breeding</option><option>Movement</option><option>Note</option><option>Sale/Transfer</option></select></div><div class="field"><label>Date</label><input id="rDate" type="date" required></div><div class="field"><label>Follow-up date</label><input id="rFollow" type="date"></div><div class="field full"><label>Details</label><textarea id="rDetails" required></textarea></div><button class="btn primary full">Save Record</button></form></div></div>
 
 <div class="modal" id="saleModal"><div class="modalbox"><div class="modalhead"><div><h3 id="saleTitle">Add Buy/Sell Entry</h3><p class="muted">Record animal purchase or sale information. This also updates the animal card status.</p></div><button class="btn" onclick="closeModal('saleModal')">Close</button></div>
 <form id="saleForm" class="formgrid">
@@ -227,20 +151,10 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 <div class="field full"><label>Notes</label><textarea id="saleNotes" placeholder="Bill of sale notes, delivery, terms, reason for sale, purchase source..."></textarea></div>
 <div class="actions full"><button class="btn primary">Save Buy/Sell Entry</button></div>
 </form></div></div>
-<div class="modal" id="deathLossModal"><div class="modalbox"><div class="modalhead"><div><h3 id="deathLossTitle">Record Death / Loss</h3><p class="muted">Mark this animal as deceased and create a Death/Loss record.</p></div><button class="btn" onclick="closeModal('deathLossModal')">Close</button></div>
-<form id="deathLossForm" class="formgrid">
-<input id="deathLossAnimalId" type="hidden">
-<div class="field"><label>Date *</label><input id="deathLossDate" type="date" required></div>
-<div class="field"><label>Cause</label><input id="deathLossCause" placeholder="Cause of death or loss"></div>
-<div class="field"><label>Estimated value / loss amount</label><input id="deathLossValue" type="number" min="0" step="0.01" placeholder="0.00"></div>
-<div class="field full"><label>Notes</label><textarea id="deathLossNotes" placeholder="Additional details about the loss..."></textarea></div>
-<div class="actions full"><button class="btn primary" type="button" onclick="saveDeathLoss()">Save Death/Loss Record</button></div>
-</form></div></div>
-
 
 <script>
-const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Steer Calf","Heifer Calf","Heifer","Steer","Horse","Other","Death/Loss"];
-let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
+const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Heifer Calf","Heifer","Steer","Horse","Other"];
+let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
 const label=a=>[a.code,a.name].filter(Boolean).join(" — ")||"Unnamed", today=()=>new Date().toISOString().slice(0,10);
 
@@ -382,9 +296,7 @@ async function load(){
 /* ===== END DURABLE STORAGE v4 ===== */
 
 function inferCategory(a){
- if(a.status&&a.status.toLowerCase().includes("deceased"))return "Death/Loss";
  const words=[a.category,a.type,a.sex,a.species,a.code,a.name,a.markings,a.notes].join(" ").toLowerCase();
- if(words.includes("steer calf"))return "Steer Calf";
  if(words.includes("bull calf"))return "Bull Calf";
  if(words.includes("heifer calf"))return "Heifer Calf";
  if(words.includes("heifer"))return "Heifer";
@@ -408,12 +320,6 @@ function normalizeImportedData(raw){
  const animals=sourceAnimals.map((a,index)=>{
   const normalized={id:String(a.id||a.animalId||a.uuid||id()),code:String(a.code||a.animalCode||a.tagId||a.animalNumber||a.number||a.idNumber||a.name||`Animal-${index+1}`),name:String(a.name||a.animalName||""),species:String(a.species||(String(a.category||"").toLowerCase().includes("horse")?"Horse":"Cattle")),category:String(a.category||inferCategory(a)),breed:String(a.breed||a.breedName||""),sex:String(a.sex||a.gender||""),dob:String(a.dob||a.birthDate||a.dateOfBirth||""),tag:String(a.tag||a.rfid||a.microchip||a.tagNumber||a.earTag||""),location:String(a.location||a.pasture||a.pen||a.barn||""),dam:String(a.dam||a.damInfo||a.damName||a.mother||""),sire:String(a.sire||a.sireInfo||a.sireName||a.father||""),markings:String(a.markings||a.notes||a.description||""),photos:Array.isArray(a.photos)?a.photos:(Array.isArray(a.images)?a.images:[]),createdAt:a.createdAt||a.created||new Date().toISOString(),updatedAt:a.updatedAt||a.updated||new Date().toISOString()};
   normalized.photos=normalized.photos.map(p=>{if(typeof p==="string")return{id:id(),src:p,createdAt:new Date().toISOString()};return{id:p.id||id(),src:p.src||p.dataUrl||p.url||p.image||"",signature:p.signature||null,createdAt:p.createdAt||new Date().toISOString()}}).filter(p=>p.src);
- normalized.status=a.status||"";
- normalized.deathLossDate=a.deathLossDate||a.deathDate||a.lossDate||"";
- normalized.deathLossCause=a.deathLossCause||a.causeOfDeath||a.deathCause||a.lossCause||"";
- normalized.deathLossNotes=a.deathLossNotes||a.deathNotes||a.lossNotes||"";
- normalized.deathLossValue=a.deathLossValue||a.deathValue||a.lossValue||"";
- normalized.deathLossRecordedAt=a.deathLossRecordedAt||"";
   return normalized;
  });
  const validIds=new Set(animals.map(a=>a.id));
@@ -432,7 +338,7 @@ function normalizeImportedData(raw){
 function closeDrawer(){side.classList.remove("open");backdrop.classList.remove("open")}
 function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
 menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
-function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
+function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
 nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)view(b.dataset.view)}
 function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).length,0)}
 function money(v){let n=Number(v||0);return n?("$"+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})):"Price not set"}
@@ -440,13 +346,13 @@ function animalSales(a){return(S.sales||[]).filter(s=>s.animalId==a.id)}
 function latestSale(a,type){return animalSales(a).filter(s=>!type||s.type==type).sort((x,y)=>new Date(y.date||0)-new Date(x.date||0))[0]}
 function saleStatus(a){const sold=latestSale(a,"sold");const bought=latestSale(a,"bought");if(sold)return{status:"sold",label:`Sold ${sold.date||""} • ${money(sold.price)}`,record:sold};if(bought)return{status:"bought",label:`Bought ${bought.date||""} • ${money(bought.price)}`,record:bought};return{status:"active",label:"Active / owned",record:null}}
 
-function render(){renderCats();renderStats();renderHerd();renderPhotos();renderRecords();renderSales();renderDocs();renderLocs();renderOwner();renderSelects();renderBatch();renderSuggestions();renderLock();if(S.view==="animalProfile")renderAnimalProfile()}
+function render(){renderCats();renderStats();renderHerd();renderPhotos();renderRecords();renderSales();renderDocs();renderLocs();renderOwner();renderSelects();renderBatch();renderSuggestions();renderLock()}
 function renderStats(){sAnimals.textContent=S.animals.length;sPhotos.textContent=countPhotos();sRecords.textContent=S.records.length;sDue.textContent=S.records.filter(r=>r.follow&&new Date(r.follow)-new Date(today())<=12096e5&&new Date(r.follow)>=new Date(today())).length;recent.classList.toggle("hidden",!S.recent);recentBtn.textContent=S.recent?"Hide Recent":"Show Recent";recent.innerHTML=S.animals.slice(-5).reverse().map(a=>`<div class="record"><b>${esc(label(a))}</b><br><span class="muted">${esc(cat(a))} • ${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</span></div>`).join("")||'<div class="record muted">No animals yet.</div>'}
-function renderCats(){if(!$("catCards"))return;catCards.innerHTML=cats.map(c=>{let arr=S.animals.filter(a=>cat(a)==c),ids=arr.map(a=>a.code||a.name||"No ID").slice(0,5).join(", ");return`<button class="card catcard ${S.cat==c?"active":""}" onclick="selectCat('${c}')"><small>${c}</small><strong>${arr.length}</strong><small>${esc(ids||"No animals")}</small></button>`}).join("");let arr=S.cat?S.animals.filter(a=>cat(a)==S.cat):S.animals;catIds.innerHTML=arr.map(a=>`<button class="idbtn" onclick="openAnimal('${a.id}')"><strong>${esc(a.code||a.name)}</strong><small class="muted">${esc(cat(a))} • ${esc(a.breed||"No breed")} • ${esc(a.location||"No location")}</small></button>`).join("")||'<div class="record muted">No animals in this category.</div>'}
+function renderCats(){catCards.innerHTML=cats.map(c=>{let arr=S.animals.filter(a=>cat(a)==c),ids=arr.map(a=>a.code||a.name||"No ID").slice(0,5).join(", ");return`<button class="card catcard ${S.cat==c?"active":""}" onclick="selectCat('${c}')"><small>${c}</small><strong>${arr.length}</strong><small>${esc(ids||"No animals")}</small></button>`}).join("");let arr=S.cat?S.animals.filter(a=>cat(a)==S.cat):S.animals;catIds.innerHTML=arr.map(a=>`<button class="idbtn" onclick="openAnimal('${a.id}')"><strong>${esc(a.code||a.name)}</strong><small class="muted">${esc(cat(a))} • ${esc(a.breed||"No breed")} • ${esc(a.location||"No location")}</small></button>`).join("")||'<div class="record muted">No animals in this category.</div>'}
 function selectCat(c){S.cat=S.cat==c?"":c;renderCats()}
 function toggleRecent(){S.recent=!S.recent;renderStats()}
 function filtered(){let q=(search?.value||"").toLowerCase(),c=catFilter?.value||"",mode=sort?.value||"",order=sortOrder?.value||"desc";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,a.dam,a.sire,a.tag,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));const dir=order==="asc"?1:-1;if(mode==="dob"){arr.sort((a,b)=>{let av=a.dob?new Date(a.dob).getTime():0,bv=b.dob?new Date(b.dob).getTime():0;return(av-bv)*dir})}else if(mode==="added"){arr.sort((a,b)=>{let av=a.createdAt?new Date(a.createdAt).getTime():0,bv=b.createdAt?new Date(b.createdAt).getTime():0;return(av-bv)*dir})}else if(mode==="id"){arr.sort((a,b)=>String(a.code||a.name||"").localeCompare(String(b.code||b.name||""))*dir)}else{arr.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0))}return arr}
-function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p><span class="sale-status ${saleStatus(a).status}">${esc(saleStatus(a).label)}</span></p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn primary" onclick="viewAnimalProfile('${a.id}')">Profile</button><button class="btn" onclick="openAnimal('${a.id}')">Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn" onclick="openSale('${a.id}')">Buy/Sell</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
+function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p><span class="sale-status ${saleStatus(a).status}">${esc(saleStatus(a).label)}</span></p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Open/Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn" onclick="openSale('${a.id}')">Buy/Sell</button><button class="btn primary" onclick="openRecord('${a.id}')">Add Record</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
 function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=photoCat?.value||"";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>`<div class="photoCard">${a.photos?.[0]?`<img src="${a.photos[0].src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${(a.photos||[]).length} photos</p><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`).join("")||'<div class="record muted">No photo cards found.</div>'}
 function openPhotoPage(animalId){view("photos");let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
 function renderBatch(){batchPanel.classList.toggle("hidden",!S.batch);batchList.innerHTML=S.animals.map(a=>`<div class="batch" data-id="${a.id}"><div class="field"><label>${esc(a.code||a.name)} category</label><select class="bcat">${cats.map(c=>`<option ${cat(a)==c?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Breed</label><input class="bbreed" value="${esc(a.breed||"")}"></div><div class="field"><label>Location</label><input class="bloc" value="${esc(a.location||"")}"></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`).join("")}
@@ -464,11 +370,8 @@ aPhotos.onchange=async e=>{for(const f of e.target.files){let src=await fileUrl(
 animalForm.onsubmit=e=>{e.preventDefault();const animalIdValue=document.getElementById("animalId").value;let existing=S.animals.find(a=>a.id==animalIdValue);let a={id:animalIdValue||id(),code:aCode.value.trim(),name:aName.value.trim(),species:aSpecies.value,category:aCategory.value,breed:aBreed.value.trim(),sex:aSex.value,dob:aDob.value,tag:aTag.value.trim(),location:aLoc.value.trim(),dam:aDam.value.trim(),sire:aSire.value.trim(),markings:aMark.value.trim(),photos:S.photos,updatedAt:new Date().toISOString(),createdAt:existing?.createdAt||new Date().toISOString()};if(existing)Object.assign(existing,a);else S.animals.push(a);save();closeModal("animalModal");render()}
 function deleteAnimal(){const animalIdValue=document.getElementById("animalId").value;if(!animalIdValue||!confirm("Delete this animal and its records?"))return;S.animals=S.animals.filter(a=>a.id!=animalIdValue);S.records=S.records.filter(r=>r.animalId!=animalIdValue);S.sales=(S.sales||[]).filter(s=>s.animalId!=animalIdValue);save();closeModal("animalModal");render()}
 function renderSelects(){[catFilter,photoCat,aCategory].forEach(sel=>{if(!sel)return;let val=sel.value;sel.innerHTML=(sel==aCategory?"":"<option value=''>All categories</option>")+cats.map(c=>`<option>${c}</option>`).join("");sel.value=val||(sel==aCategory?"Cow":"")});rAnimal.innerHTML=S.animals.map(a=>`<option value="${a.id}">${esc(label(a))}</option>`).join("");docAnimal.innerHTML="<option value=''>General</option>"+S.animals.map(a=>`<option value="${a.id}">${esc(label(a))}</option>`).join("");if(window.saleAnimal)saleAnimal.innerHTML=S.animals.map(a=>`<option value="${a.id}">${esc(label(a))}</option>`).join("")}
-function openRecord(animalId){recForm.reset();rId.value="";rDate.value=today();renderSelects();if(animalId)rAnimal.value=animalId;recordModalTitle.textContent="Add Record";openModal("recordModal")}
-function openRecordDetail(recordId){const r=S.records.find(x=>x.id==recordId);if(!r){alert("Record not found.");return}const a=S.animals.find(x=>x.id==r.animalId);const html=`<div class="card"><div class="grid two" style="gap:8px"><div><b>Animal</b><br>${a?esc(label(a)):esc(r.animalId||"Unknown")}</div><div><b>Type</b><br>${esc(r.type)}</div><div><b>Date</b><br>${esc(r.date||"No date")}</div><div><b>Follow-up</b><br>${r.follow?esc(r.follow):"None"}</div></div><div style="margin-top:12px"><b>Details</b><p>${esc(r.details||"")}</p></div>${r.createdAt?"<p class=\"muted\">Created: "+esc(r.createdAt.slice(0,10))+"</p>":""}<div class="actions" style="margin-top:14px"><button class=\"btn primary\" onclick=\"closeModal('recordDetailModal');openRecordForEdit('"+r.id+"')\">Edit Existing Record</button><button class=\"btn accent\" onclick=\"closeModal('recordDetailModal');openAddRecordForAnimal('"+r.animalId+"','"+r.type+"')\">Add New Record</button></div></div>`;recordDetailContent.innerHTML=html;openModal("recordDetailModal")}
-function openRecordForEdit(recordId){const r=S.records.find(x=>x.id==recordId);if(!r){alert("Record not found.");return}recForm.reset();rId.value=r.id;renderSelects();rAnimal.value=r.animalId;rType.value=r.type;rDate.value=r.date||today();rFollow.value=r.follow||"";rDetails.value=r.details||"";recordModalTitle.textContent="Edit Record";openModal("recordModal")}
-function openAddRecordForAnimal(animalId,preferredType){recForm.reset();rId.value="";rDate.value=today();renderSelects();if(animalId)rAnimal.value=animalId;if(preferredType){const opts=[...rType.options].map(o=>o.value);if(opts.includes(preferredType))rType.value=preferredType}recordModalTitle.textContent="Add Record";openModal("recordModal")}
-recForm.onsubmit=e=>{e.preventDefault();const existingId=rId.value;if(existingId){const r=S.records.find(x=>x.id==existingId);if(!r){alert("Record not found.");return}r.animalId=rAnimal.value;r.type=rType.value;r.date=rDate.value;r.follow=rFollow.value;r.details=rDetails.value.trim();r.updatedAt=new Date().toISOString();save();closeModal("recordModal");render();return}S.records.push({id:id(),animalId:rAnimal.value,type:rType.value,date:rDate.value,follow:rFollow.value,details:rDetails.value.trim(),createdAt:new Date().toISOString()});save();closeModal("recordModal");render()}
+function openRecord(animalId){recForm.reset();rDate.value=today();renderSelects();if(animalId)rAnimal.value=animalId;openModal("recordModal")}
+recForm.onsubmit=e=>{e.preventDefault();S.records.push({id:id(),animalId:rAnimal.value,type:rType.value,date:rDate.value,follow:rFollow.value,details:rDetails.value.trim(),createdAt:new Date().toISOString()});save();closeModal("recordModal");render()}
 function renderRecords(){let q=(recordSearch?.value||"").toLowerCase(),t=recordType?.value||"";recordList.innerHTML=S.records.slice().reverse().filter(r=>{let a=S.animals.find(x=>x.id==r.animalId);return(!t||r.type==t)&&[r.type,r.date,r.details,a?label(a):""].join(" ").toLowerCase().includes(q)}).map(r=>{let a=S.animals.find(x=>x.id==r.animalId);return`<div class="record"><div class="row"><div><b>${esc(r.type)} — ${esc(a?label(a):"Unknown")}</b><br><span class="muted">${esc(r.date)} ${r.follow?"• Follow-up "+esc(r.follow):""}</span></div><button class="btn danger" onclick="delRecord('${r.id}')">Delete</button></div><p>${esc(r.details)}</p></div>`}).join("")||'<div class="record muted">No records.</div>'}
 function delRecord(rid){S.records=S.records.filter(r=>r.id!=rid);save();render()}
 
@@ -739,218 +642,7 @@ function runAppTest(){
 
 function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",category:"Cow",breed:"Angus Cross",sex:"Cow",dob:"2022-04-15",tag:"RFID-0017",location:"North Pasture",dam:"C-003",sire:"B-012",markings:"Black cow, yellow left ear tag.",photos:[]},{id:id(),code:"B-012",name:"Ranger",species:"Cattle",category:"Bull",breed:"Angus",sex:"Bull",dob:"2020-03-02",tag:"RFID-0012",location:"Bull Lot",dam:"Unknown",sire:"Unknown",markings:"Black bull.",photos:[]},{id:id(),code:"HC-004",name:"Rose",species:"Cattle",category:"Heifer Calf",breed:"Hereford Cross",sex:"Female",dob:"2025-02-10",tag:"HC004",location:"Calf Pen",dam:"C-017",sire:"B-012",markings:"White face.",photos:[]}];S.records=[{id:id(),animalId:S.animals[0].id,type:"Health",date:today(),follow:"",details:"Routine check."}];S.sales=[{id:id(),animalId:S.animals[0].id,type:"bought",date:today(),price:"1200",party:"Sample Seller",paymentStatus:"Paid",notes:"Sample purchase entry."}];save();render()}
 
-["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType","saleSearch","saleStatusFilter"].forEach(i=>setTimeout(()=>{const el=$(i);if(el)el.oninput=render;},0));
-
-
-
-// === DASHBOARD DRILL-DOWN ===
-function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
-window.openDashboardDrill=openDashboardDrill;
-function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();view("dashboard");renderDashboard();}
-window.openDashboardSubCategory=openDashboardSubCategory;
-function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
-window.closeDashboardDrill=closeDashboardDrill;
-
-function renderDashboard(){
- const panel=S.dashboardDrill?.panel;
- const sub=S.dashboardDrill?.subCategory;
- const drillEl=$("drillPanel");
- const defaultEl=$("dashboardDefault");
- const contentEl=$("drillContent");
- const searchEl=$("globalSearch");
- const resultsEl=$("searchResults");
- if(S.searchQuery&&searchEl)searchEl.value=S.searchQuery;
- if(!panel){if(drillEl)drillEl.classList.add("hidden");if(defaultEl)defaultEl.classList.remove("hidden");if(resultsEl)resultsEl.classList.add("hidden");return;}
- if(drillEl)drillEl.classList.remove("hidden");if(defaultEl)defaultEl.classList.add("hidden");
- let html='<button class="btn" onclick="closeDashboardDrill()">&larr; Back to Summary</button>';
- if(panel==="animals")html+=renderAnimalDrill(sub);
- else if(panel==="photos")html+=renderPhotoDrill(sub);
- else if(panel==="records")html+=renderRecordDrill(sub);
- else if(panel==="due")html+=renderDueDrill(sub);
- if(contentEl)contentEl.innerHTML=html;
-}
-window.renderDashboard=renderDashboard;
-
-function renderAnimalDrill(sub){
- const animals=S.animals||[];
- if(!sub){
-  let html='<h3 style="margin:14px 0 8px">Animals by Category</h3><div class="grid two">';
-  cats.forEach(cat=>{const count=animals.filter(a=>(a.category||inferCategory(a))===cat).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(cat)}')"><h4>${esc(cat)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
-  html+='</div>';return html;
- }
- const filtered=animals.filter(a=>(a.category||inferCategory(a))===sub);
- let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' ('+filtered.length+')</h3>';
- filtered.slice(0,20).forEach(a=>{const st=animalStatus(a);html+=`<div class="drill-item${st==="Deceased / Loss"?" status-deceased":st==="Sold"?" status-sold":st==="Bought"?" status-bought":""}"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${esc(st)}${a.location?" · "+esc(a.location):""}</small></div><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Open/Edit</button></div></div>`;});
- if(filtered.length>20)html+=`<p class="muted">Showing 20 of ${filtered.length}. Use Herd page for full list.</p>`;
- return html;
-}
-
-function renderPhotoDrill(sub){
- const animals=S.animals||[];
- if(!sub){
-  const noPhoto=animals.filter(a=>!a.photos||a.photos.length===0);
-  const few=animals.filter(a=>a.photos&&a.photos.length>=1&&a.photos.length<=2);
-  const good=animals.filter(a=>a.photos&&a.photos.length>=3);
-  const needsBetter=animals.filter(a=>!a.photos||a.photos.length<3);
-  let html='<h3 style="margin:14px 0 8px">Photo Status</h3><div class="grid two">';
-  html+=`<div class="drill-card" onclick="openDashboardSubCategory('none')"><h4>No Photos</h4><div class="count">${noPhoto.length}</div><small>tap to view</small></div>`;
-  html+=`<div class="drill-card" onclick="openDashboardSubCategory('few')"><h4>1-2 Photos</h4><div class="count">${few.length}</div><small>tap to view</small></div>`;
-  html+=`<div class="drill-card" onclick="openDashboardSubCategory('good')"><h4>3+ Photos</h4><div class="count">${good.length}</div><small>tap to view</small></div>`;
-  html+=`<div class="drill-card" onclick="openDashboardSubCategory('needsBetter')"><h4>Needs Better</h4><div class="count">${needsBetter.length}</div><small>tap to view</small></div>`;
-  html+='</div>';return html;
- }
- let filtered;
- if(sub==="none")filtered=animals.filter(a=>!a.photos||a.photos.length===0);
- else if(sub==="few")filtered=animals.filter(a=>a.photos&&a.photos.length>=1&&a.photos.length<=2);
- else if(sub==="good")filtered=animals.filter(a=>a.photos&&a.photos.length>=3);
- else filtered=animals.filter(a=>!a.photos||a.photos.length<3);
- let html='<h3 style="margin:14px 0 8px">'+esc(sub==="none"?"No Photos":sub==="few"?"1-2 Photos":sub==="good"?"3+ Photos":"Needs Better Photos")+' ('+filtered.length+')</h3>';
- filtered.slice(0,20).forEach(a=>{html+=`<div class="drill-item"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${a.photos?a.photos.length:0} photos</small></div><div class="actions"><button class="btn" onclick="openPhotoPage('${a.id}')">Add/Edit Photos</button></div></div>`;});
- return html;
-}
-
-function renderRecordDrill(sub){
- const records=S.records||[];
- const recordTypes=["Health","Weight","Breeding","Movement","Buy/Sell","Death/Loss","Notes","Other"];
- if(!sub){
-  let html='<h3 style="margin:14px 0 8px">Records by Type</h3><div class="grid two">';
-  recordTypes.forEach(t=>{const count=records.filter(r=>r.type===t||(t==="Other"&&!recordTypes.slice(0,-1).includes(r.type))).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(t)}')"><h4>${esc(t)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
-  html+='</div>';return html;
- }
- let filtered;
- if(sub==="Other")filtered=records.filter(r=>!recordTypes.slice(0,-1).includes(r.type));
- else filtered=records.filter(r=>r.type===sub);
- let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' Records ('+filtered.length+')</h3>';
- filtered.slice(0,20).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="drill-item" style="flex-direction:column;align-items:stretch;gap:8px"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"Unknown")}</strong><small>${esc(r.type)} · ${esc(r.date||"No date")}${r.follow?" · Follow-up "+esc(r.follow):""}</small><p style="margin:4px 0 0;color:var(--muted);font-size:13px">${esc((r.details||"").slice(0,80))}</p></div><div class="actions" style="flex-wrap:wrap;gap:6px"><button class="btn" onclick="openRecordDetail('${r.id}')">Open</button><button class="btn" onclick="openRecordForEdit('${r.id}')">Edit</button><button class="btn accent" onclick="openAddRecordForAnimal('${r.animalId}','${r.type}')">Add New</button></div></div>`;});
- return html;
-}
-
-function renderDueDrill(sub){
- const records=S.records||[];
- const dueTypes=["Health","Breeding","Movement","Follow-up","Custom Reminder","Other"];
- if(!sub){
-  const dueRecords=records.filter(r=>r.follow&&r.follow>=today());
-  let html='<h3 style="margin:14px 0 8px">Due Soon</h3><div class="grid two">';
-  dueTypes.forEach(t=>{let count;if(t==="Follow-up")count=dueRecords.filter(r=>r.type==="Note"||!dueTypes.slice(0,-1).includes(r.type)).length;else count=dueRecords.filter(r=>r.type===t).length;if(count>0)html+=`<div class="drill-card" onclick="openDashboardSubCategory('${esc(t)}')"><h4>${esc(t)}</h4><div class="count">${count}</div><small>tap to view</small></div>`;});
-  html+='</div>';return html;
- }
- const dueRecords=records.filter(r=>r.follow&&r.follow>=today());
- let filtered;
- if(sub==="Follow-up")filtered=dueRecords;
- else filtered=dueRecords.filter(r=>r.type===sub);
- let html='<h3 style="margin:14px 0 8px">'+esc(sub)+' Due Soon ('+filtered.length+')</h3>';
- filtered.slice(0,20).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="drill-item" style="flex-direction:column;align-items:stretch;gap:8px"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"Unknown")}</strong><small>${esc(r.type)} · Due ${esc(r.follow)}</small><p style="margin:4px 0 0;color:var(--muted);font-size:13px">${esc((r.details||"").slice(0,80))}</p></div><div class="actions" style="flex-wrap:wrap;gap:6px"><button class="btn" onclick="openRecordDetail('${r.id}')">Open</button><button class="btn" onclick="openRecordForEdit('${r.id}')">Edit</button><button class="btn accent" onclick="openAddRecordForAnimal('${r.animalId}','${r.type}')">Add New</button></div></div>`;});
- return html;
-}
-
-// === GLOBAL SEARCH ===
-function handleGlobalSearch(query){
- const el=$("searchResults");if(!el)return;
- if(!query||query.length<2){el.classList.add("hidden");el.innerHTML="";S.searchQuery="";return;}
- S.searchQuery=query;const q=query.toLowerCase();let html="";
- const animalMatches=(S.animals||[]).filter(a=>[a.code,a.name,a.category,a.breed,a.location,a.dam,a.sire,a.sex,a.tag,a.markings,a.status].some(f=>String(f||"").toLowerCase().includes(q)));
- if(animalMatches.length>0){html+='<div class="search-group"><h4>Animals ('+animalMatches.length+')</h4>';animalMatches.slice(0,10).forEach(a=>{html+=`<div class="search-item"><div class="info"><strong>${esc(label(a))}</strong><small>${esc(a.category||inferCategory(a))} · ${esc(animalStatus(a))}</small></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`;});html+='</div>';}
- const recordMatches=(S.records||[]).filter(r=>[r.type,r.details,r.date,r.animalId].some(f=>String(f||"").toLowerCase().includes(q)));
- if(recordMatches.length>0){html+='<div class="search-group"><h4>Records ('+recordMatches.length+')</h4>';recordMatches.slice(0,10).forEach(r=>{const a=(S.animals||[]).find(a2=>a2.id===r.animalId);html+=`<div class="search-item"><div class="info"><strong>${a?esc(label(a)):esc(r.animalId||"")}</strong><small>${esc(r.type)} · ${esc(r.date||"")}${r.follow?" · Follow-up "+esc(r.follow):""}</small></div><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn" onclick="openRecordDetail('${r.id}')">Open</button><button class="btn" onclick="openRecordForEdit('${r.id}')">Edit</button></div></div>`;});html+='</div>';}
- const salesMatches=(S.sales||[]).filter(s=>[s.party,s.notes,s.type].some(f=>String(f||"").toLowerCase().includes(q)));
- if(salesMatches.length>0){html+='<div class="search-group"><h4>Buy/Sell ('+salesMatches.length+')</h4>';salesMatches.slice(0,10).forEach(s=>{const a=(S.animals||[]).find(a2=>a2.id===s.animalId);html+=`<div class="search-item"><div class="info"><strong>${a?esc(label(a)):esc(s.animalId||"")}</strong><small>${esc(s.type)} · ${esc(s.party||"")}</small></div><button class="btn" onclick="openSale()">Open</button></div>`;});html+='</div>';}
- const docMatches=(S.docs||[]).filter(d=>[d.title,d.type,d.notes].some(f=>String(f||"").toLowerCase().includes(q)));
- if(docMatches.length>0){html+='<div class="search-group"><h4>Documents ('+docMatches.length+')</h4>';docMatches.slice(0,10).forEach(d=>{html+=`<div class="search-item"><div class="info"><strong>${esc(d.title)}</strong><small>${esc(d.type)}</small></div></div>`;});html+='</div>';}
- const locMatches=(S.locations||[]).filter(l=>[l.name,l.type,l.notes].some(f=>String(f||"").toLowerCase().includes(q)));
- if(locMatches.length>0){html+='<div class="search-group"><h4>Locations ('+locMatches.length+')</h4>';locMatches.slice(0,10).forEach(l=>{html+=`<div class="search-item"><div class="info"><strong>${esc(l.name)}</strong><small>${esc(l.type)}</small></div></div>`;});html+='</div>';}
- if(!html)html='<p class="muted">No results found.</p>';
- el.innerHTML=html;el.classList.remove("hidden");
-}
-window.handleGlobalSearch=handleGlobalSearch;
-
-// === ANIMAL STATUS ===
-function animalStatus(a){
- if(a.status==="Deceased / Loss"||a.status==="Deceased"||a.status==="Deceased/Loss"||a.deathLossDate)return "Deceased / Loss";
- const sale=(S.sales||[]).find(s=>s.animalId===a.id&&s.type==="sold");if(sale)return "Sold";
- const bought=(S.sales||[]).find(s=>s.animalId===a.id&&s.type==="bought");if(bought)return "Bought";
- return "Active / Owned";
-}
-window.animalStatus=animalStatus;
-
-// === DEATH/LOSS ===
-function openDeathLoss(animalId){
- const a=(S.animals||[]).find(a2=>a2.id===animalId);if(!a){alert("Animal not found.");return;}
- $("deathLossAnimalId").value=animalId;$("deathLossDate").value=today();$("deathLossCause").value="";$("deathLossValue").value="";$("deathLossNotes").value="";
- $("deathLossTitle").textContent="Record Death / Loss — "+label(a);openModal("deathLossModal");
-}
-window.openDeathLoss=openDeathLoss;
-
-function saveDeathLoss(){
- const animalId=$("deathLossAnimalId").value;const a=(S.animals||[]).find(a2=>a2.id===animalId);if(!a){alert("Animal not found.");return;}
- a.status="Deceased / Loss";a.deathLossDate=$("deathLossDate").value||today();a.deathLossCause=$("deathLossCause").value||"";a.deathLossNotes=$("deathLossNotes").value||"";a.deathLossValue=$("deathLossValue").value||"";a.deathLossRecordedAt=new Date().toISOString();
- S.records.push({id:id(),animalId,type:"Death/Loss",date:a.deathLossDate,follow:"",details:(a.deathLossCause?a.deathLossCause+": ":"")+(a.deathLossNotes||a.deathLossCause||"Animal marked as deceased"),createdAt:new Date().toISOString(),updatedAt:""});
- save();renderSelects();render();closeModal("deathLossModal");
-}
-window.saveDeathLoss=saveDeathLoss;
-
-
-// === Animal Profile (Flyer Layout) ===
-function viewAnimalProfile(animalId){S.profileAnimalId=animalId;view("animalProfile")}
-function photoSrcHL(p){if(!p)return"";if(typeof p==="string")return p;return p.src||p.url||p.dataUrl||""}
-function getAgeHL(a){if(!a.dob&&!a.birthDate)return"Not entered";const d=new Date(a.dob||a.birthDate);if(isNaN(d.getTime()))return"Not entered";const t=new Date();let y=t.getFullYear()-d.getFullYear();let m=t.getMonth()-d.getMonth();if(t.getDate()<d.getDate())m--;if(m<0){y--;m+=12}return y+"y "+m+"m"}
-
-function filterRecordsByAnimalAndType(animalId,type){
-  view("records");
-  setTimeout(()=>{
-    if(typeof recordType!=="undefined"&&recordType)recordType.value=type;
-    if(typeof recordSearch!=="undefined"&&recordSearch){
-      const a=S.animals.find(x=>x.id===animalId);
-      if(a)recordSearch.value=label(a);
-    }
-    renderRecords();
-  },50);
-}
-
-function renderAnimalProfile(){
-  const el=$("animalProfile");
-  if(!el)return;
-  const a=S.animals.find(x=>x.id===S.profileAnimalId);
-  if(!a){
-    el.innerHTML='<div class="hl-app-shell"><header class="hl-topbar"><div class="hl-brand"><div class="hl-logo">🐄</div><div><div class="hl-brand-name">HerdLook</div><div class="hl-brand-sub">Livestock Records</div></div></div><button class="hl-menu-btn" type="button" onclick="closeDrawer()">☰</button></header><main class="hl-animal-profile"><div class="hl-panel" style="text-align:center;padding:40px 20px"><h2 style="color:var(--hl-green)">No animal selected</h2><p style="color:var(--hl-muted)">Open an animal from the herd list to see its profile.</p><button class="btn primary" onclick="view(\'herd\')" style="margin-top:16px">Go to Herd</button></div></main></div>';
-    return;
-  }
-  const photos=Array.isArray(a.photos)?a.photos:[];
-  const mainPhoto=photos.length?photoSrcHL(photos[0]):"";
-  const animalRecords=S.records.filter(r=>r.animalId===a.id).slice().sort((x,y)=>new Date(y.date||y.createdAt||0)-new Date(x.date||x.createdAt||0));
-  const recentRecords=animalRecords.slice(0,4);
-  const animalId=a.code||a.id||a.tag||a.name||"Animal";
-  const status=cat(a);
-  const health=animalRecords.find(r=>r.type==="Health")?"Checked":"Good";
-  const ss=saleStatus(a);
-  const lastRecord=recentRecords[0]?.date||recentRecords[0]?.createdAt||"No records";
-  const age=getAgeHL(a);
-
-  let photoStripHTML="";
-  if(photos.length){
-    photoStripHTML=photos.slice(0,4).map((p,i)=>`<button class="hl-thumb ${i===0?"active":""}" type="button" onclick="openPhotoPage('${a.id}')"><img src="${esc(photoSrcHL(p))}" alt="Photo ${i+1}"></button>`).join("");
-    if(photos.length>4) photoStripHTML+=`<button class="hl-more-thumb" type="button" onclick="openPhotoPage('${a.id}')">+${photos.length-4}</button>`;
-  }else{
-    photoStripHTML='<div class="hl-thumb active"><div class="hl-empty-thumb">No photo</div></div>';
-  }
-
-  let recordsHTML="";
-  if(recentRecords.length){
-    recordsHTML=recentRecords.map(r=>`<button class="hl-record-row" type="button" onclick="openRecord('${a.id}')"><span class="hl-record-date">${esc(r.date||"")}</span><span class="hl-record-type">${esc(r.type||"Record")}</span><span class="hl-record-note">${esc((r.details||"").substring(0,40))}</span><span class="hl-record-arrow">›</span></button>`).join("");
-  }else{
-    recordsHTML='<button class="hl-record-row" type="button" onclick="openRecord(\''+a.id+'\')"><span class="hl-record-date">No records</span><span class="hl-record-type">Add the first record</span><span class="hl-record-note"></span><span class="hl-record-arrow">›</span></button>';
-  }
-
-  el.innerHTML=`<div class="hl-app-shell">
-<header class="hl-topbar"><div class="hl-brand"><div class="hl-logo">🐄</div><div><div class="hl-brand-name">HerdLook</div><div class="hl-brand-sub">Livestock Records</div></div></div><button class="hl-menu-btn" type="button" onclick="closeDrawer()">☰</button></header>
-<main class="hl-animal-profile">
-<section class="hl-hero-card"><div class="hl-hero-photo-wrap">${mainPhoto?`<img class="hl-hero-photo" src="${esc(mainPhoto)}" alt="${esc(animalId)}">`:"No animal photo"}</div><div class="hl-photo-strip">${photoStripHTML}</div></section>
-<section class="hl-animal-main-card"><div class="hl-animal-title-row"><div><h1>Animal ID: ${esc(animalId)}</h1><p class="hl-animal-meta">Tag: ${esc(a.tag||animalId)} <span class="dot">•</span> Breed: ${esc(a.breed||"Not entered")} <span class="dot">•</span> Sex: ${esc(a.sex||"Not entered")}</p><p class="hl-animal-meta">DOB: ${esc(a.dob||"Not entered")} <span class="dot">•</span> Age: ${esc(age)}</p></div><span class="hl-status-pill ${ss.status==="sold"?"status-sold":ss.status==="bought"?"status-bought":""}">${esc(status)}${ss.status!=="active"?" • "+esc(ss.label):""}</span></div>
-<div class="hl-status-grid"><button class="hl-status-card" type="button" onclick="filterRecordsByAnimalAndType('${a.id}','Health')"><div class="hl-status-icon hl-orange">♥</div><div class="hl-status-label">Health</div><div class="hl-status-value">${esc(health)}</div></button><button class="hl-status-card" type="button" onclick="view('records')"><div class="hl-status-icon">↗</div><div class="hl-status-label">Activity</div><div class="hl-status-value">${esc(lastRecord!=="No records"?"Tracked":"New")}</div></button><button class="hl-status-card" type="button" onclick="view('records')"><div class="hl-status-icon">📅</div><div class="hl-status-label">Last Record</div><div class="hl-status-value">${esc(lastRecord)}</div></button></div></section>
-<section class="hl-panel"><div class="hl-section-head"><h2>Recent Records</h2><button type="button" onclick="view('records')">View All</button></div><div class="hl-record-list">${recordsHTML}</div></section>
-<section class="hl-panel"><h2>Quick Actions</h2><div class="hl-actions-grid"><button type="button" class="hl-action-btn" onclick="openRecord('${a.id}')"><span class="hl-action-icon">＋</span>Add Record</button><button type="button" class="hl-action-btn" onclick="openAnimal('${a.id}')"><span class="hl-action-icon">📷</span>Add Photo</button><button type="button" class="hl-action-btn" onclick="openRecord('${a.id}')"><span class="hl-action-icon">📝</span>Edit Details</button><button type="button" class="hl-action-btn" onclick="view('documents')"><span class="hl-action-icon">📄</span>Documents</button></div></section>
-</main>
-<nav class="hl-bottom-nav"><button type="button" class="active" onclick="viewAnimalProfile('${a.id}')">🐄<span>Animal</span></button><button type="button" onclick="view('herd')">👥<span>Herd</span></button><button type="button" onclick="view('records')">📋<span>Records</span></button><button type="button" onclick="view('dashboard')">🏠<span>Dashboard</span></button></nav></div>`;
-}
+["search","catFilter","sort","sortOrder","photoSearch","photoCat","recordSearch","recordType","saleSearch","saleStatusFilter"].forEach(i=>setTimeout(()=>$i&&($(i).oninput=render),0));
 
 window.addEventListener("beforeunload",()=>{try{save()}catch{}});
 
