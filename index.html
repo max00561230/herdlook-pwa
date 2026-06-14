@@ -117,7 +117,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 .hl-bottom-nav button.active{color:var(--hl-green)}
 @media(max-width:520px){.hl-animal-profile{padding:10px}.hl-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hl-status-card{min-height:88px;padding:10px 5px}.hl-record-row{grid-template-columns:82px 1fr;gap:4px 8px}.hl-record-note{text-align:left;grid-column:2/3;font-size:.82rem}.hl-record-arrow{display:none}.hl-actions-grid{grid-template-columns:repeat(2,1fr)}.hl-action-btn{min-height:72px}}
 
-.mobile-back-btn,.mobile-home-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font-weight:800;font-size:14px;cursor:pointer;margin:6px 6px 6px 0;transition:transform .1s}.mobile-back-btn:active,.mobile-home-btn:active{transform:scale(.98)}.mobile-back-btn:hover,.mobile-home-btn:hover{background:#f0ebe0}@media(min-width:1050px){.mobile-back-btn,.mobile-home-btn{display:none!important}.back-home-desktop{display:none!important}}
+.mobile-back-btn,.mobile-home-btn{display:none!important;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font-weight:800;font-size:14px;cursor:pointer;margin:6px 6px 6px 0;transition:transform .1s}.mobile-back-btn:active,.mobile-home-btn:active{transform:scale(.98)}.mobile-back-btn:hover,.mobile-home-btn:hover{background:#f0ebe0}@media(min-width:1050px){.mobile-back-btn,.mobile-home-btn{display:none!important}.back-home-desktop{display:none!important}}
 .back-home-wrap{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}@media(max-width:1050px){.back-home-wrap{padding:0 2px}}
 </style>
 
@@ -251,7 +251,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <script>
 const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Steer Calf","Heifer Calf","Heifer","Steer","Horse","Other","Death/Loss"];
-let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",backStack:[],dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
+let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
 const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
 const label=a=>[a.code,a.name].filter(Boolean).join(" — ")||"Unnamed", today=()=>new Date().toISOString().slice(0,10);
 
@@ -315,7 +315,7 @@ async function clearIndexedDB(){
 async function clearAllStorageLayers(){
  try{localStorage.removeItem(K)}catch{}
  try{await clearIndexedDB()}catch(e){console.warn("clearAllStorageLayers warning:",e)}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",backStack:[]};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
 }
 
 async function clearAll(){
@@ -323,7 +323,7 @@ async function clearAll(){
  await hlClearDB();
  try{localStorage.removeItem(K)}catch{}
  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",backStack:[]};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
  alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
  location.reload();
 }
@@ -444,67 +444,36 @@ function closeDrawer(){side.classList.remove("open");backdrop.classList.remove("
 function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
 menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
 
-// === LIGHTWEIGHT BACK NAVIGATION (HLv1.4) ===
-function getCurrentPage(){return S.view||"dashboard"}
-function goToPage(page,opts){
- if(!opts)opts={};
- const stack=S.backStack=S.backStack||[];
- const current=getCurrentPage();
- if(!opts.skipHistory&&page!==current){
-  const last=stack[stack.length-1];
-  if(last!==current)stack.push(current);
- }
- if(page==="dashboard"||page==="home"){
-  if(S.dashboardDrill){S.dashboardDrill.panel=null;S.dashboardDrill.subCategory=null;S.dashboardDrill.query=""}
-  S.profileAnimalId=null;S.backStack=[];
- }
- S.view=page;
- save();render();
- setTimeout(()=>{updateActiveNavButton();window.scrollTo({top:0,behavior:"smooth"})},50);
+
+// === PAGE NAVIGATION (HLv1.4) ===
+function openPage(page){
+ const appPages=["dashboard","herd","records","photos","documents","locations","dataPrivacy","privacy","apptest","settings","lookup","guide","sales","owner"];
+ if(!appPages.includes(page))page="dashboard";
+ S.dashboardDrill={panel:null,subCategory:null,query:""};
+ S.profileAnimalId=null;
+ S.searchQuery="";
+ S.selectedRecordId=null;
+ view(page);
 }
-window.goToPage=goToPage;
+window.openPage=openPage;
 
-function goBackOnePage(){
- if(window.herdlookHasUnsavedChanges){const ok=confirm("You have unsaved changes. Leave without saving?");if(!ok)return;window.herdlookHasUnsavedChanges=false}
- if(S.profileAnimalId&&getCurrentPage()==="animalProfile"){S.profileAnimalId=null;save();render();updateBackHomeButtons();return}
- const stack=S.backStack=S.backStack||[];
- const previous=stack.pop();
- if(previous)goToPage(previous,{skipHistory:true});
- else goToPage("dashboard",{skipHistory:true});
-}
-window.goBackOnePage=goBackOnePage;
-
-function goHomePage(){S.backStack=[];if(S.dashboardDrill){S.dashboardDrill.panel=null;S.dashboardDrill.subCategory=null;S.dashboardDrill.query=""}S.profileAnimalId=null;goToPage("dashboard",{skipHistory:true})}
-window.goHomePage=goHomePage;
-
-function updateActiveNavButton(){
- const page=getCurrentPage();
- document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
-  btn.classList.toggle("active",btn.dataset.view===page);
+function repairActiveNavHighlight(){
+ const active=S.view||"dashboard";
+ document.querySelectorAll("[data-view]").forEach(btn=>{
+  btn.classList.toggle("active",btn.dataset.view===active);
  });
 }
-window.updateActiveNavButton=updateActiveNavButton;
+window.repairActiveNavHighlight=repairActiveNavHighlight;
 
-function shouldShowMobileBack(){const stack=S.backStack=S.backStack||[];return stack.length>0&&getCurrentPage()!=="dashboard"}
-function shouldShowMobileHome(){return getCurrentPage()!=="dashboard"}
-
-function updateBackHomeButtons(){
- const wrap=document.getElementById("backHomeBtns");
- if(!wrap)return;
- const show=shouldShowMobileBack();
- wrap.style.display=show?"flex":"none";
-}
-window.updateBackHomeButtons=updateBackHomeButtons;
-
-function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();updateBackHomeButtons();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
-nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)goToPage(b.dataset.view)}
+function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
+nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)view(b.dataset.view)}
 function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).filter(p=>p.src).length,0)}
 function money(v){let n=Number(v||0);return n?("$"+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})):"Price not set"}
 function animalSales(a){return(S.sales||[]).filter(s=>s.animalId==a.id)}
 function latestSale(a,type){return animalSales(a).filter(s=>!type||s.type==type).sort((x,y)=>new Date(y.date||0)-new Date(x.date||0))[0]}
 function saleStatus(a){const sold=latestSale(a,"sold");const bought=latestSale(a,"bought");if(sold)return{status:"sold",label:`Sold ${sold.date||""} • ${money(sold.price)}`,record:sold};if(bought)return{status:"bought",label:`Bought ${bought.date||""} • ${money(bought.price)}`,record:bought};return{status:"active",label:"Active / owned",record:null}}
 
-function render(){renderCats();renderStats();renderHerd();renderPhotos();renderRecords();renderSales();renderDocs();renderLocs();renderOwner();renderSelects();renderBatch();renderSuggestions();renderLock();if(S.view==="animalProfile")renderAnimalProfile()}
+function render(){renderCats();renderStats();renderHerd();renderPhotos();renderRecords();renderSales();renderDocs();renderLocs();renderOwner();renderSelects();renderBatch();renderSuggestions();renderLock();if(S.view==="animalProfile")renderAnimalProfile();repairActiveNavHighlight()}
 function renderStats(){sAnimals.textContent=S.animals.length;sPhotos.textContent=countPhotos();sRecords.textContent=S.records.length;sDue.textContent=S.records.filter(r=>r.follow&&new Date(r.follow)-new Date(today())<=12096e5&&new Date(r.follow)>=new Date(today())).length;recent.classList.toggle("hidden",!S.recent);recentBtn.textContent=S.recent?"Hide Recent":"Show Recent";recent.innerHTML=S.animals.slice(-5).reverse().map(a=>`<div class="record"><b>${esc(label(a))}</b><br><span class="muted">${esc(cat(a))} • ${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</span></div>`).join("")||'<div class="record muted">No animals yet.</div>'}
 function renderCats(){if(!$("catCards"))return;catCards.innerHTML=cats.map(c=>{let arr=S.animals.filter(a=>cat(a)==c),ids=arr.map(a=>a.code||a.name||"No ID").slice(0,5).join(", ");return`<button class="card catcard ${S.cat==c?"active":""}" onclick="selectCat('${c}')"><small>${c}</small><strong>${arr.length}</strong><small>${esc(ids||"No animals")}</small></button>`}).join("");let arr=S.cat?S.animals.filter(a=>cat(a)==S.cat):S.animals;catIds.innerHTML=arr.map(a=>`<button class="idbtn" onclick="openAnimal('${a.id}')"><strong>${esc(a.code||a.name)}</strong><small class="muted">${esc(cat(a))} • ${esc(a.breed||"No breed")} • ${esc(a.location||"No location")}</small></button>`).join("")||'<div class="record muted">No animals in this category.</div>'}
 function selectCat(c){S.cat=S.cat==c?"":c;renderCats()}
@@ -512,7 +481,7 @@ function toggleRecent(){S.recent=!S.recent;renderStats()}
 function filtered(){let q=(search?.value||"").toLowerCase(),c=catFilter?.value||"",mode=sort?.value||"",order=sortOrder?.value||"desc";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,a.dam,a.sire,a.tag,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));const dir=order==="asc"?1:-1;if(mode==="dob"){arr.sort((a,b)=>{let av=a.dob?new Date(a.dob).getTime():0,bv=b.dob?new Date(b.dob).getTime():0;return(av-bv)*dir})}else if(mode==="added"){arr.sort((a,b)=>{let av=a.createdAt?new Date(a.createdAt).getTime():0,bv=b.createdAt?new Date(b.createdAt).getTime():0;return(av-bv)*dir})}else if(mode==="id"){arr.sort((a,b)=>String(a.code||a.name||"").localeCompare(String(b.code||b.name||""))*dir)}else{arr.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0))}return arr}
 function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p><span class="sale-status ${saleStatus(a).status}">${esc(saleStatus(a).label)}</span></p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn primary" onclick="viewAnimalProfile('${a.id}')">Profile</button><button class="btn" onclick="openAnimal('${a.id}')">Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn" onclick="openSale('${a.id}')">Buy/Sell</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
 function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=(photoCat?.value||"");let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>{const realPhotos=(a.photos||[]).filter(p=>p.src);const omittedPhotos=(a.photos||[]).filter(p=>p.omitted&&!p.src);const firstPhoto=realPhotos[0];return`<div class="photoCard">${firstPhoto?`<img src="${firstPhoto.src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${realPhotos.length} photos${omittedPhotos.length?' <span class="pill" style="font-size:10px">'+omittedPhotos.length+' omitted</span>':''}</p>${omittedPhotos.length?'<div class="notice" style="margin:6px 0;font-size:12px">Photo(s) omitted from mobile transfer.</div>':''}<div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`}).join("")||'<div class="record muted">No photo cards found.</div>'}
-function openPhotoPage(animalId){if(!S.backStack)S.backStack=[];const current=getCurrentPage();if(current!=="photos")S.backStack.push(current);S.view="photos";save();render();updateActiveNavButton();updateBackHomeButtons();let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
+function openPhotoPage(animalId){view("photos");let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
 function renderBatch(){batchPanel.classList.toggle("hidden",!S.batch);batchList.innerHTML=S.animals.map(a=>`<div class="batch" data-id="${a.id}"><div class="field"><label>${esc(a.code||a.name)} category</label><select class="bcat">${cats.map(c=>`<option ${cat(a)==c?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Breed</label><input class="bbreed" value="${esc(a.breed||"")}"></div><div class="field"><label>Location</label><input class="bloc" value="${esc(a.location||"")}"></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`).join("")}
 function toggleBatch(){S.batch=!S.batch;renderBatch()}
 function saveBatch(){document.querySelectorAll(".batch").forEach(r=>{let a=S.animals.find(x=>x.id==r.dataset.id);if(a){a.category=r.querySelector(".bcat").value;a.breed=r.querySelector(".bbreed").value.trim();a.location=r.querySelector(".bloc").value.trim();a.updatedAt=new Date().toISOString()}});save();render();alert("All edits saved.")}
@@ -788,7 +757,7 @@ async function clearAll(){
  await hlClearDB();
  try{localStorage.removeItem(K)}catch{}
  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",backStack:[]};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
  alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
  location.reload();
 }
@@ -878,9 +847,9 @@ function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",c
 
 
 // === DASHBOARD DRILL-DOWN ===
-function openDashboardDrill(panel){if(!S.backStack)S.backStack=[];const current=getCurrentPage();if(current==="dashboard"&&S.dashboardDrill&&S.dashboardDrill.panel)S.backStack.push(current);S.dashboardDrill={panel,subCategory:null,query:""};S.view="dashboard";save();renderDashboard();updateActiveNavButton();updateBackHomeButtons();}
+function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
 window.openDashboardDrill=openDashboardDrill;
-function openDashboardSubCategory(subCategory){if(!S.backStack)S.backStack=[];const current=getCurrentPage();const last=S.backStack[S.backStack.length-1];if(last!==current)S.backStack.push(current);S.dashboardDrill.subCategory=subCategory;save();render();updateBackHomeButtons();}
+function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();view("dashboard");renderDashboard();}
 window.openDashboardSubCategory=openDashboardSubCategory;
 function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
 window.closeDashboardDrill=closeDashboardDrill;
@@ -1024,7 +993,7 @@ window.saveDeathLoss=saveDeathLoss;
 
 
 // === Animal Profile (Flyer Layout) ===
-function viewAnimalProfile(animalId){if(!S.backStack)S.backStack=[];const current=getCurrentPage();if(current!=="animalProfile")S.backStack.push(current);S.profileAnimalId=animalId;S.view="animalProfile";save();render();updateActiveNavButton();updateBackHomeButtons();}
+function viewAnimalProfile(animalId){S.profileAnimalId=animalId;view("animalProfile")}
 function photoSrcHL(p){if(!p)return"";if(typeof p==="string")return p;return p.src||p.url||p.dataUrl||""}
 function getAgeHL(a){if(!a.dob&&!a.birthDate)return"Not entered";const d=new Date(a.dob||a.birthDate);if(isNaN(d.getTime()))return"Not entered";const t=new Date();let y=t.getFullYear()-d.getFullYear();let m=t.getMonth()-d.getMonth();if(t.getDate()<d.getDate())m--;if(m<0){y--;m+=12}return y+"y "+m+"m"}
 
