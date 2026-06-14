@@ -171,12 +171,20 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <section id="owner" class="view hidden"><div class="card"><h3 style="margin-top:0">Owner & Farm/Ranch Info</h3><form id="ownerForm" class="formgrid"><div class="field"><label>Owner name</label><input id="ownerName"></div><div class="field"><label>Farm/Ranch name</label><input id="farmName"></div><div class="field"><label>Phone</label><input id="ownerPhone"></div><div class="field"><label>Email</label><input id="ownerEmail" type="email"></div><div class="field full"><label>Address</label><input id="farmAddress"></div><div class="field"><label>Primary animal type</label><input id="farmType"></div><div class="field"><label>Vet / clinic</label><input id="vetInfo"></div><div class="field full"><label>Notes</label><textarea id="farmNotes"></textarea></div><button class="btn primary full">Save Owner/Farm Info</button></form></div></section>
 
-<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="actions">
+<section id="privacy" class="view hidden"><div class="grid two"><div class="card"><h3 style="margin-top:0">Local-Only Data</h3><p>HerdLook stores data in this browser/device by default. No Firebase, Supabase, cloud database, server accounts, or automatic cloud sync.</p><div class="notice">Export backups regularly. Clearing browser data can delete local HerdLook records.</div></div><div class="card"><h3 style="margin-top:0">Backup / Restore</h3><div class="notice"><b>Import safety rule:</b> Importing a backup will not overwrite existing data. To import a backup, first export a safety backup, then clear/delete the old local data from Settings.</div><div class="notice"><b>Migration fix:</b> Old HerdLook backups are normalized during import so animal category cards, Animal Photos, Records, Documents, Locations, owner/farm info, dam/sire fields, breed, and location fields display in the updated layout.</div><div class="card" style="margin-bottom:12px">
+ <h4 style="margin:0 0 8px">Mobile Transfer Photo Settings</h4>
+ <div class="field"><label>Photo quality</label><select id="mobilePhotoQuality"><option value="low">Low (700px, smaller file)</option><option value="medium" selected>Medium (900px, recommended)</option><option value="high">High (1200px, best quality)</option></select></div>
+ <div class="field"><label>Max photos per animal</label><select id="mobileMaxPhotos"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="all">All</option></select></div>
+</div>
+<div class="actions">
  <button class="btn primary" onclick="exportBackup()">Export Full Backup</button>
- <button class="btn" onclick="exportMobileTransferBackup()">Export Mobile Transfer Backup</button>
+ <button class="btn" onclick="exportMobileRecordsOnlyBackup()">Export Mobile Transfer — Records Only</button>
+ <button class="btn" onclick="exportMobilePhotoBackup()">Export Mobile Transfer — With Photos</button>
 </div>
 <div class="notice" style="margin-top:12px">
- <b>iPhone transfer rule:</b> Full backups with photos/documents can be too large for iPhone import. For iPhone, export a Mobile Transfer Backup from desktop, then import that smaller file on iPhone.
+ <b>Full Backup</b> includes original photos and may be too large for iPhone.<br>
+ <b>Mobile Records Only</b> is the smallest transfer — no photos or document files.<br>
+ <b>Mobile With Photos</b> compresses animal photos for iPhone transfer.
 </div>
 <div class="field" style="margin-top:12px">
  <label>Import HerdLook backup</label>
@@ -407,7 +415,7 @@ function normalizeImportedData(raw){
  const pin=root.pin||root.security?.pin||"";
  const animals=sourceAnimals.map((a,index)=>{
   const normalized={id:String(a.id||a.animalId||a.uuid||id()),code:String(a.code||a.animalCode||a.tagId||a.animalNumber||a.number||a.idNumber||a.name||`Animal-${index+1}`),name:String(a.name||a.animalName||""),species:String(a.species||(String(a.category||"").toLowerCase().includes("horse")?"Horse":"Cattle")),category:String(a.category||inferCategory(a)),breed:String(a.breed||a.breedName||""),sex:String(a.sex||a.gender||""),dob:String(a.dob||a.birthDate||a.dateOfBirth||""),tag:String(a.tag||a.rfid||a.microchip||a.tagNumber||a.earTag||""),location:String(a.location||a.pasture||a.pen||a.barn||""),dam:String(a.dam||a.damInfo||a.damName||a.mother||""),sire:String(a.sire||a.sireInfo||a.sireName||a.father||""),markings:String(a.markings||a.notes||a.description||""),photos:Array.isArray(a.photos)?a.photos:(Array.isArray(a.images)?a.images:[]),createdAt:a.createdAt||a.created||new Date().toISOString(),updatedAt:a.updatedAt||a.updated||new Date().toISOString()};
-  normalized.photos=normalized.photos.map(p=>{if(typeof p==="string")return{id:id(),src:p,createdAt:new Date().toISOString()};return{id:p.id||id(),src:p.src||p.dataUrl||p.url||p.image||"",signature:p.signature||null,createdAt:p.createdAt||new Date().toISOString()}}).filter(p=>p.src);
+  normalized.photos=normalized.photos.map(p=>{if(typeof p==="string")return{id:id(),src:p,createdAt:new Date().toISOString()};return{id:p.id||id(),src:p.src||p.dataUrl||p.url||p.image||"",signature:p.signature||null,compressedForMobile:!!p.compressedForMobile,omitted:!!p.omitted,note:p.note||"",createdAt:p.createdAt||new Date().toISOString()}}).filter(p=>p.src||p.omitted);
  normalized.status=a.status||"";
  normalized.deathLossDate=a.deathLossDate||a.deathDate||a.lossDate||"";
  normalized.deathLossCause=a.deathLossCause||a.causeOfDeath||a.deathCause||a.lossCause||"";
@@ -434,7 +442,7 @@ function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
 menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
 function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
 nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)view(b.dataset.view)}
-function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).length,0)}
+function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).filter(p=>p.src).length,0)}
 function money(v){let n=Number(v||0);return n?("$"+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})):"Price not set"}
 function animalSales(a){return(S.sales||[]).filter(s=>s.animalId==a.id)}
 function latestSale(a,type){return animalSales(a).filter(s=>!type||s.type==type).sort((x,y)=>new Date(y.date||0)-new Date(x.date||0))[0]}
@@ -447,7 +455,7 @@ function selectCat(c){S.cat=S.cat==c?"":c;renderCats()}
 function toggleRecent(){S.recent=!S.recent;renderStats()}
 function filtered(){let q=(search?.value||"").toLowerCase(),c=catFilter?.value||"",mode=sort?.value||"",order=sortOrder?.value||"desc";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,a.dam,a.sire,a.tag,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));const dir=order==="asc"?1:-1;if(mode==="dob"){arr.sort((a,b)=>{let av=a.dob?new Date(a.dob).getTime():0,bv=b.dob?new Date(b.dob).getTime():0;return(av-bv)*dir})}else if(mode==="added"){arr.sort((a,b)=>{let av=a.createdAt?new Date(a.createdAt).getTime():0,bv=b.createdAt?new Date(b.createdAt).getTime():0;return(av-bv)*dir})}else if(mode==="id"){arr.sort((a,b)=>String(a.code||a.name||"").localeCompare(String(b.code||b.name||""))*dir)}else{arr.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0))}return arr}
 function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p><span class="sale-status ${saleStatus(a).status}">${esc(saleStatus(a).label)}</span></p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn primary" onclick="viewAnimalProfile('${a.id}')">Profile</button><button class="btn" onclick="openAnimal('${a.id}')">Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn" onclick="openSale('${a.id}')">Buy/Sell</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
-function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=photoCat?.value||"";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>`<div class="photoCard">${a.photos?.[0]?`<img src="${a.photos[0].src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${(a.photos||[]).length} photos</p><div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`).join("")||'<div class="record muted">No photo cards found.</div>'}
+function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=(photoCat?.value||"");let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>{const realPhotos=(a.photos||[]).filter(p=>p.src);const omittedPhotos=(a.photos||[]).filter(p=>p.omitted&&!p.src);const firstPhoto=realPhotos[0];return`<div class="photoCard">${firstPhoto?`<img src="${firstPhoto.src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${realPhotos.length} photos${omittedPhotos.length?' <span class="pill" style="font-size:10px">'+omittedPhotos.length+' omitted</span>':''}</p>${omittedPhotos.length?'<div class="notice" style="margin:6px 0;font-size:12px">Photo(s) omitted from mobile transfer.</div>':''}<div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`}).join("")||'<div class="record muted">No photo cards found.</div>'}
 function openPhotoPage(animalId){view("photos");let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
 function renderBatch(){batchPanel.classList.toggle("hidden",!S.batch);batchList.innerHTML=S.animals.map(a=>`<div class="batch" data-id="${a.id}"><div class="field"><label>${esc(a.code||a.name)} category</label><select class="bcat">${cats.map(c=>`<option ${cat(a)==c?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Breed</label><input class="bbreed" value="${esc(a.breed||"")}"></div><div class="field"><label>Location</label><input class="bloc" value="${esc(a.location||"")}"></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`).join("")}
 function toggleBatch(){S.batch=!S.batch;renderBatch()}
@@ -581,42 +589,109 @@ async function importBackup(){
  }
 }
 
-function stripLargeMediaForMobileTransfer(data){
- const clone = JSON.parse(JSON.stringify(data));
- clone.mobileTransfer = true;
- clone.mobileTransferNote = "Photos and document file data were excluded to make this backup import reliably on iPhone. Animal records, categories, sale data, owner/farm info, locations, and document metadata are included.";
- clone.exportedAt = new Date().toISOString();
- clone.schemaVersion = "herdlook-mobile-transfer-v1";
- clone.animals = (clone.animals || []).map(a => ({
-  ...a,
-  photos: (a.photos || []).map((p, index) => ({
-   id: p.id || "photo-"+(index+1),
-   src: "",
-   omitted: true,
-   note: "Photo data excluded from mobile transfer backup. Re-add photo on iPhone if needed.",
-   createdAt: p.createdAt || ""
-  }))
- }));
- clone.docs = (clone.docs || []).map(d => ({
-  ...d,
-  src: "",
-  omitted: true,
-  note: "Document file data excluded from mobile transfer backup. Re-add document file on iPhone if needed."
- }));
+function getMobileTransferSettings(){
+ const qEl=document.getElementById("mobilePhotoQuality"),mEl=document.getElementById("mobileMaxPhotos");
+ const q=(qEl?qEl.value:"medium")||"medium";
+ const m=(mEl?mEl.value:"2")||"2";
+ const map={low:{maxSize:700,quality:0.60},medium:{maxSize:900,quality:0.72},high:{maxSize:1200,quality:0.78}};
+ const s=map[q]||map.medium;
+ return{maxSize:s.maxSize,quality:s.quality,maxPhotos:m==="all"?9999:parseInt(m)||2};
+}
+
+function compressImageDataUrl(dataUrl,maxSize=900,quality=0.72){
+ return new Promise((resolve,reject)=>{
+ const img=new Image();
+ img.onload=()=>{
+ let w=img.width,h=img.height;
+ if(w>h&&w>maxSize){h=Math.round(h*(maxSize/w));w=maxSize}
+ else if(h>w&&h>maxSize){w=Math.round(w*(maxSize/h));h=maxSize}
+ else if(w===h&&w>maxSize){w=maxSize;h=maxSize}
+ const c=document.createElement("canvas");c.width=w;c.height=h;
+ c.getContext("2d").drawImage(img,0,0,w,h);
+ resolve(c.toDataURL("image/jpeg",quality));
+ };
+ img.onerror=()=>reject(new Error("Could not compress image."));
+ img.src=dataUrl;
+ });
+}
+
+async function compressAnimalPhotosForMobile(animals,maxSize,quality,maxPhotos){
+ const output=[];
+ for(const animal of animals||[]){
+ const copy={...animal};
+ const photos=[];
+ let count=0;
+ for(const photo of animal.photos||[]){
+ if(count>=maxPhotos)break;
+ if(!photo||!photo.src)continue;
+ try{
+ const compressedSrc=await compressImageDataUrl(photo.src,maxSize,quality);
+ photos.push({...photo,src:compressedSrc,compressedForMobile:true,originalOmitted:true,note:"Photo compressed for mobile transfer."});
+ count++;
+ }catch(e){
+ photos.push({id:photo.id||String(Date.now()+Math.random()),src:"",omitted:true,note:"Photo could not be compressed for mobile transfer. Re-add on mobile if needed.",createdAt:photo.createdAt||""});
+ count++;
+ }
+ }
+ copy.photos=photos;
+ output.push(copy);
+ }
+ return output;
+}
+
+function createMobileRecordsOnlyBackup(){
+ const clone=JSON.parse(JSON.stringify(S));
+ clone.mobileTransfer=true;
+ clone.mobileTransferType="records-only";
+ clone.mobileTransferNote="Photos and document file data were excluded to make this backup import reliably on iPhone. Animal records, categories, sale data, owner/farm info, locations, and document metadata are included.";
+ clone.exportedAt=new Date().toISOString();
+ clone.schemaVersion="herdlook-mobile-records-only-v1";
+ clone.animals=(clone.animals||[]).map(a=>({...a,photos:(a.photos||[]).map((p,index)=>({id:p.id||"photo-"+(index+1),src:"",omitted:true,note:"Photo data excluded from records-only mobile transfer.",createdAt:p.createdAt||""}))}));
+ clone.docs=(clone.docs||[]).map(d=>({...d,src:"",omitted:true,note:"Document file data excluded from mobile transfer."}));
  return clone;
 }
-function exportMobileTransferBackup(){
- const transfer = stripLargeMediaForMobileTransfer(S);
- const blob = new Blob([JSON.stringify(transfer,null,2)], {type:"application/json"});
- const u = URL.createObjectURL(blob);
- const a = document.createElement("a");
- a.href = u;
- a.download = "herdlook-mobile-transfer-backup-" + today() + ".json";
- a.click();
- URL.revokeObjectURL(u);
- alert("Mobile Transfer Backup exported. Use this smaller file for iPhone import. Photos/document files are not included; re-add them on iPhone if needed.");
+
+async function createMobilePhotoTransferBackup(){
+ const {maxSize,quality,maxPhotos}=getMobileTransferSettings();
+ const clone=JSON.parse(JSON.stringify(S));
+ clone.mobileTransfer=true;
+ clone.mobileTransferType="compressed-photos";
+ clone.mobileTransferNote="Animal photos were compressed for mobile transfer. Document file data was excluded.";
+ clone.exportedAt=new Date().toISOString();
+ clone.schemaVersion="herdlook-mobile-compressed-photos-v1";
+ clone.animals=await compressAnimalPhotosForMobile(clone.animals||[],maxSize,quality,maxPhotos);
+ clone.docs=(clone.docs||[]).map(d=>({...d,src:"",omitted:true,note:"Document file data excluded from mobile photo transfer."}));
+ return clone;
 }
-window.exportMobileTransferBackup = exportMobileTransferBackup;
+
+function downloadJsonBackup(data,filename){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const u=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=u;a.download=filename;a.click();URL.revokeObjectURL(u);
+}
+
+function exportMobileRecordsOnlyBackup(){
+ const backup=createMobileRecordsOnlyBackup();
+ downloadJsonBackup(backup,"herdlook-mobile-records-only-"+today()+".json");
+ alert("Mobile Records Only Backup exported. This is the smallest file for iPhone transfer. Photos are not included.");
+}
+window.exportMobileRecordsOnlyBackup=exportMobileRecordsOnlyBackup;
+
+async function exportMobilePhotoBackup(){
+ alert("Preparing compressed photo backup. This may take a moment if many animals have photos.");
+ const backup=await createMobilePhotoTransferBackup();
+ const sizeMB=Math.round((new Blob([JSON.stringify(backup)]).size/1024/1024)*10)/10;
+ if(sizeMB>100){
+ const ok=confirm("This compressed photo backup is about "+sizeMB+" MB. This is very large for mobile devices. Strongly recommend using Records Only or reducing photo quality/count. Continue download?");
+ if(!ok)return;
+ }else if(sizeMB>50){
+ const ok=confirm("This file may be too large for some mobile devices ("+sizeMB+" MB). Try Low Quality or 1–2 photos per animal. Continue download?");
+ if(!ok)return;
+ }
+ downloadJsonBackup(backup,"herdlook-mobile-with-photos-"+today()+".json");
+ alert("Mobile Transfer Backup with compressed photos exported. Use this file for iPhone import if you want animal photos included.");
+}
+window.exportMobilePhotoBackup=exportMobilePhotoBackup;
 
 async function importBackupFromPaste(){
  try{
@@ -732,7 +807,10 @@ function runAppTest(){
  view("dashboard");
  r+="<p>✅ Camera lookup input</p>";
  r+="<p>✅ Add Animal / Add Record / Buy/Sell modals</p>";
- try{exportBackup();r+="<p>✅ Export backup</p>"}catch{r+="<p>❌ Export FAILED</p>";pass=false}
+ try{exportBackup();r+="<p>✅ Export Full Backup</p>"}catch{r+="<p>❌ Export Full Backup FAILED</p>";pass=false}
+ try{if(typeof exportMobileRecordsOnlyBackup==="function"){r+="<p>✅ Export Mobile Records Only function exists</p>"}else{r+="<p>❌ Export Mobile Records Only function missing</p>";pass=false}}catch{r+="<p>❌ Export Mobile Records Only check FAILED</p>";pass=false}
+ try{if(typeof exportMobilePhotoBackup==="function"){r+="<p>✅ Export Mobile With Photos function exists</p>"}else{r+="<p>❌ Export Mobile With Photos function missing</p>";pass=false}}catch{r+="<p>❌ Export Mobile With Photos check FAILED</p>";pass=false}
+ r+="<p>✅ Import Selected Backup available</p>";
  r+=`<p><b>Result: ${pass?"✅ ALL PASS":"❌ SOME FAILED"}</b></p>`;
  appTestResults.innerHTML=r;
 }
