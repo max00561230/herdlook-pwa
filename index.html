@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>HerdLook Mobile UX Beta</title>
+<title>HerdLook HLv1.4</title>
 <meta name="theme-color" content="#183326">
 <meta name="description" content="HerdLook local-only herd management beta with mobile drawer, categories, photos, camera lookup, and records.">
 <style>
@@ -116,14 +116,17 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 .hl-bottom-nav button span{display:block;margin-top:2px;font-size:.72rem;font-weight:750}
 .hl-bottom-nav button.active{color:var(--hl-green)}
 @media(max-width:520px){.hl-animal-profile{padding:10px}.hl-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hl-status-card{min-height:88px;padding:10px 5px}.hl-record-row{grid-template-columns:82px 1fr;gap:4px 8px}.hl-record-note{text-align:left;grid-column:2/3;font-size:.82rem}.hl-record-arrow{display:none}.hl-actions-grid{grid-template-columns:repeat(2,1fr)}.hl-action-btn{min-height:72px}}
+
+.mobile-back-btn,.mobile-home-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font-weight:800;font-size:14px;cursor:pointer;margin:6px 6px 6px 0;transition:transform .1s}.mobile-back-btn:active,.mobile-home-btn:active{transform:scale(.98)}.mobile-back-btn:hover,.mobile-home-btn:hover{background:#f0ebe0}@media(min-width:1050px){.mobile-back-btn,.mobile-home-btn{display:none!important}.back-home-desktop{display:none!important}}
+.back-home-wrap{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}@media(max-width:1050px){.back-home-wrap{padding:0 2px}}
 </style>
 
 </head>
 <body>
 <div class="lock" id="lock"><div class="lockbox"><h2>HerdLook Locked</h2><p class="muted">Enter local PIN/password.</p><div class="field"><label>PIN/password</label><input id="unlockPin" type="password"></div><button class="btn primary" id="unlockBtn" style="width:100%">Unlock</button><p id="unlockErr" class="muted hidden" style="color:var(--bad)">Incorrect PIN/password.</p></div></div>
-<div class="appbar"><div class="mbrand"><div class="logo">🐂</div><div><strong>HerdLook</strong><small>by Jade Rose Technology</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
+<div class="appbar"><div class="mbrand"><div class="logo">🐂</div><div><strong>HerdLook <span style="font-size:11px;color:var(--muted)">HLv1.4</span></strong><small>by Jade Rose Technology</small></div></div><button class="hamb" id="menuBtn">☰</button></div><div class="backdrop" id="backdrop"></div>
 <div class="layout">
-<aside class="side" id="side"><div class="brand"><div class="logo">🐂</div><div><h1>HerdLook</h1><p>Camera-assisted herd records</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
+<aside class="side" id="side"><div class="brand"><div class="logo">🐂</div><div><h1>HerdLook</h1><span class="pill" style="font-size:10px;margin-left:4px">HLv1.4</span><p>Camera-assisted herd records</p><div class="byline">by Jade Rose Technology</div></div></div><nav class="nav" id="nav">
 <button class="active" data-view="dashboard">🏠 <span class="label">Dashboard</span></button><button data-view="animalProfile">🐄 <span class="label">Animal Profile</span></button><button data-view="herd">🐂 <span class="label">Herd</span></button><button data-view="photos">🖼️ <span class="label">Animal Photos</span></button><button data-view="lookup">📷 <span class="label">Camera Lookup</span></button><button data-view="guide">✅ <span class="label">Photo Guide</span></button><button data-view="records">🩺 <span class="label">Records</span></button><button data-view="sales">💵 <span class="label">Buy/Sell</span></button><button data-view="documents">🗂️ <span class="label">Documents</span></button><button data-view="locations">🗺️ <span class="label">Map/Locations</span></button><button data-view="owner">👤 <span class="label">Owner/Farm</span></button><button data-view="privacy">🔒 <span class="label">Data/Privacy</span></button><button data-view="apptest">🧪 <span class="label">App Test</span></button><button data-view="settings">⚙️ <span class="label">Settings</span></button>
 </nav><div class="notice" style="margin-top:18px;background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.2)">Local-only beta. No cloud database or automatic sync.</div></aside>
 <main>
@@ -248,7 +251,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
 
 <script>
 const K="herdlook_mobile_ux_beta_v1", cats=["Cow","Bull","Bull Calf","Steer Calf","Heifer Calf","Heifer","Steer","Horse","Other","Death/Loss"];
-let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
+let S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",navHistory:[],dashboardDrill:{panel:null,subCategory:null,query:""},searchQuery:""};
 const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])), id=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+""+Math.random();
 const label=a=>[a.code,a.name].filter(Boolean).join(" — ")||"Unnamed", today=()=>new Date().toISOString().slice(0,10);
 
@@ -312,7 +315,7 @@ async function clearIndexedDB(){
 async function clearAllStorageLayers(){
  try{localStorage.removeItem(K)}catch{}
  try{await clearIndexedDB()}catch(e){console.warn("clearAllStorageLayers warning:",e)}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",navHistory:[]};
 }
 
 async function clearAll(){
@@ -320,7 +323,7 @@ async function clearAll(){
  await hlClearDB();
  try{localStorage.removeItem(K)}catch{}
  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",navHistory:[]};
  alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
  location.reload();
 }
@@ -440,8 +443,89 @@ function normalizeImportedData(raw){
 function closeDrawer(){side.classList.remove("open");backdrop.classList.remove("open")}
 function openDrawer(){side.classList.add("open");backdrop.classList.add("open")}
 menuBtn.onclick=openDrawer;backdrop.onclick=closeDrawer;
-function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
-nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)view(b.dataset.view)}
+
+// === NAVIGATION HISTORY (HLv1.4) ===
+function getCurrentScreenState(){
+ return{
+  page:S.view||"dashboard",
+  dashboardDrill:S.dashboardDrill?JSON.parse(JSON.stringify(S.dashboardDrill)):null,
+  profileAnimalId:S.profileAnimalId||null,
+  searchQuery:S.searchQuery||"",
+  cat:S.cat||""
+ };
+}
+function applyScreenState(screen){
+ if(!screen){goDashboardHome();return}
+ S.view=screen.page||"dashboard";
+ S.dashboardDrill=screen.dashboardDrill||{panel:null,subCategory:null,query:""};
+ S.profileAnimalId=screen.profileAnimalId||null;
+ S.searchQuery=screen.searchQuery||"";
+ S.cat=screen.cat||"";
+ save();render();
+ setTimeout(()=>window.scrollTo({top:0,behavior:"smooth"}),50);
+}
+function screensAreSame(a,b){
+ if(!a||!b)return false;
+ return JSON.stringify(a)===JSON.stringify(b);
+}
+function navigateToScreen(nextScreen){
+ if(!S.navHistory)S.navHistory=[];
+ const current=getCurrentScreenState();
+ if(!screensAreSame(current,nextScreen)){
+  const last=S.navHistory[S.navHistory.length-1];
+  if(!screensAreSame(last,current)){S.navHistory.push(current)}
+ }
+ S.view=nextScreen.page||"dashboard";
+ if(nextScreen.dashboardDrill!==undefined)S.dashboardDrill=nextScreen.dashboardDrill;
+ if(nextScreen.profileAnimalId!==undefined)S.profileAnimalId=nextScreen.profileAnimalId;
+ save();render();
+ updateBackHomeButtons();
+ setTimeout(()=>window.scrollTo({top:0,behavior:"smooth"}),50);
+}
+window.navigateToScreen=navigateToScreen;
+
+function goBack(){
+ if(!S.navHistory)S.navHistory=[];
+ if(S.navHistory.length===0){goDashboardHome();return}
+ const previous=S.navHistory.pop();
+ applyScreenState(previous);
+ updateBackHomeButtons();
+}
+window.goBack=goBack;
+
+function goDashboardHome(){
+ S.view="dashboard";
+ S.dashboardDrill={panel:null,subCategory:null,query:""};
+ S.profileAnimalId=null;
+ S.searchQuery="";
+ S.navHistory=[];
+ document.querySelectorAll(".modal.open,.drawer.open,.panel.open").forEach(el=>el.classList.remove("open"));
+ document.body.classList.remove("drawer-open","modal-open");
+ save();render();
+ updateBackHomeButtons();
+ setTimeout(()=>window.scrollTo({top:0,behavior:"smooth"}),50);
+}
+window.goDashboardHome=goDashboardHome;
+
+function shouldShowBackButton(){
+ const hasHistory=S.navHistory&&S.navHistory.length>0;
+ const notDashboard=S.view!=="dashboard";
+ const inDrill=S.dashboardDrill&&S.dashboardDrill.panel;
+ const selected=S.profileAnimalId;
+ return !!(hasHistory||notDashboard||inDrill||selected);
+}
+window.shouldShowBackButton=shouldShowBackButton;
+
+function updateBackHomeButtons(){
+ const wrap=document.getElementById("backHomeBtns");
+ if(!wrap)return;
+ const show=shouldShowBackButton();
+ wrap.style.display=show?"flex":"none";
+}
+window.updateBackHomeButtons=updateBackHomeButtons;
+
+function view(v){S.view=v;document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));$(v).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));closeDrawer();updateBackHomeButtons();const t={dashboard:["Dashboard","Manage animal profiles, photos, camera lookup, and herd records."],herd:["Herd","List, filter, sort, and batch-edit animals."],photos:["Animal Photos","Photo cards live here to save mobile space."],lookup:["Camera Lookup","Take or upload a photo and confirm suggested matches."],guide:["Photo Guide","Best practices for reference photos."],records:["Records","Health, weight, breeding, movement, notes, and sales."],sales:["Buy/Sell","Track sold date, purchase date, price, buyer/seller, and animal sale status."],documents:["Documents","Store local documents."],locations:["Map/Locations","Pastures, barns, pens, gates, and water points."],owner:["Owner/Farm","Owner and farm/ranch info."],privacy:["Data/Privacy","Local-only storage and backup."],apptest:["App Test","Check buttons, links, modals, and core workflows before release."],settings:["Settings","PIN, demo data, and local testing."],animalProfile:["Animal Profile","View animal details, photos, records, and quick actions."]}[v];title.textContent=t[0];sub.textContent=t[1];render()}
+nav.onclick=e=>{let b=e.target.closest("button[data-view]");if(b)navigateToScreen({page:b.dataset.view,dashboardDrill:null,profileAnimalId:null})}
 function countPhotos(){return S.animals.reduce((n,a)=>n+(a.photos||[]).filter(p=>p.src).length,0)}
 function money(v){let n=Number(v||0);return n?("$"+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})):"Price not set"}
 function animalSales(a){return(S.sales||[]).filter(s=>s.animalId==a.id)}
@@ -456,7 +540,7 @@ function toggleRecent(){S.recent=!S.recent;renderStats()}
 function filtered(){let q=(search?.value||"").toLowerCase(),c=catFilter?.value||"",mode=sort?.value||"",order=sortOrder?.value||"desc";let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,a.dam,a.sire,a.tag,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));const dir=order==="asc"?1:-1;if(mode==="dob"){arr.sort((a,b)=>{let av=a.dob?new Date(a.dob).getTime():0,bv=b.dob?new Date(b.dob).getTime():0;return(av-bv)*dir})}else if(mode==="added"){arr.sort((a,b)=>{let av=a.createdAt?new Date(a.createdAt).getTime():0,bv=b.createdAt?new Date(b.createdAt).getTime():0;return(av-bv)*dir})}else if(mode==="id"){arr.sort((a,b)=>String(a.code||a.name||"").localeCompare(String(b.code||b.name||""))*dir)}else{arr.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0))}return arr}
 function renderHerd(){if(!animalList)return;animalList.innerHTML=filtered().map(a=>`<div class="card"><div class="row"><div><b>${esc(label(a))}</b><p class="muted">${esc(a.breed||"No breed")}</p></div><span class="pill">${esc(cat(a))}</span></div><p class="muted">${esc(a.location||"No location")} • ${esc(a.tag||"No tag")}</p><p><span class="sale-status ${saleStatus(a).status}">${esc(saleStatus(a).label)}</span></p><p class="muted">Dam: ${esc(a.dam||"Not set")} • Sire: ${esc(a.sire||"Not set")}</p><div class="actions"><button class="btn primary" onclick="viewAnimalProfile('${a.id}')">Profile</button><button class="btn" onclick="openAnimal('${a.id}')">Edit</button><button class="btn" onclick="openPhotoPage('${a.id}')">Photos (${(a.photos||[]).length})</button><button class="btn" onclick="openSale('${a.id}')">Buy/Sell</button></div></div>`).join("")||'<div class="card muted">No animals found.</div>'}
 function renderPhotos(){if(!photoCards)return;let q=(photoSearch?.value||"").toLowerCase(),c=(photoCat?.value||"");let arr=S.animals.filter(a=>[a.code,a.name,a.breed,a.location,cat(a)].join(" ").toLowerCase().includes(q)&&(!c||cat(a)==c));photoCards.innerHTML=arr.map(a=>{const realPhotos=(a.photos||[]).filter(p=>p.src);const omittedPhotos=(a.photos||[]).filter(p=>p.omitted&&!p.src);const firstPhoto=realPhotos[0];return`<div class="photoCard">${firstPhoto?`<img src="${firstPhoto.src}">`:'<div style="height:210px;display:grid;place-items:center" class="muted">No photo</div>'}<div style="padding:12px"><b>${esc(label(a))}</b><p class="muted">${esc(cat(a))} • ${realPhotos.length} photos${omittedPhotos.length?' <span class="pill" style="font-size:10px">'+omittedPhotos.length+' omitted</span>':''}</p>${omittedPhotos.length?'<div class="notice" style="margin:6px 0;font-size:12px">Photo(s) omitted from mobile transfer.</div>':''}<div class="actions"><button class="btn" onclick="openAnimal('${a.id}')">Add/Edit Photos</button></div></div></div>`}).join("")||'<div class="record muted">No photo cards found.</div>'}
-function openPhotoPage(animalId){view("photos");let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
+function openPhotoPage(animalId){navigateToScreen({page:"photos",dashboardDrill:S.dashboardDrill||null,profileAnimalId:null});let a=S.animals.find(x=>x.id==animalId);photoSearch.value=a?(a.code||a.name):"";renderPhotos()}
 function renderBatch(){batchPanel.classList.toggle("hidden",!S.batch);batchList.innerHTML=S.animals.map(a=>`<div class="batch" data-id="${a.id}"><div class="field"><label>${esc(a.code||a.name)} category</label><select class="bcat">${cats.map(c=>`<option ${cat(a)==c?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Breed</label><input class="bbreed" value="${esc(a.breed||"")}"></div><div class="field"><label>Location</label><input class="bloc" value="${esc(a.location||"")}"></div><button class="btn" onclick="openAnimal('${a.id}')">Open</button></div>`).join("")}
 function toggleBatch(){S.batch=!S.batch;renderBatch()}
 function saveBatch(){document.querySelectorAll(".batch").forEach(r=>{let a=S.animals.find(x=>x.id==r.dataset.id);if(a){a.category=r.querySelector(".bcat").value;a.breed=r.querySelector(".bbreed").value.trim();a.location=r.querySelector(".bloc").value.trim();a.updatedAt=new Date().toISOString()}});save();render();alert("All edits saved.")}
@@ -732,7 +816,7 @@ async function clearAll(){
  await hlClearDB();
  try{localStorage.removeItem(K)}catch{}
  try{sessionStorage.removeItem("herdlookUnlocked")}catch{}
- S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard"};
+ S={animals:[],records:[],docs:[],locations:[],sales:[],owner:{},pin:"",photos:[],cat:"",recent:false,batch:false,view:"dashboard",navHistory:[]};
  alert("All local HerdLook data was cleared. The app will reload empty. You can now import a backup.");
  location.reload();
 }
@@ -822,9 +906,9 @@ function seed(){S.animals=[{id:id(),code:"C-017",name:"Maple",species:"Cattle",c
 
 
 // === DASHBOARD DRILL-DOWN ===
-function openDashboardDrill(panel){S.dashboardDrill={panel,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
+function openDashboardDrill(panel){navigateToScreen({page:"dashboard",dashboardDrill:{panel,subCategory:null,query:""},profileAnimalId:null});renderDashboard();}
 window.openDashboardDrill=openDashboardDrill;
-function openDashboardSubCategory(subCategory){S.dashboardDrill.subCategory=subCategory;save();view("dashboard");renderDashboard();}
+function openDashboardSubCategory(subCategory){if(!S.navHistory)S.navHistory=[];const current=getCurrentScreenState();if(S.navHistory[S.navHistory.length-1]&&!screensAreSame(S.navHistory[S.navHistory.length-1],current))S.navHistory.push(current);S.dashboardDrill.subCategory=subCategory;save();render();updateBackHomeButtons();}
 window.openDashboardSubCategory=openDashboardSubCategory;
 function closeDashboardDrill(){S.dashboardDrill={panel:null,subCategory:null,query:""};S.searchQuery="";save();view("dashboard");renderDashboard();}
 window.closeDashboardDrill=closeDashboardDrill;
@@ -968,7 +1052,7 @@ window.saveDeathLoss=saveDeathLoss;
 
 
 // === Animal Profile (Flyer Layout) ===
-function viewAnimalProfile(animalId){S.profileAnimalId=animalId;view("animalProfile")}
+function viewAnimalProfile(animalId){navigateToScreen({page:"animalProfile",profileAnimalId:animalId,dashboardDrill:S.dashboardDrill||null});}
 function photoSrcHL(p){if(!p)return"";if(typeof p==="string")return p;return p.src||p.url||p.dataUrl||""}
 function getAgeHL(a){if(!a.dob&&!a.birthDate)return"Not entered";const d=new Date(a.dob||a.birthDate);if(isNaN(d.getTime()))return"Not entered";const t=new Date();let y=t.getFullYear()-d.getFullYear();let m=t.getMonth()-d.getMonth();if(t.getDate()<d.getDate())m--;if(m<0){y--;m+=12}return y+"y "+m+"m"}
 
