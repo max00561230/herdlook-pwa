@@ -414,21 +414,38 @@ const cat=a=>a.category||inferCategory(a);
 function getPhotoSrc(photo){if(!photo)return"";if(typeof photo==="string")return photo;return photo.src||photo.dataUrl||photo.url||photo.image||""}
 function animalPhotoCount(animal){if(!animal)return 0;return(animal.photos||[]).filter(function(photo){return!!getPhotoSrc(photo)}).length}
 function countSavedAnimalPhotos(animal){return animalPhotoCount(animal)}
-function normalizeAnimalPhotos(animal){const photos=[...(animal.photos||[]),...(animal.images||[])];animal.photos=photos.map(function(p){if(typeof p==="string"){return{id:"photo-"+Date.now()+"-"+Math.random(),src:p,createdAt:new Date().toISOString()}}return{id:p.id||"photo-"+Date.now()+"-"+Math.random(),src:p.src||p.dataUrl||p.url||p.image||"",name:p.name||p.fileName||"animal-photo.jpg",type:p.type||"image/jpeg",size:p.size||0,createdAt:p.createdAt||new Date().toISOString(),compressed:!!p.compressed,compressedForMobile:!!p.compressedForMobile,note:p.note||""}}).filter(function(p){return!!p.src});return animal}
+function normalizeAnimalPhotos(animal){const photos=[...(animal.photos||[]),...(animal.images||[]),...(animal.photoRefs||[])];animal.photos=photos.map(normalizeImportedPhoto).filter(Boolean);return animal}
+
+function normalizeImportedPhoto(p){if(!p)return null;if(typeof p==="string"){return{id:"photo-"+Date.now()+"-"+Math.random(),src:p,createdAt:new Date().toISOString()}}const src=p.src||p.dataUrl||p.url||p.image||"";if(!src&&p.omitted){return{id:p.id||"photo-"+Date.now()+"-"+Math.random(),src:"",omitted:true,note:p.note||"Photo omitted from this transfer.",createdAt:p.createdAt||new Date().toISOString()}}if(!src)return null;return{id:p.id||"photo-"+Date.now()+"-"+Math.random(),src,name:p.name||p.fileName||"animal-photo.jpg",type:p.type||"image/jpeg",size:p.size||0,createdAt:p.createdAt||new Date().toISOString(),compressed:!!p.compressed,compressedForMobile:!!p.compressedForMobile,omitted:!!p.omitted,note:p.note||""}}
+window.normalizeImportedPhoto=normalizeImportedPhoto;
+
+if(typeof window.getPhotoSrc!=="function"){window.getPhotoSrc=function(photo){if(!photo)return"";if(typeof photo==="string")return photo;return photo.src||photo.dataUrl||photo.url||photo.image||""}}
+if(typeof window.animalPhotoCount!=="function"){window.animalPhotoCount=function(animal){if(!animal)return 0;return(animal.photos||[]).filter(function(photo){return!!window.getPhotoSrc(photo)}).length}}
+
+function resolveHerdLookBackupPayload(raw){if(!raw||typeof raw!=="object")return null;if(Array.isArray(raw.animals))return raw;const candidates=[raw.data,raw.state,raw.S,raw.backup,raw.herdlook,raw.herdLook,raw.appData,raw.payload,raw.export,raw.contents];for(const candidate of candidates){if(candidate&&typeof candidate==="object"&&Array.isArray(candidate.animals)){return candidate}}for(const key of Object.keys(raw)){const value=raw[key];if(value&&typeof value==="object"&&Array.isArray(value.animals)){return value}}if(Array.isArray(raw.herd)){return{...raw,animals:raw.herd}}if(raw.data&&Array.isArray(raw.data.herd)){return{...raw.data,animals:raw.data.herd}}return null}
+window.resolveHerdLookBackupPayload=resolveHerdLookBackupPayload;
+
+function isValidHerdLookBackup(raw){const payload=resolveHerdLookBackupPayload(raw);return!!(payload&&Array.isArray(payload.animals))}
+window.isValidHerdLookBackup=isValidHerdLookBackup;
+
+function countPhotosInPayload(payload){return(payload.animals||[]).reduce(function(total,animal){const photos=[...(animal.photos||[]),...(animal.images||[]),...(animal.photoRefs||[])];return total+photos.filter(function(p){if(!p)return false;if(typeof p==="string")return!!p;return!!(p.src||p.dataUrl||p.url||p.image)}).length},0)}
+window.countPhotosInPayload=countPhotosInPayload;
 window.getPhotoSrc=getPhotoSrc;window.animalPhotoCount=animalPhotoCount;window.countSavedAnimalPhotos=countSavedAnimalPhotos;window.normalizeAnimalPhotos=normalizeAnimalPhotos;
 
 function normalizeImportedData(raw){
- const root=raw?.data&&typeof raw.data==="object"?raw.data:raw||{};
- const sourceAnimals=Array.isArray(root.animals)?root.animals:[];
- const sourceRecords=Array.isArray(root.records)?root.records:[];
- const sourceDocs=Array.isArray(root.docs)?root.docs:(Array.isArray(root.documents)?root.documents:[]);
- const sourceLocations=Array.isArray(root.locations)?root.locations:[];
- const sourceSales=Array.isArray(root.sales)?root.sales:(Array.isArray(root.saleRecords)?root.saleRecords:[]);
- const owner=root.owner||root.profile||root.farm||{};
- const pin=root.pin||root.security?.pin||"";
+ const source=resolveHerdLookBackupPayload(raw)||raw;
+ if(!source||!Array.isArray(source.animals)){throw new Error("No animals list found in HerdLook backup.")}
+ const sourceAnimals=Array.isArray(source.animals)?source.animals:[];
+ const sourceRecords=Array.isArray(source.records)?source.records:(Array.isArray(source.activities)?source.activities:(Array.isArray(source.logs)?source.logs:[]));
+ const sourceDocs=Array.isArray(source.docs)?source.docs:(Array.isArray(source.documents)?source.documents:[]);
+ const sourceLocations=Array.isArray(source.locations)?source.locations:(Array.isArray(source.places)?source.places:(Array.isArray(source.pastures)?source.pastures:[]));
+ const sourceSales=Array.isArray(source.sales)?source.sales:(Array.isArray(source.saleRecords)?source.saleRecords:[]);
+ const owner=source.owner||source.profile||source.farm||source.ranch||{};
+ const pin=source.pin||source.security?.pin||"";
  const animals=sourceAnimals.map((a,index)=>{
   const normalized={id:String(a.id||a.animalId||a.uuid||id()),code:String(a.code||a.animalCode||a.tagId||a.animalNumber||a.number||a.idNumber||a.name||`Animal-${index+1}`),name:String(a.name||a.animalName||""),species:String(a.species||(String(a.category||"").toLowerCase().includes("horse")?"Horse":"Cattle")),category:String(a.category||inferCategory(a)),breed:String(a.breed||a.breedName||""),sex:String(a.sex||a.gender||""),dob:String(a.dob||a.birthDate||a.dateOfBirth||""),tag:String(a.tag||a.rfid||a.microchip||a.tagNumber||a.earTag||""),location:String(a.location||a.pasture||a.pen||a.barn||""),dam:String(a.dam||a.damInfo||a.damName||a.mother||""),sire:String(a.sire||a.sireInfo||a.sireName||a.father||""),markings:String(a.markings||a.notes||a.description||""),photos:Array.isArray(a.photos)?a.photos:(Array.isArray(a.images)?a.images:[]),createdAt:a.createdAt||a.created||new Date().toISOString(),updatedAt:a.updatedAt||a.updated||new Date().toISOString()};
-  normalized.photos=normalized.photos.map(p=>{if(typeof p==="string")return{id:id(),src:p,createdAt:new Date().toISOString()};return{id:p.id||id(),src:p.src||p.dataUrl||p.url||p.image||"",signature:p.signature||null,compressedForMobile:!!p.compressedForMobile,omitted:!!p.omitted,note:p.note||"",createdAt:p.createdAt||new Date().toISOString()}}).filter(p=>p.src||p.omitted);
+  const rawPhotos=[...(a.photos||[]),...(a.images||[]),...(a.photoRefs||[])];
+  normalized.photos=rawPhotos.map(normalizeImportedPhoto).filter(Boolean);
  normalized.status=a.status||"";
  normalized.deathLossDate=a.deathLossDate||a.deathDate||a.lossDate||"";
  normalized.deathLossCause=a.deathLossCause||a.causeOfDeath||a.deathCause||a.lossCause||"";
@@ -601,25 +618,28 @@ async function readFileAsTextMobileSafe(file){
 }
 function parseBackupText(text){
  if(!text||!text.trim()) throw new Error("The backup file was empty or could not be read.");
- return JSON.parse(text.trim().replace(/^﻿/,""));
+ try{return JSON.parse(text.trim().replace(/^﻿/,""))}catch(e){throw new Error("Import failed: This file is not valid JSON. If your backup is zipped, unzip it first and import the .json file.")}
 }
 function hasExistingData(){return(S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||(S.owner&&Object.keys(S.owner).some(k=>S.owner[k]))}
 async function hasPersistedData(){try{const d=await hlLoadDB();if(d&&d.animals&&d.animals.length)return true}catch{}return false}
 async function completeBackupImport(data, sourceLabel="backup"){
- const checkRoot=data?.data&&typeof data.data==="object"?data.data:data;
- if(!checkRoot||typeof checkRoot!=="object"||!Array.isArray(checkRoot.animals)){
- throw new Error("This does not look like a valid HerdLook backup. It must contain an animals list.");
+ const payload=resolveHerdLookBackupPayload(data);
+ if(!payload||!Array.isArray(payload.animals)){
+ console.error("Invalid HerdLook backup shape:",data);
+ throw new Error("Import failed: No HerdLook animals list was found. Make sure you selected a HerdLook backup JSON file, not the app HTML file or a ZIP file.");
  }
  if(hasExistingData()||(typeof hasPersistedData==="function"&&await hasPersistedData())){
  throw new Error("Import stopped because existing local data was found. Go to Settings → Clear All Local Data, let the app reload empty, then import again.");
  }
- setImportStatus("Backup file is valid. Preparing storage...");
+ const payloadPhotoCount=countPhotosInPayload(payload);
+ const mobileType=payload.mobileTransferType?" (mobile transfer: "+payload.mobileTransferType+")":"";
+ setImportStatus("JSON parsed. Backup payload resolved"+mobileType+". Animals: "+(payload.animals?.length||0)+", Records: "+(payload.records?.length||0)+", Photos: "+payloadPhotoCount+". Preparing storage...");
  if(typeof mobileStorageNotice==="function"){
  const notice=await mobileStorageNotice(data);
  console.log("HerdLook mobile storage notice:",notice);
  }
  if(typeof clearAllStorageLayers==="function") await clearAllStorageLayers();
- S=normalizeImportedData(data);
+ S=normalizeImportedData(payload||data);
  S.view="dashboard";
  setImportStatus('Backup parsed. Found '+(S.animals?.length||0)+' animals, '+(S.records?.length||0)+' records, '+(S.docs?.length||0)+' documents, '+(S.locations?.length||0)+' locations. Saving...');
  let ok=false;
