@@ -197,7 +197,7 @@ main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;ga
  <label>Import HerdLook backup</label>
  <input id="importFile" type="file" accept=".json,application/json,text/plain">
 </div>
-<div class="actions"><button class="btn primary" onclick="importBackup()">Import Selected Backup</button></div>
+<div class="actions"><button class="btn primary" onclick="importBackup()">Import Selected Backup</button> <button class="btn" onclick="debugSelectedImportFile()">Debug Selected Backup</button></div>
 <div id="importStatus" class="notice" style="margin-top:12px"><b>Import status:</b> Choose a backup file. On iPhone, use a Mobile Transfer Backup.</div></div></div></section>
 
 <section id="apptest" class="view hidden">
@@ -422,19 +422,27 @@ window.normalizeImportedPhoto=normalizeImportedPhoto;
 if(typeof window.getPhotoSrc!=="function"){window.getPhotoSrc=function(photo){if(!photo)return"";if(typeof photo==="string")return photo;return photo.src||photo.dataUrl||photo.url||photo.image||""}}
 if(typeof window.animalPhotoCount!=="function"){window.animalPhotoCount=function(animal){if(!animal)return 0;return(animal.photos||[]).filter(function(photo){return!!window.getPhotoSrc(photo)}).length}}
 
-function resolveHerdLookBackupPayload(raw){if(!raw||typeof raw!=="object")return null;if(Array.isArray(raw.animals))return raw;const candidates=[raw.data,raw.state,raw.S,raw.backup,raw.herdlook,raw.herdLook,raw.appData,raw.payload,raw.export,raw.contents];for(const candidate of candidates){if(candidate&&typeof candidate==="object"&&Array.isArray(candidate.animals)){return candidate}}for(const key of Object.keys(raw)){const value=raw[key];if(value&&typeof value==="object"&&Array.isArray(value.animals)){return value}}if(Array.isArray(raw.herd)){return{...raw,animals:raw.herd}}if(raw.data&&Array.isArray(raw.data.herd)){return{...raw.data,animals:raw.data.herd}}return null}
-window.resolveHerdLookBackupPayload=resolveHerdLookBackupPayload;
+function looksLikeAnimalRecord(item){if(!item||typeof item!=="object")return false;const keys=Object.keys(item).map(k=>k.toLowerCase());const animalKeys=["id","code","animalid","animal_id","tag","eartag","ear_tag","name","category","type","species","breed","sex","dam","sire","dob","birthdate","location","photos","records"];return animalKeys.some(k=>keys.includes(k))}
+function looksLikeAnimalArray(arr){if(!Array.isArray(arr))return false;if(arr.length===0)return true;const sample=arr.slice(0,5);return sample.some(looksLikeAnimalRecord)}
+function tryParseJsonString(value){if(typeof value!=="string")return value;const trimmed=value.trim();if(!trimmed||!(trimmed.startsWith("{")||trimmed.startsWith("[")))return value;try{return JSON.parse(trimmed)}catch(err){return value}}
+function getImportDebugKeys(obj){if(!obj||typeof obj!=="object")return[];if(Array.isArray(obj))return["<array length="+obj.length+">"];return Object.keys(obj).slice(0,50)}
+function countAnimalPhotosInList(animals){if(!Array.isArray(animals))return 0;return animals.reduce(function(total,animal){const photos=[...(animal.photos||[]),...(animal.images||[]),...(animal.photoRefs||[]),...(animal.pictures||[])];return total+photos.filter(function(p){if(!p)return false;if(typeof p==="string")return!!p;return!!(p.src||p.dataUrl||p.url||p.image)}).length},0)}
+function makePayloadFromAnimalArray(arr,sourceLabel){return{app:"HerdLook",importResolvedFrom:sourceLabel||"array",animals:arr,records:[],docs:[],documents:[],locations:[],sales:[]}}
+function resolveHerdLookBackupPayloadDeep(raw){const diagnostics={parsedType:Array.isArray(raw)?"array":typeof raw,topLevelKeys:getImportDebugKeys(raw),found:false,foundPath:"",animalsCount:0,photoCount:0,notes:[]};if(!raw){diagnostics.notes.push("Raw parsed backup is empty.");return{payload:null,diagnostics}}raw=tryParseJsonString(raw);if(Array.isArray(raw)){if(looksLikeAnimalArray(raw)){const payload=makePayloadFromAnimalArray(raw,"$");diagnostics.found=true;diagnostics.foundPath="$";diagnostics.animalsCount=raw.length;diagnostics.photoCount=countAnimalPhotosInList(raw);return{payload,diagnostics}}diagnostics.notes.push("File is an array, but it does not look like animal records.");return{payload:null,diagnostics}}if(typeof raw!=="object"){diagnostics.notes.push("Parsed JSON is not an object or array.");return{payload:null,diagnostics}}const strongAnimalKeys=["animals","herd","livestock","cattle","horses","animalRecords","animal_records","herdAnimals","herd_animals"];for(const key of strongAnimalKeys){const value=tryParseJsonString(raw[key]);if(Array.isArray(value)&&looksLikeAnimalArray(value)){const payload={...raw,animals:value};diagnostics.found=true;diagnostics.foundPath="$."+key;diagnostics.animalsCount=value.length;diagnostics.photoCount=countAnimalPhotosInList(value);return{payload,diagnostics}}}const wrapperKeys=["data","state","S","backup","herdlook","herdLook","appData","payload","export","contents","value","json","database","store","localStorage","indexedDB"];for(const key of wrapperKeys){const value=tryParseJsonString(raw[key]);if(value&&typeof value==="object"){const result=resolveHerdLookBackupPayloadDeep(value);if(result.payload){diagnostics.found=true;diagnostics.foundPath="$."+key+(result.diagnostics.foundPath?"."+result.diagnostics.foundPath.replace(/^\$\./,"").replace(/^\$/,""):"");diagnostics.animalsCount=result.diagnostics.animalsCount;diagnostics.photoCount=result.diagnostics.photoCount;diagnostics.notes=diagnostics.notes.concat(result.diagnostics.notes||[]);return{payload:result.payload,diagnostics}}}}const visited=new Set();function scan(node,path,depth){node=tryParseJsonString(node);if(!node||typeof node!=="object")return null;if(visited.has(node))return null;visited.add(node);if(depth>5)return null;if(Array.isArray(node)){if(looksLikeAnimalArray(node)){return{path,animals:node,container:makePayloadFromAnimalArray(node,path)}}return null}for(const key of Object.keys(node)){const value=tryParseJsonString(node[key]);if(strongAnimalKeys.includes(key)&&Array.isArray(value)&&looksLikeAnimalArray(value)){return{path:path+"."+key,animals:value,container:{...node,animals:value}}}}for(const key of Object.keys(node)){const value=tryParseJsonString(node[key]);const found=scan(value,path+"."+key,depth+1);if(found)return found}return null}const found=scan(raw,"$",0);if(found&&found.animals){diagnostics.found=true;diagnostics.foundPath=found.path;diagnostics.animalsCount=found.animals.length;diagnostics.photoCount=countAnimalPhotosInList(found.animals);diagnostics.notes.push("Animals list was found by deep scan.");return{payload:found.container,diagnostics}}diagnostics.notes.push("No animal-like array was found during deep scan.");return{payload:null,diagnostics}}
+window.resolveHerdLookBackupPayloadDeep=resolveHerdLookBackupPayloadDeep;
 
-function isValidHerdLookBackup(raw){const payload=resolveHerdLookBackupPayload(raw);return!!(payload&&Array.isArray(payload.animals))}
+function isValidHerdLookBackup(raw){const result=resolveHerdLookBackupPayloadDeep(raw);return!!(result.payload&&Array.isArray(result.payload.animals))}
 window.isValidHerdLookBackup=isValidHerdLookBackup;
 
-function countPhotosInPayload(payload){return(payload.animals||[]).reduce(function(total,animal){const photos=[...(animal.photos||[]),...(animal.images||[]),...(animal.photoRefs||[])];return total+photos.filter(function(p){if(!p)return false;if(typeof p==="string")return!!p;return!!(p.src||p.dataUrl||p.url||p.image)}).length},0)}
+function countPhotosInPayload(payload){return countAnimalPhotosInList(payload.animals||[])}
 window.countPhotosInPayload=countPhotosInPayload;
+window.countAnimalPhotosInList=countAnimalPhotosInList;
 window.getPhotoSrc=getPhotoSrc;window.animalPhotoCount=animalPhotoCount;window.countSavedAnimalPhotos=countSavedAnimalPhotos;window.normalizeAnimalPhotos=normalizeAnimalPhotos;
 
 function normalizeImportedData(raw){
- const source=resolveHerdLookBackupPayload(raw)||raw;
- if(!source||!Array.isArray(source.animals)){throw new Error("No animals list found in HerdLook backup.")}
+ const resolved=resolveHerdLookBackupPayloadDeep(raw);
+ const source=resolved.payload||raw;
+ if(!source||!Array.isArray(source.animals)){throw new Error("No animals list found after deep scan.")}
  const sourceAnimals=Array.isArray(source.animals)?source.animals:[];
  const sourceRecords=Array.isArray(source.records)?source.records:(Array.isArray(source.activities)?source.activities:(Array.isArray(source.logs)?source.logs:[]));
  const sourceDocs=Array.isArray(source.docs)?source.docs:(Array.isArray(source.documents)?source.documents:[]);
@@ -623,23 +631,25 @@ function parseBackupText(text){
 function hasExistingData(){return(S.animals&&S.animals.length)||(S.records&&S.records.length)||(S.docs&&S.docs.length)||(S.locations&&S.locations.length)||(S.sales&&S.sales.length)||(S.owner&&Object.keys(S.owner).some(k=>S.owner[k]))}
 async function hasPersistedData(){try{const d=await hlLoadDB();if(d&&d.animals&&d.animals.length)return true}catch{}return false}
 async function completeBackupImport(data, sourceLabel="backup"){
- const payload=resolveHerdLookBackupPayload(data);
+ const result=resolveHerdLookBackupPayloadDeep(data);
+ const payload=result.payload;
+ const d=result.diagnostics;
  if(!payload||!Array.isArray(payload.animals)){
- console.error("Invalid HerdLook backup shape:",data);
- throw new Error("Import failed: No HerdLook animals list was found. Make sure you selected a HerdLook backup JSON file, not the app HTML file or a ZIP file.");
+ console.error("HerdLook import diagnostics:",d,data);
+ throw new Error("No HerdLook animals list was found. Top-level keys: ["+d.topLevelKeys.join(", ")+"]. This may be the wrong file or an older backup format that needs mapping.");
  }
  if(hasExistingData()||(typeof hasPersistedData==="function"&&await hasPersistedData())){
  throw new Error("Import stopped because existing local data was found. Go to Settings → Clear All Local Data, let the app reload empty, then import again.");
  }
  const payloadPhotoCount=countPhotosInPayload(payload);
  const mobileType=payload.mobileTransferType?" (mobile transfer: "+payload.mobileTransferType+")":"";
- setImportStatus("JSON parsed. Backup payload resolved"+mobileType+". Animals: "+(payload.animals?.length||0)+", Records: "+(payload.records?.length||0)+", Photos: "+payloadPhotoCount+". Preparing storage...");
+ setImportStatus("Scan: keys ["+d.topLevelKeys.join(", ")+"], path: "+(d.foundPath||"none")+mobileType+". Animals: "+(payload.animals?.length||0)+", Records: "+(payload.records?.length||0)+", Photos: "+payloadPhotoCount+". Preparing storage...");
  if(typeof mobileStorageNotice==="function"){
  const notice=await mobileStorageNotice(data);
  console.log("HerdLook mobile storage notice:",notice);
  }
  if(typeof clearAllStorageLayers==="function") await clearAllStorageLayers();
- S=normalizeImportedData(payload||data);
+ S=normalizeImportedData(payload);
  S.view="dashboard";
  setImportStatus('Backup parsed. Found '+(S.animals?.length||0)+' animals, '+(S.records?.length||0)+' records, '+(S.docs?.length||0)+' documents, '+(S.locations?.length||0)+' locations. Saving...');
  let ok=false;
@@ -663,12 +673,16 @@ async function completeBackupImport(data, sourceLabel="backup"){
 async function importBackup(){
  try{
  const input=document.getElementById("importFile");
- const file=input&&input.files?input.files[0]:null;if(isIOSDevice()&&file.size&&file.size>50*1024*1024){const mb=bytesToMB(file.size);const msg="This backup is "+mb+" and is too large for reliable iPhone import. On desktop, use Export Mobile Transfer Backup, then import that smaller file on iPhone.";setImportStatus(msg,true);alert(msg);return;}
+ const file=input&&input.files?input.files[0]:null;
  if(!file){
  setImportStatus("No file selected. Choose a backup file first.",true);
  alert("Choose a backup file first.");
  return;
  }
+ if(isIOSDevice()&&file.size&&file.size>50*1024*1024){const mb=bytesToMB(file.size);const msg="This backup is "+mb+" and is too large for reliable iPhone import. On desktop, use Export Mobile Transfer Backup, then import that smaller file on iPhone.";setImportStatus(msg,true);alert(msg);return;}
+ if(file.name.toLowerCase().endsWith(".zip")){throw new Error("This is a ZIP file. Unzip it first, then import the .json backup file.");}
+ if(file.name.toLowerCase().endsWith(".html")||file.type==="text/html"){throw new Error("This looks like the app HTML file, not a HerdLook backup JSON file.");}
+ setImportStatus("Reading file: "+file.name+" ("+Math.round((file.size||0)/1024)+" KB)");
  const text=await readFileAsTextMobileSafe(file);
  setImportStatus("File read complete. Parsing backup JSON...");
  const data=parseBackupText(text);
@@ -803,6 +817,12 @@ async function importBackupFromPaste(){
  }
 }
 window.importBackupFromPaste=importBackupFromPaste;
+
+async function debugSelectedImportFile(){try{const input=document.getElementById("importFile");const file=input&&input.files?input.files[0]:null;if(!file){alert("Choose a file first.");return}const text=await readFileAsTextMobileSafe(file);let parsed;try{parsed=JSON.parse(text)}catch(err){alert("Not valid JSON. File starts with: "+text.slice(0,80));return}const result=resolveHerdLookBackupPayloadDeep(parsed);const d=result.diagnostics;alert("Backup debug:\nTop keys: "+d.topLevelKeys.join(", ")+"\nFound: "+d.found+"\nPath: "+(d.foundPath||"none")+"\nAnimals: "+d.animalsCount+"\nPhotos: "+d.photoCount+"\nNotes: "+d.notes.join(" | "));console.log("Backup debug parsed:",parsed);console.log("Backup debug result:",result)}catch(err){alert("Debug failed: "+(err.message||String(err)))}}
+window.debugSelectedImportFile=debugSelectedImportFile;
+
+function testDeepBackupResolver(){const cases=[{name:"top animals",data:{animals:[{id:"1",code:"A1"}]}},{name:"data animals",data:{data:{animals:[{id:"1",code:"A1"}]}}},{name:"state animals",data:{state:{animals:[{id:"1",code:"A1"}]}}},{name:"S animals",data:{S:{animals:[{id:"1",code:"A1"}]}}},{name:"herd array",data:{herd:[{id:"1",code:"A1"}]}},{name:"direct array",data:[{id:"1",code:"A1"}]},{name:"nested JSON string",data:{data:JSON.stringify({animals:[{id:"1",code:"A1"}]})}}];let pass=0,fail=0;cases.forEach(function(tc){const result=resolveHerdLookBackupPayloadDeep(tc.data);if(result.payload&&Array.isArray(result.payload.animals)){pass++;console.log("PASS:",tc.name)}else{fail++;console.error("FAIL:",tc.name,result.diagnostics)}});console.log("Deep resolver test: "+pass+" passed, "+fail+" failed");return{pass,fail}}
+window.testDeepBackupResolver=testDeepBackupResolver;
 
 const importFileInput=document.getElementById("importFile");
 if(importFileInput){
